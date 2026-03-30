@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import './App.css'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 
 interface PersonalInfo {
   name: string
@@ -260,9 +258,23 @@ function toDisplayKeyword(keyword: string) {
 
 function splitIntoStatements(text: string) {
   return text
-    .split(/\n|•|;|\.(?!\d)/)
-    .map((line) => line.replace(/^[\-\u2022]\s*/, '').trim())
+    .split(/\n|\u2022|;|\.(?!\d)/)
+    .map((line) => line.replace(/^[-*\u2022]\s*/, '').trim())
     .filter(Boolean)
+}
+
+function normalizeExternalUrl(value: string) {
+  const trimmed = value.trim()
+
+  if (!trimmed) {
+    return ''
+  }
+
+  if (/^[a-z][a-z\d+.-]*:/i.test(trimmed)) {
+    return trimmed
+  }
+
+  return `https://${trimmed}`
 }
 
 function keywordExists(text: string, keyword: string) {
@@ -482,6 +494,8 @@ function buildAnalysis(
 
 function App() {
   const studioRef = useRef<HTMLElement | null>(null)
+  const feedbackTimeoutRef = useRef<number | null>(null)
+  const scrollTimeoutRef = useRef<number | null>(null)
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>(defaultPersonalInfo)
   const [targetRole, setTargetRole] = useState('')
@@ -499,50 +513,64 @@ function App() {
   const [feedback, setFeedback] = useState('')
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-
-    if (!saved) {
-      return
-    }
-
     try {
-      const data = JSON.parse(saved)
+      const saved = localStorage.getItem(STORAGE_KEY)
 
-      setPersonalInfo({ ...defaultPersonalInfo, ...(data.personalInfo ?? {}) })
-      setTargetRole(data.targetRole ?? '')
-      setJobDescription(data.jobDescription ?? '')
-      setExperienceLevel(data.experienceLevel ?? 'mid')
-      setSummaryTone(data.summaryTone ?? 'balanced')
-      setExperience(
-        Array.isArray(data.experience) && data.experience.length
-          ? data.experience.map((item: Experience) => ({ ...emptyExperience, ...item }))
-          : [{ ...emptyExperience }]
-      )
-      setEducation(
-        Array.isArray(data.education) && data.education.length
-          ? data.education.map((item: Education) => ({ ...emptyEducation, ...item }))
-          : [{ ...emptyEducation }]
-      )
-      setSkills(Array.isArray(data.skills) ? cleanTextArray(data.skills) : [])
-      setProjects(
-        Array.isArray(data.projects) && data.projects.length
-          ? data.projects.map((item: Project) => ({ ...emptyProject, ...item }))
-          : [{ ...emptyProject }]
-      )
-      setCertifications(
-        Array.isArray(data.certifications) && data.certifications.length
-          ? data.certifications.map((item: Certification) => ({ ...emptyCertification, ...item }))
-          : [{ ...emptyCertification }]
-      )
-      setLanguages(
-        Array.isArray(data.languages) && data.languages.length
-          ? data.languages.map((item: Language) => ({ ...emptyLanguage, ...item }))
-          : [{ ...emptyLanguage }]
-      )
-      setApplyOptimization(data.applyOptimization ?? true)
+      if (saved) {
+        const data = JSON.parse(saved)
+
+        setPersonalInfo({ ...defaultPersonalInfo, ...(data.personalInfo ?? {}) })
+        setTargetRole(data.targetRole ?? '')
+        setJobDescription(data.jobDescription ?? '')
+        setExperienceLevel(data.experienceLevel ?? 'mid')
+        setSummaryTone(data.summaryTone ?? 'balanced')
+        setExperience(
+          Array.isArray(data.experience) && data.experience.length
+            ? data.experience.map((item: Experience) => ({ ...emptyExperience, ...item }))
+            : [{ ...emptyExperience }]
+        )
+        setEducation(
+          Array.isArray(data.education) && data.education.length
+            ? data.education.map((item: Education) => ({ ...emptyEducation, ...item }))
+            : [{ ...emptyEducation }]
+        )
+        setSkills(Array.isArray(data.skills) ? cleanTextArray(data.skills) : [])
+        setProjects(
+          Array.isArray(data.projects) && data.projects.length
+            ? data.projects.map((item: Project) => ({ ...emptyProject, ...item }))
+            : [{ ...emptyProject }]
+        )
+        setCertifications(
+          Array.isArray(data.certifications) && data.certifications.length
+            ? data.certifications.map((item: Certification) => ({ ...emptyCertification, ...item }))
+            : [{ ...emptyCertification }]
+        )
+        setLanguages(
+          Array.isArray(data.languages) && data.languages.length
+            ? data.languages.map((item: Language) => ({ ...emptyLanguage, ...item }))
+            : [{ ...emptyLanguage }]
+        )
+        setApplyOptimization(data.applyOptimization ?? true)
+      }
     } catch {
       setFeedback('Saved data could not be restored. Starting with a fresh workspace.')
-      setTimeout(() => setFeedback(''), 3000)
+      if (feedbackTimeoutRef.current !== null) {
+        window.clearTimeout(feedbackTimeoutRef.current)
+      }
+      feedbackTimeoutRef.current = window.setTimeout(() => {
+        setFeedback('')
+        feedbackTimeoutRef.current = null
+      }, 3000)
+    }
+
+    return () => {
+      if (feedbackTimeoutRef.current !== null) {
+        window.clearTimeout(feedbackTimeoutRef.current)
+      }
+
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current)
+      }
     }
   }, [])
 
@@ -568,7 +596,15 @@ function App() {
 
   const showToast = (message: string) => {
     setFeedback(message)
-    setTimeout(() => setFeedback(''), 3000)
+
+    if (feedbackTimeoutRef.current !== null) {
+      window.clearTimeout(feedbackTimeoutRef.current)
+    }
+
+    feedbackTimeoutRef.current = window.setTimeout(() => {
+      setFeedback('')
+      feedbackTimeoutRef.current = null
+    }, 3000)
   }
 
   const scrollToStudio = () => {
@@ -580,30 +616,32 @@ function App() {
     const cleanedProjects = cleanObjectArray(projects, (item) => `${item.name}|${item.description}|${item.link}`)
     const cleanedCertifications = cleanObjectArray(certifications, (item) => `${item.name}|${item.issuer}|${item.year}`)
     const cleanedLanguages = cleanObjectArray(languages, (item) => `${item.name}|${item.proficiency}`)
-
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        personalInfo,
-        targetRole,
-        jobDescription,
-        experienceLevel,
-        summaryTone,
-        experience,
-        education,
-        skills: cleanedSkills,
-        projects: cleanedProjects,
-        certifications: cleanedCertifications,
-        languages: cleanedLanguages,
-        applyOptimization
-      })
-    )
+    const workspaceSnapshot = JSON.stringify({
+      personalInfo,
+      targetRole,
+      jobDescription,
+      experienceLevel,
+      summaryTone,
+      experience,
+      education,
+      skills: cleanedSkills,
+      projects: cleanedProjects,
+      certifications: cleanedCertifications,
+      languages: cleanedLanguages,
+      applyOptimization
+    })
 
     setSkills(cleanedSkills)
     setProjects(cleanedProjects.length ? cleanedProjects : [{ ...emptyProject }])
     setCertifications(cleanedCertifications.length ? cleanedCertifications : [{ ...emptyCertification }])
     setLanguages(cleanedLanguages.length ? cleanedLanguages : [{ ...emptyLanguage }])
-    showToast('Workspace saved on this device.')
+
+    try {
+      localStorage.setItem(STORAGE_KEY, workspaceSnapshot)
+      showToast('Workspace saved on this device.')
+    } catch {
+      showToast('Workspace could not be saved on this device.')
+    }
   }
 
   const loadSample = () => {
@@ -621,7 +659,15 @@ function App() {
     setLanguages(sampleData.languages)
     setPendingSkill('')
     showToast('Sample ATS workspace loaded.')
-    setTimeout(scrollToStudio, 100)
+
+    if (scrollTimeoutRef.current !== null) {
+      window.clearTimeout(scrollTimeoutRef.current)
+    }
+
+    scrollTimeoutRef.current = window.setTimeout(() => {
+      scrollToStudio()
+      scrollTimeoutRef.current = null
+    }, 100)
   }
 
   const resetWorkspace = () => {
@@ -638,44 +684,55 @@ function App() {
     setLanguages([{ ...emptyLanguage }])
     setPendingSkill('')
     setApplyOptimization(true)
-    localStorage.removeItem(STORAGE_KEY)
-    showToast('Workspace cleared.')
+
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+      showToast('Workspace cleared.')
+    } catch {
+      showToast('Workspace cleared, but local storage could not be updated.')
+    }
   }
 
   const generatePDF = async () => {
     const input = document.getElementById('resume-preview')
 
     if (!input) {
+      showToast('Resume preview is not ready for export yet.')
       return
     }
 
-    const canvas = await html2canvas(input, {
-      scale: 2,
-      backgroundColor: '#fffdf8',
-      useCORS: true
-    })
-    const imgData = canvas.toDataURL('image/png')
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const pageWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = pdf.internal.pageSize.getHeight()
-    const margin = 8
-    const usableWidth = pageWidth - margin * 2
-    const renderedHeight = (canvas.height * usableWidth) / canvas.width
-    let heightLeft = renderedHeight
-    let position = margin
+    try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')])
+      const canvas = await html2canvas(input, {
+        scale: 2,
+        backgroundColor: '#fffdf8',
+        useCORS: true
+      })
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const margin = 8
+      const usableWidth = pageWidth - margin * 2
+      const renderedHeight = (canvas.height * usableWidth) / canvas.width
+      let heightLeft = renderedHeight
+      let position = margin
 
-    pdf.addImage(imgData, 'PNG', margin, position, usableWidth, renderedHeight)
-    heightLeft -= pageHeight - margin * 2
-
-    while (heightLeft > 0) {
-      position = heightLeft - renderedHeight + margin
-      pdf.addPage()
       pdf.addImage(imgData, 'PNG', margin, position, usableWidth, renderedHeight)
       heightLeft -= pageHeight - margin * 2
-    }
 
-    pdf.save('resume-forge-ats-resume.pdf')
-    showToast('ATS resume exported as PDF.')
+      while (heightLeft > 0) {
+        position = heightLeft - renderedHeight + margin
+        pdf.addPage()
+        pdf.addImage(imgData, 'PNG', margin, position, usableWidth, renderedHeight)
+        heightLeft -= pageHeight - margin * 2
+      }
+
+      pdf.save('resumay-ats-resume.pdf')
+      showToast('ATS resume exported as PDF.')
+    } catch {
+      showToast('PDF export failed. Please try again.')
+    }
   }
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
@@ -704,17 +761,17 @@ function App() {
     setSkills((current) => [...current, toDisplayKeyword(keyword)])
   }
 
-  const updateArrayItem = <T,>(items: T[], setter: React.Dispatch<React.SetStateAction<T[]>>, index: number, field: keyof T, value: string) => {
+  const updateArrayItem = <T,>(items: T[], setter: Dispatch<SetStateAction<T[]>>, index: number, field: keyof T, value: string) => {
     const next = [...items]
     next[index] = { ...next[index], [field]: value }
     setter(next)
   }
 
-  const addArrayItem = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, item: T) => {
+  const addArrayItem = <T,>(setter: Dispatch<SetStateAction<T[]>>, item: T) => {
     setter((current) => [...current, item])
   }
 
-  const removeArrayItem = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, index: number) => {
+  const removeArrayItem = <T,>(setter: Dispatch<SetStateAction<T[]>>, index: number) => {
     setter((current) => (current.length > 1 ? current.filter((_, itemIndex) => itemIndex !== index) : current))
   }
 
@@ -1701,7 +1758,7 @@ function App() {
                                 <strong>{item.name}</strong>
                                 <p>{item.description}</p>
                                 {item.link && (
-                                  <a href={item.link} target="_blank" rel="noreferrer">
+                                  <a href={normalizeExternalUrl(item.link)} target="_blank" rel="noreferrer">
                                     {item.link}
                                   </a>
                                 )}
@@ -1720,7 +1777,7 @@ function App() {
                                 <strong>{item.degree}</strong>
                                 <p>
                                   {item.school}
-                                  {item.year ? ` • ${item.year}` : ''}
+                                  {item.year ? ` | ${item.year}` : ''}
                                 </p>
                               </article>
                             ) : null
@@ -1737,7 +1794,7 @@ function App() {
                                 <strong>{item.name}</strong>
                                 <p>
                                   {item.issuer}
-                                  {item.year ? ` • ${item.year}` : ''}
+                                  {item.year ? ` | ${item.year}` : ''}
                                 </p>
                               </article>
                             ) : null
@@ -1753,7 +1810,7 @@ function App() {
                               item.name ? (
                                 <span key={`${item.name}-${index}`} className="resume-tag">
                                   {item.name}
-                                  {item.proficiency ? ` • ${item.proficiency}` : ''}
+                                  {item.proficiency ? ` | ${item.proficiency}` : ''}
                                 </span>
                               ) : null
                             )}
@@ -1780,7 +1837,7 @@ function App() {
               <article className="faq-card">
                 <h3>Is this still a builder, or only an optimizer?</h3>
                 <p>
-                  Both. ResumeForge keeps the editable builder but wraps it inside a role-first optimization workflow so the
+                  Both. ResuMay! keeps the editable builder but wraps it inside a role-first optimization workflow so the
                   final resume is easier to target.
                 </p>
               </article>
@@ -1793,7 +1850,7 @@ function App() {
               <article className="faq-card">
                 <h3>How does the ATS optimization work?</h3>
                 <p>
-                  ResumeForge analyzes the job description, extracts likely keywords, compares them against your draft, and
+                  ResuMay! analyzes the job description, extracts likely keywords, compares them against your draft, and
                   suggests summary and bullet language that closes the gap.
                 </p>
               </article>
@@ -1825,3 +1882,4 @@ function App() {
 }
 
 export default App
+
