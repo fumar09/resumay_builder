@@ -1,6 +1,6 @@
-# Resume Builder
+# ResumeForge (Resume Builder)
 
-A web-based resume builder application built with React, Vite, and Bootstrap.
+A modern, rebranded web-based resume creation app built with React, Vite, and Bootstrap.
 
 ## Features
 

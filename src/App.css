@@ -4,6 +4,31 @@
   padding: 2rem;
 }
 
+body {
+  background: linear-gradient(145deg, #f5f7fb 0%, #e9eff5 100%);
+}
+
+.brand-header {
+  background: linear-gradient(145deg, #2088d4 0%, #4b94cc 40%, #2d7bbf 100%);
+  border-bottom: 4px solid #1d6fad;
+}
+
+.brand-header h1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.brand-header p {
+  font-size: 1.1rem;
+}
+
+.brand-footer {
+  background: #1b283d;
+  color: #d7e1f4;
+}
+
 .app-container {
   min-height: 100vh;
   display: flex;
@@ -12,6 +37,7 @@
 
 .form-section {
   margin-bottom: 1rem;
+  border-left: 4px solid #2088d4;
 }
 
 .preview-section {
@@ -22,6 +48,8 @@
   background: white;
   max-height: 80vh;
   overflow-y: auto;
+  border: 1px solid #dde5ec;
+  border-radius: 8px;
 }
 
 @media print {

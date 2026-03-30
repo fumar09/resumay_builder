@@ -270,9 +270,10 @@ function App() {
 
   return (
     <div className="app-container">
-      <header className="bg-primary text-white text-center py-3">
-        <h1><i className="bi bi-file-earmark-person"></i> Free Resume Builder</h1>
-        <p>Build ATS-friendly resumes and land your dream job!</p>
+      <header className="brand-header text-white text-center py-4 shadow-sm">
+        <h1><i className="bi bi-lightning-charge-fill"></i> ResumeForge</h1>
+        <p className="lead">Transform your career story into professional resumes instantly.</p>
+        <small className="text-white-50">Fast. Clean. Customizable. ✔️ ATS-ready.</small>
       </header>
       {feedback && <div className="alert alert-success text-center">{feedback}</div>}
       <div className="container-fluid mt-4">
@@ -574,8 +575,8 @@ function App() {
           </div>
         </div>
       </div>
-      <footer className="bg-dark text-white text-center py-3 mt-5">
-        <p>&copy; 2026 Free Resume Builder. Built with ❤️ for job seekers everywhere.</p>
+      <footer className="brand-footer text-center py-3 mt-5">
+        <p>&copy; 2026 ResumeForge. Built with ❤️ to help every professional tell their story.</p>
       </footer>
     </div>
   )
