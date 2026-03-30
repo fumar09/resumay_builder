@@ -1,0 +1,31 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-section {
+  margin-bottom: 1rem;
+}
+
+.preview-section {
+  top: 20px;
+}
+
+.resume-preview {
+  background: white;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+@media print {
+  body * { visibility: hidden; }
+  .resume-preview, .resume-preview * { visibility: visible; }
+  .resume-preview { position: absolute; left: 0; top: 0; width: 100%; }
+}
