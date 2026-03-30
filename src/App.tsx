@@ -379,6 +379,46 @@ function cleanObjectArray<T>(values: T[], selector: (value: T) => string) {
   })
 }
 
+function truncateText(value: string, maxLength: number) {
+  const normalized = value.replace(/\s+/g, ' ').trim()
+
+  if (normalized.length <= maxLength) {
+    return normalized
+  }
+
+  const cutoff = normalized.slice(0, maxLength + 1)
+  const safeCutoff = cutoff.slice(0, Math.max(cutoff.lastIndexOf(' '), maxLength - 18)).trim()
+
+  return `${safeCutoff}...`
+}
+
+function condenseResumeSummary(value: string) {
+  const normalized = value.replace(/\s+/g, ' ').trim()
+
+  if (!normalized) {
+    return ''
+  }
+
+  const sentences = normalized.match(/[^.!?]+[.!?]?/g)?.map((sentence) => sentence.trim()).filter(Boolean) ?? []
+  const summary = sentences.length ? sentences.slice(0, 2).join(' ') : normalized
+
+  return truncateText(summary, 240)
+}
+
+function condenseResumeBullet(value: string) {
+  const normalized = value
+    .replace(/,\s*(with explicit emphasis on|to reinforce|while signaling stronger|and made)\b.*$/i, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\.+$/, '')
+    .trim()
+
+  if (!normalized) {
+    return ''
+  }
+
+  return truncateText(normalized, 118)
+}
+
 function extractKeywords(jobDescription: string) {
   const normalized = normalizeText(jobDescription)
 
@@ -687,6 +727,29 @@ function App() {
   const previewExperience = experience.map((item, index) =>
     applyOptimization ? analysis.optimizedExperience[index] ?? [] : splitIntoStatements(item.description).slice(0, 3)
   )
+  const resumeHeadline = cleanTextArray([targetRole, ...skills.slice(0, 3)]).slice(0, 4).join(' | ')
+  const resumeContactLine = [personalInfo.address, personalInfo.email, personalInfo.phone, personalInfo.linkedin, personalInfo.website]
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join(' | ')
+  const resumeSummary = condenseResumeSummary(personalInfo.summary.trim() || previewSummary)
+  const resumeSkills = cleanTextArray(skills).slice(0, 10)
+  const resumeExperienceEntries = experience
+    .map((item, index) => ({
+      ...item,
+      bullets: (previewExperience[index]?.length ? previewExperience[index] : splitIntoStatements(item.description))
+        .map(condenseResumeBullet)
+        .filter(Boolean)
+        .slice(0, 3)
+    }))
+    .filter((item) => item.jobTitle.trim() || item.company.trim())
+    .slice(0, 3)
+  const resumeEducationEntries = education.filter((item) => item.degree.trim() || item.school.trim()).slice(0, 2)
+  const resumeSkillGroups = [resumeSkills.slice(0, 5), resumeSkills.slice(5)].filter((group) => group.length)
+  const resumeCertifications = certifications.filter((item) => item.name.trim()).slice(0, 4)
+  const resumeProjects = projects.filter((item) => item.name.trim()).slice(0, 2)
+  const resumeLanguages = languages.filter((item) => item.name.trim()).slice(0, 3)
+  const showProjectsInResume = resumeProjects.length > 0 && resumeExperienceEntries.length <= 1
   const hasResumeCore = Boolean(personalInfo.name.trim() && (personalInfo.summary.trim() || experience.some((item) => item.jobTitle.trim())))
 
   const showToast = (message: string) => {
@@ -1866,134 +1929,104 @@ function App() {
 
                     <div className="resume-workspace">
                       <div id="resume-preview" className="resume-sheet">
-                      <header className="resume-header">
-                        <div>
+                        <header className="resume-header">
                           <h2>{personalInfo.name || 'Your Name'}</h2>
-                          <p className="resume-role">{targetRole || 'Target role'}</p>
-                        </div>
+                          <p className="resume-role">{resumeHeadline || targetRole || 'Target Role'}</p>
+                          {resumeContactLine && <p className="resume-contact-line">{resumeContactLine}</p>}
+                        </header>
 
-                        <div className="resume-contact">
-                          {personalInfo.email && <span>{personalInfo.email}</span>}
-                          {personalInfo.phone && <span>{personalInfo.phone}</span>}
-                          {personalInfo.address && <span>{personalInfo.address}</span>}
-                          {personalInfo.linkedin && <span>{personalInfo.linkedin}</span>}
-                          {personalInfo.website && <span>{personalInfo.website}</span>}
-                        </div>
-                      </header>
-
-                      {previewSummary && (
+                      {resumeSummary && (
                         <section className="resume-section">
                           <h3>Professional Summary</h3>
-                          <p>{previewSummary}</p>
+                          <p className="resume-section-copy">{resumeSummary}</p>
                         </section>
                       )}
 
-                      {experience.some((item) => item.jobTitle || item.company) && (
+                      {resumeExperienceEntries.length > 0 && (
                         <section className="resume-section">
-                          <h3>Experience</h3>
-                          {experience.map((item, index) =>
-                            item.jobTitle || item.company ? (
-                              <article key={`${item.jobTitle}-${index}`} className="resume-role-block">
-                                <div className="resume-role-row">
-                                  <div>
-                                    <strong>{item.jobTitle}</strong>
-                                    <span>{item.company}</span>
-                                  </div>
-                                  <em>{item.duration}</em>
+                          <h3>Work Experience</h3>
+                          {resumeExperienceEntries.map((item, index) => (
+                            <article key={`${item.jobTitle}-${index}`} className="resume-role-block">
+                              <div className="resume-role-row">
+                                <div>
+                                  <strong>{item.jobTitle}</strong>
+                                  <span>{item.company}</span>
                                 </div>
+                                {item.duration && <em>{item.duration}</em>}
+                              </div>
 
-                                {previewExperience[index]?.length ? (
-                                  <ul className="resume-bullets">
-                                    {previewExperience[index].map((bullet) => (
-                                      <li key={bullet}>{bullet}</li>
-                                    ))}
-                                  </ul>
-                                ) : null}
-                              </article>
-                            ) : null
-                          )}
+                              {item.bullets.length > 0 && (
+                                <ul className="resume-bullets">
+                                  {item.bullets.map((bullet) => (
+                                    <li key={bullet}>{bullet}</li>
+                                  ))}
+                                </ul>
+                              )}
+                            </article>
+                          ))}
                         </section>
                       )}
 
-                      {skills.length > 0 && (
-                        <section className="resume-section">
-                          <h3>Skills</h3>
-                          <div className="resume-tag-row">
-                            {skills.map((skill) => (
-                              <span key={skill} className="resume-tag">
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
-                        </section>
-                      )}
-
-                      {projects.some((item) => item.name) && (
-                        <section className="resume-section">
-                          <h3>Projects</h3>
-                          {projects.map((item, index) =>
-                            item.name ? (
-                              <article key={`${item.name}-${index}`} className="resume-inline-block">
-                                <strong>{item.name}</strong>
-                                <p>{item.description}</p>
-                                {item.link && (
-                                  <a href={normalizeExternalUrl(item.link)} target="_blank" rel="noreferrer">
-                                    {item.link}
-                                  </a>
-                                )}
-                              </article>
-                            ) : null
-                          )}
-                        </section>
-                      )}
-
-                      {education.some((item) => item.degree || item.school) && (
+                      {resumeEducationEntries.length > 0 && (
                         <section className="resume-section">
                           <h3>Education</h3>
-                          {education.map((item, index) =>
-                            item.degree || item.school ? (
-                              <article key={`${item.degree}-${index}`} className="resume-inline-block">
-                                <strong>{item.degree}</strong>
-                                <p>
-                                  {item.school}
-                                  {item.year ? ` | ${item.year}` : ''}
-                                </p>
-                              </article>
-                            ) : null
+                          {resumeEducationEntries.map((item, index) => (
+                            <article key={`${item.degree}-${index}`} className="resume-inline-block">
+                              <strong>{item.degree}</strong>
+                              <p>
+                                {item.school}
+                                {item.year ? ` | ${item.year}` : ''}
+                              </p>
+                            </article>
+                          ))}
+                        </section>
+                      )}
+
+                      {resumeSkillGroups.length > 0 && (
+                        <section className="resume-section">
+                          <h3>Skills</h3>
+                          <ul className="resume-bullets resume-bullets-compact">
+                            {resumeSkillGroups.map((group, index) => (
+                              <li key={index}>{group.join(', ')}</li>
+                            ))}
+                          </ul>
+                          {resumeLanguages.length > 0 && (
+                            <p className="resume-section-note">
+                              <strong>Languages:</strong>{' '}
+                              {resumeLanguages
+                                .map((item) => (item.proficiency ? `${item.name} (${item.proficiency})` : item.name))
+                                .join(', ')}
+                            </p>
                           )}
                         </section>
                       )}
 
-                      {certifications.some((item) => item.name) && (
+                      {resumeCertifications.length > 0 && (
                         <section className="resume-section">
                           <h3>Certifications</h3>
-                          {certifications.map((item, index) =>
-                            item.name ? (
-                              <article key={`${item.name}-${index}`} className="resume-inline-block">
-                                <strong>{item.name}</strong>
-                                <p>
-                                  {item.issuer}
-                                  {item.year ? ` | ${item.year}` : ''}
-                                </p>
-                              </article>
-                            ) : null
-                          )}
+                          <ul className="resume-bullets resume-bullets-compact">
+                            {resumeCertifications.map((item, index) => (
+                              <li key={`${item.name}-${index}`}>
+                                {item.name}
+                                {[item.issuer, item.year].filter(Boolean).length
+                                  ? ` | ${[item.issuer, item.year].filter(Boolean).join(' | ')}`
+                                  : ''}
+                              </li>
+                            ))}
+                          </ul>
                         </section>
                       )}
 
-                      {languages.some((item) => item.name) && (
+                      {showProjectsInResume && (
                         <section className="resume-section">
-                          <h3>Languages</h3>
-                          <div className="resume-tag-row">
-                            {languages.map((item, index) =>
-                              item.name ? (
-                                <span key={`${item.name}-${index}`} className="resume-tag">
-                                  {item.name}
-                                  {item.proficiency ? ` | ${item.proficiency}` : ''}
-                                </span>
-                              ) : null
-                            )}
-                          </div>
+                          <h3>Projects</h3>
+                          {resumeProjects.map((item, index) => (
+                            <article key={`${item.name}-${index}`} className="resume-inline-block">
+                              <strong>{item.name}</strong>
+                              <p>{truncateText(item.description, 120)}</p>
+                              {item.link && <span className="resume-link-line">{normalizeExternalUrl(item.link)}</span>}
+                            </article>
+                          ))}
                         </section>
                       )}
                       </div>
