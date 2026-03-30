@@ -1,48 +1,58 @@
-# ResumeForge (Resume Builder)
+# ResumeForge
 
-A modern, rebranded web-based resume creation app built with React, Vite, and Bootstrap.
+ResumeForge is a free, no-login ATS resume optimization app built with React, TypeScript, and Vite.
 
-## Features
+It combines three things in one workflow:
 
-- Personal Information (including Professional Summary)
-- Work Experience
-- Education
-- Skills
-- Projects
-- Certifications
-- Languages
-- Volunteer Experience
-- Awards & Honors
-- Live Preview
-- PDF Download (single export action, no print required)
-- ATS-Friendly Resume Generation
-- Local Storage for Saving Progress (no account required)
-- Fully free, no credit, no subscription, no login
-- User-Friendly Interface Following Don Norman's Principles
-- Modern, Clean, and Well-Structured Design
-- Versatile for All Types of Professions
+- A guided resume builder
+- ATS-style job description matching
+- A live optimized resume preview with PDF export
+
+## What It Does
+
+- Paste a target job description and role
+- Build or edit your resume directly in the app
+- Surface matched and missing keywords from the target job
+- Generate a stronger ATS-focused summary suggestion
+- Refine experience bullets into clearer recruiter-friendly language
+- Preview the optimized version instantly
+- Save your workspace locally in the browser
+- Export the optimized resume as a PDF
+
+## Product Direction
+
+This version of ResumeForge is designed more like an ATS optimization product than a generic form-only builder.
+
+It keeps the app:
+
+- Free
+- No-credit
+- No-subscription
+- No-login
+- Local-first
 
 ## Getting Started
 
-1. Install dependencies: `npm install`
-2. Run the development server: `npm run dev`
-3. Open your browser to `http://localhost:5173`
+1. Install dependencies with `npm install`
+2. Start the dev server with `npm run dev`
+3. Open `http://localhost:5173`
 
-## Usage
+## Usage Flow
 
-Fill out the forms on the left, and the preview updates automatically on the right. Use the buttons to export your resume. Data is saved locally in your browser.
+1. Enter your target role and paste the job description
+2. Fill in your resume basics, experience, skills, and supporting sections
+3. Review the live ATS score, keyword coverage, summary suggestion, and refined bullets
+4. Toggle the optimized version on and export the final PDF
+
+## Tech
+
+- React 18
+- TypeScript
+- Vite
+- jsPDF
+- html2canvas
+- Bootstrap Icons
 
 ## Deployment
 
-This app can be deployed to any static hosting service like Netlify, Vercel, or GitHub Pages.
-
-### For Vercel:
-1. Push your code to GitHub.
-2. Connect your repo to Vercel.
-3. Deploy automatically.
-
-### For Netlify:
-1. Build the project: `npm run build`
-2. Upload the `dist` folder to Netlify.
-
-The app is free for everyone to use and build their resumes!
+This is still a static frontend app and can be deployed to services like Vercel, Netlify, or GitHub Pages.
