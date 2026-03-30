@@ -809,22 +809,18 @@ function App() {
       const pageHeight = pdf.internal.pageSize.getHeight()
       const margin = 8
       const usableWidth = pageWidth - margin * 2
-      const renderedHeight = (canvas.height * usableWidth) / canvas.width
-      let heightLeft = renderedHeight
-      let position = margin
+      const usableHeight = pageHeight - margin * 2
+      const widthScale = usableWidth / canvas.width
+      const heightScale = usableHeight / canvas.height
+      const fitScale = Math.min(widthScale, heightScale)
+      const renderedWidth = canvas.width * fitScale
+      const renderedHeight = canvas.height * fitScale
+      const horizontalOffset = (pageWidth - renderedWidth) / 2
 
-      pdf.addImage(imgData, 'PNG', margin, position, usableWidth, renderedHeight)
-      heightLeft -= pageHeight - margin * 2
-
-      while (heightLeft > 0) {
-        position = heightLeft - renderedHeight + margin
-        pdf.addPage()
-        pdf.addImage(imgData, 'PNG', margin, position, usableWidth, renderedHeight)
-        heightLeft -= pageHeight - margin * 2
-      }
+      pdf.addImage(imgData, 'PNG', horizontalOffset, margin, renderedWidth, renderedHeight)
 
       pdf.save('resumay-ats-resume.pdf')
-      showToast('ATS resume exported as PDF.')
+      showToast('ATS resume exported as a single-page PDF.')
     } catch {
       showToast('PDF export failed. Please try again.')
     }
