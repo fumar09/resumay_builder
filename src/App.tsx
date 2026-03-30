@@ -79,6 +79,7 @@ function App() {
 
   const [awards, setAwards] = useState<Award[]>([{ name: '', issuer: '', year: '' }])
 
+  const [template, setTemplate] = useState<'modern' | 'classic'>('modern')
   const [feedback, setFeedback] = useState<string>('')
 
   // Load from localStorage
@@ -273,11 +274,23 @@ function App() {
       <header className="brand-header text-white text-center py-4 shadow-sm">
         <h1><i className="bi bi-lightning-charge-fill"></i> ResumeForge</h1>
         <p className="lead">Transform your career story into professional resumes instantly.</p>
-        <small className="text-white-50">Fast. Clean. Customizable. ✔️ ATS-ready.</small>
+        <small className="text-white-50">Fast. Clean. No credit, no subscription, no account needed, completely free for everyone.</small>
       </header>
       {feedback && <div className="alert alert-success text-center">{feedback}</div>}
       <div className="container-fluid mt-4">
         <div className="row">
+          <div className="col-12 mb-3">
+            <div className="template-notice p-3 rounded shadow-sm bg-white">
+              <strong>Free and Accountless:</strong> ResumeForge is 100% free forever — no credit, no subscription, no signup required.
+              <span className="float-end">
+                Choose style: 
+                <select className="form-select d-inline-block w-auto" value={template} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTemplate(e.target.value as 'modern'|'classic')}>
+                  <option value="modern">Modern</option>
+                  <option value="classic">Classic</option>
+                </select>
+              </span>
+            </div>
+          </div>
           <div className="col-lg-6">
             <div className="form-section p-4 bg-light rounded shadow-sm">
               <h2><i className="bi bi-person-circle"></i> Personal Information</h2>
@@ -474,7 +487,7 @@ function App() {
           <div className="col-lg-6">
             <div className="preview-section p-4 bg-white rounded shadow-sm sticky-top">
               <h2><i className="bi bi-eye"></i> Resume Preview</h2>
-              <div id="resume-preview" className="resume-preview border p-4" style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
+              <div id="resume-preview" className={`resume-preview border p-4 ${template}-template`} style={{ fontFamily: 'Arial, sans-serif', lineHeight: '1.6' }}>
                 <div className="text-center mb-4">
                   <h1 style={{ color: '#333' }}>{personalInfo.name || 'Your Name'}</h1>
                   <p>{personalInfo.email} | {personalInfo.phone}</p>

@@ -14,9 +14,10 @@ A modern, rebranded web-based resume creation app built with React, Vite, and Bo
 - Volunteer Experience
 - Awards & Honors
 - Live Preview
-- PDF Download (single export action)
+- PDF Download (single export action, no print required)
 - ATS-Friendly Resume Generation
-- Local Storage for Saving Progress
+- Local Storage for Saving Progress (no account required)
+- Fully free, no credit, no subscription, no login
 - User-Friendly Interface Following Don Norman's Principles
 - Modern, Clean, and Well-Structured Design
 - Versatile for All Types of Professions

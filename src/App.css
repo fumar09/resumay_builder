@@ -40,6 +40,12 @@ body {
   border-left: 4px solid #2088d4;
 }
 
+.template-notice {
+  border: 1px solid #d2e3f7;
+  background: #f1f7ff;
+  color: #134e8f;
+}
+
 .preview-section {
   top: 20px;
 }
@@ -49,7 +55,34 @@ body {
   max-height: 80vh;
   overflow-y: auto;
   border: 1px solid #dde5ec;
-  border-radius: 8px;  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.modern-template h1, .modern-template h2, .modern-template h3 {
+  color: #1e3f7f;
+}
+
+.modern-template p, .modern-template li, .modern-template strong {
+  color: #3f506f;
+}
+
+.classic-template {
+  font-family: 'Georgia', serif;
+}
+
+.classic-template h1 {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #2c3e50;
+}
+
+.classic-template h3 {
+  color: #34495e;
+}
+
+.classic-template p, .classic-template li {
+  color: #3b3b3b;
 }
 
 .btn-gradient {
