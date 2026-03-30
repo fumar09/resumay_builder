@@ -1,4 +1,4 @@
-# ResumeForge
+# ResuMay!
 
 ResumeForge is a free, no-login ATS resume optimization app built with React, TypeScript, and Vite.
 
