@@ -786,7 +786,7 @@ function App() {
             <div className="brand-mark">RM</div>
             <div>
               <p className="brand-name">ResuMay!</p>
-              <p className="brand-subtitle">ATS-first resume optimization studio</p>
+              <p className="brand-subtitle">Senior-crafted ATS-first resume optimization studio</p>
             </div>
           </div>
 
@@ -806,11 +806,12 @@ function App() {
         <section className="hero-section">
           <div className="shell hero-grid">
             <div className="hero-copy">
-              <span className="eyebrow">Free ATS targeting. No account. No credits.</span>
+              <span className="eyebrow">Senior-crafted UI/UX. No account. No credits.</span>
               <h1>Build a resume that actually mirrors the job you want.</h1>
               <p className="hero-lead">
                 ResuMay! combines a full resume builder with ATS keyword guidance, stronger summary suggestions, and refined
-                experience bullets so your resume reads cleaner for both recruiters and scanners.
+                experience bullets inside a structure shaped by Don Norman principles: clear signifiers, visible status,
+                fast feedback, and safe constraints.
               </p>
 
               <div className="hero-actions">
@@ -931,6 +932,45 @@ function App() {
                 <strong>Still free and no-login</strong>
                 <p>Your workflow stays fast: save locally, keep editing, and export without credit walls.</p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="principles-section" aria-labelledby="principles-title">
+          <div className="shell">
+            <div className="section-heading principles-heading">
+              <span className="eyebrow">Don Norman in practice</span>
+              <h2 id="principles-title">Senior-level UI/UX structure that explains itself.</h2>
+              <p>
+                ResuMay! is organized so users can immediately understand the system, see the result of each action, and move
+                through the workflow with less friction and less guesswork.
+              </p>
+            </div>
+
+            <div className="principles-grid">
+              <article className="principle-card">
+                <span className="principle-index">01</span>
+                <h3>Signifiers</h3>
+                <p>Clear step labels, explicit actions, and obvious section titles guide every major resume task.</p>
+              </article>
+
+              <article className="principle-card">
+                <span className="principle-index">02</span>
+                <h3>Visibility</h3>
+                <p>ATS score, keyword coverage, and the paper preview stay visible while the user edits.</p>
+              </article>
+
+              <article className="principle-card">
+                <span className="principle-index">03</span>
+                <h3>Feedback</h3>
+                <p>Score deltas, suggestions, and save or export confirmations respond immediately to user actions.</p>
+              </article>
+
+              <article className="principle-card">
+                <span className="principle-index">04</span>
+                <h3>Constraints and mapping</h3>
+                <p>The form flows left to right into the live resume sheet, with structured inputs that keep users on track.</p>
+              </article>
             </div>
           </div>
         </section>
@@ -1873,7 +1913,7 @@ function App() {
 
         <footer className="app-footer">
           <div className="shell">
-            <p>Made with ❤️ by <strong>FumarDev</strong> • 2024</p>
+            <p>Developed by FUMARDev - ResuMay! 2024</p>
           </div>
         </footer>
       </main>
