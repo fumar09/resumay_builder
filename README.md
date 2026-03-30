@@ -4,12 +4,15 @@ A web-based resume builder application built with React, Vite, and Bootstrap.
 
 ## Features
 
-- Personal Information
+- Personal Information (including Professional Summary)
 - Work Experience
 - Education
 - Skills
 - Projects
 - Certifications
+- Languages
+- Volunteer Experience
+- Awards & Honors
 - Live Preview
 - PDF Download
 - Print Functionality
@@ -17,6 +20,7 @@ A web-based resume builder application built with React, Vite, and Bootstrap.
 - Local Storage for Saving Progress
 - User-Friendly Interface Following Don Norman's Principles
 - Modern, Clean, and Well-Structured Design
+- Versatile for All Types of Professions
 
 ## Getting Started
 
