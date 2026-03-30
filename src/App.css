@@ -49,8 +49,20 @@ body {
   max-height: 80vh;
   overflow-y: auto;
   border: 1px solid #dde5ec;
-  border-radius: 8px;
+  border-radius: 8px;  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
 }
+
+.btn-gradient {
+  background: linear-gradient(135deg, #2f94e7, #1eb3e8);
+  border-color: #1b8ed0;
+  color: white;
+  font-weight: 600;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(33, 150, 243, 0.35);}
 
 @media print {
   body * { visibility: hidden; }

@@ -14,8 +14,7 @@ A modern, rebranded web-based resume creation app built with React, Vite, and Bo
 - Volunteer Experience
 - Awards & Honors
 - Live Preview
-- PDF Download
-- Print Functionality
+- PDF Download (single export action)
 - ATS-Friendly Resume Generation
 - Local Storage for Saving Progress
 - User-Friendly Interface Following Don Norman's Principles

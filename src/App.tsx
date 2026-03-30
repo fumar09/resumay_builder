@@ -568,8 +568,7 @@ function App() {
                 )}
               </div>
               <div className="mt-4 text-center">
-                <button className="btn btn-primary me-2" onClick={generatePDF} disabled={!isFormValid}><i className="bi bi-download"></i> Download PDF</button>
-                <button className="btn btn-secondary" onClick={printResume}><i className="bi bi-printer"></i> Print Resume</button>
+                <button className="btn btn-gradient" onClick={generatePDF} disabled={!isFormValid}><i className="bi bi-download"></i> Download PDF</button>
               </div>
             </div>
           </div>
