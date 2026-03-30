@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type Dispatch, type SetStateAction } from 'react'
 import './App.css'
 
 interface PersonalInfo {
@@ -39,6 +39,14 @@ interface Certification {
 interface Language {
   name: string
   proficiency: string
+}
+
+interface JobBoard {
+  id: string
+  name: string
+  logoSrc: string
+  logoType: 'wordmark' | 'mark'
+  logoClassName?: string
 }
 
 type ExperienceLevel = 'entry' | 'mid' | 'senior' | 'lead'
@@ -222,7 +230,57 @@ const sampleData = {
   languages: [{ name: 'Tagalog', proficiency: 'Native' }, { name: 'English', proficiency: 'Fluent' }]
 }
 
-const supportedJobBoards = ['OnlineJobs.ph', 'Bossjob', 'HiringCafe', 'Kalibrr', 'LinkedIn', 'JobStreet by SEEK', 'Upwork', 'Indeed']
+const supportedJobBoards: JobBoard[] = [
+  {
+    id: 'onlinejobs',
+    name: 'OnlineJobs.ph',
+    logoSrc: '/job-boards/onlinejobs-wordmark.png',
+    logoType: 'wordmark'
+  },
+  {
+    id: 'bossjob',
+    name: 'Bossjob',
+    logoSrc: '/job-boards/bossjob-wordmark.svg',
+    logoType: 'wordmark'
+  },
+  {
+    id: 'hiringcafe',
+    name: 'HiringCafe',
+    logoSrc: '/job-boards/hiringcafe-mark.png',
+    logoType: 'mark'
+  },
+  {
+    id: 'kalibrr',
+    name: 'Kalibrr',
+    logoSrc: '/job-boards/kalibrr-wordmark.png',
+    logoType: 'wordmark'
+  },
+  {
+    id: 'linkedin',
+    name: 'LinkedIn',
+    logoSrc: '/job-boards/linkedin-wordmark.svg',
+    logoType: 'wordmark'
+  },
+  {
+    id: 'jobstreet',
+    name: 'JobStreet by SEEK',
+    logoSrc: '/job-boards/jobstreet-wordmark.svg',
+    logoType: 'wordmark',
+    logoClassName: 'job-board-logo-jobstreet'
+  },
+  {
+    id: 'upwork',
+    name: 'Upwork',
+    logoSrc: '/job-boards/upwork-wordmark.svg',
+    logoType: 'wordmark'
+  },
+  {
+    id: 'indeed',
+    name: 'Indeed',
+    logoSrc: '/job-boards/indeed-mark.png',
+    logoType: 'mark'
+  }
+]
 
 const roleCoverage = ['Virtual Assistant', 'Admin & Ops', 'Customer Support', 'Sales', 'Marketing', 'Design', 'Engineering']
 
@@ -500,6 +558,7 @@ function App() {
   const studioRef = useRef<HTMLElement | null>(null)
   const feedbackTimeoutRef = useRef<number | null>(null)
   const scrollTimeoutRef = useRef<number | null>(null)
+  const jobBoardSequenceRef = useRef<HTMLDivElement | null>(null)
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>(defaultPersonalInfo)
   const [targetRole, setTargetRole] = useState('')
@@ -515,6 +574,7 @@ function App() {
   const [pendingSkill, setPendingSkill] = useState('')
   const [applyOptimization, setApplyOptimization] = useState(true)
   const [feedback, setFeedback] = useState('')
+  const [jobBoardLoopWidth, setJobBoardLoopWidth] = useState(0)
 
   useEffect(() => {
     try {
@@ -575,6 +635,37 @@ function App() {
       if (scrollTimeoutRef.current !== null) {
         window.clearTimeout(scrollTimeoutRef.current)
       }
+    }
+  }, [])
+
+  useEffect(() => {
+    const sequence = jobBoardSequenceRef.current
+
+    if (!sequence) {
+      return
+    }
+
+    const measure = () => {
+      setJobBoardLoopWidth(sequence.getBoundingClientRect().width)
+    }
+
+    measure()
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measure)
+      return () => window.removeEventListener('resize', measure)
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      measure()
+    })
+
+    resizeObserver.observe(sequence)
+    window.addEventListener('resize', measure)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', measure)
     }
   }, [])
 
@@ -804,119 +895,158 @@ function App() {
 
       <main>
         <section className="hero-section">
-          <div className="shell hero-grid">
-            <div className="hero-copy">
-              <span className="eyebrow">Built for job seekers who need stronger callbacks.</span>
-              <h1>You are qualified. ResuMay! helps your resume prove it.</h1>
-              <p className="hero-lead">
-                Tailor your resume to each role, see how closely your draft matches the job before you apply, and build a
-                stronger application for real hiring pipelines across modern online job boards.
-              </p>
+          <div className="shell">
+            <div className="hero-grid">
+              <div className="hero-copy">
+                <span className="eyebrow">Built for job seekers who need stronger callbacks.</span>
+                <h1>You are qualified. ResuMay! helps your resume prove it.</h1>
+                <p className="hero-lead">
+                  Tailor your resume to each role, see how closely your draft matches the job before you apply, and build a
+                  stronger application for real hiring pipelines across modern online job boards.
+                </p>
 
-              <div className="hero-actions">
-                <button type="button" className="primary-button" onClick={scrollToStudio}>
-                  Start tailoring
-                </button>
-                <button type="button" className="secondary-button" onClick={loadSample}>
-                  View sample flow
-                </button>
-              </div>
-
-              <div className="hero-chips" aria-label="Role coverage">
-                {roleCoverage.map((role) => (
-                  <span key={role} className="chip">
-                    {role}
-                  </span>
-                ))}
-              </div>
-
-              <div className="hero-stats">
-                <div className="stat-card">
-                  <strong>Role-targeted</strong>
-                  <span>Tailor one resume to specific openings without rebuilding everything from scratch.</span>
+                <div className="hero-actions">
+                  <button type="button" className="primary-button" onClick={scrollToStudio}>
+                    Start tailoring
+                  </button>
+                  <button type="button" className="secondary-button" onClick={loadSample}>
+                    View sample flow
+                  </button>
                 </div>
-                <div className="stat-card">
-                  <strong>{analysis.afterScore || 82}/100</strong>
-                  <span>See how much of the job description your optimized draft is covering before you apply.</span>
-                </div>
-                <div className="stat-card">
-                  <strong>Export-ready</strong>
-                  <span>Finish with a polished PDF designed to travel better across recruiters, ATS tools, and job boards.</span>
-                </div>
-              </div>
 
-              <div className="job-board-band" aria-labelledby="job-board-title">
-                <span id="job-board-title" className="job-board-label">
-                  Built for online job boards like
-                </span>
-                <div className="job-board-list">
-                  {supportedJobBoards.map((board) => (
-                    <span key={board} className="job-board-chip">
-                      {board}
+                <div className="hero-chips" aria-label="Role coverage">
+                  {roleCoverage.map((role) => (
+                    <span key={role} className="chip">
+                      {role}
                     </span>
                   ))}
+                </div>
+
+                <div className="hero-stats">
+                  <div className="stat-card">
+                    <strong>Role-targeted</strong>
+                    <span>Tailor one resume to specific openings without rebuilding everything from scratch.</span>
+                  </div>
+                  <div className="stat-card">
+                    <strong>{analysis.afterScore || 82}/100</strong>
+                    <span>See how much of the job description your optimized draft is covering before you apply.</span>
+                  </div>
+                  <div className="stat-card">
+                    <strong>Export-ready</strong>
+                    <span>Finish with a polished PDF designed to travel better across recruiters, ATS tools, and job boards.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="hero-visual">
+                <div className="hero-card hero-card-score">
+                  <div className="hero-card-header">
+                    <span>Target match snapshot</span>
+                    <span className="status-pill status-pill-live">Live</span>
+                  </div>
+                  <div className="score-pair">
+                    <div>
+                      <small>Current</small>
+                      <strong>{hasResumeCore ? analysis.beforeScore : 48}</strong>
+                    </div>
+                    <div className="score-arrow">
+                      <i className="bi bi-arrow-right" />
+                    </div>
+                    <div>
+                      <small>Optimized</small>
+                      <strong>{hasResumeCore ? analysis.afterScore : 84}</strong>
+                    </div>
+                  </div>
+                  <div className="score-track">
+                    <span className="score-bar score-bar-before" style={{ width: `${hasResumeCore ? analysis.beforeScore : 48}%` }} />
+                  </div>
+                  <div className="score-track score-track-success">
+                    <span className="score-bar score-bar-after" style={{ width: `${hasResumeCore ? analysis.afterScore : 84}%` }} />
+                  </div>
+                </div>
+
+                <div className="hero-card hero-card-sheet">
+                  <div className="resume-mini-sheet">
+                    <div className="resume-mini-header">
+                      <div>
+                        <h2>{personalInfo.name || 'Jordan Rivera'}</h2>
+                        <p>{targetRole || 'Operations Coordinator'}</p>
+                      </div>
+                      <span className="mini-badge mini-badge-success">ATS optimized</span>
+                    </div>
+
+                    <div className="resume-mini-section">
+                      <span>Matched keywords</span>
+                      <div className="mini-chip-row">
+                        {(analysis.matchedKeywords.length ? analysis.matchedKeywords : ['documentation', 'scheduling', 'stakeholder management'])
+                          .slice(0, 4)
+                          .map((keyword) => (
+                            <span key={keyword} className="mini-chip">
+                              {toDisplayKeyword(keyword)}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+
+                    <div className="resume-mini-section">
+                      <span>What changes</span>
+                      <ul>
+                        <li>Sharper role-specific summary</li>
+                        <li>Stronger job-description keywords</li>
+                        <li>Cleaner recruiter-facing structure</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="hero-visual">
-              <div className="hero-card hero-card-score">
-                <div className="hero-card-header">
-                  <span>Target match snapshot</span>
-                  <span className="status-pill status-pill-live">Live</span>
-                </div>
-                <div className="score-pair">
-                  <div>
-                    <small>Current</small>
-                    <strong>{hasResumeCore ? analysis.beforeScore : 48}</strong>
-                  </div>
-                  <div className="score-arrow">
-                    <i className="bi bi-arrow-right" />
-                  </div>
-                  <div>
-                    <small>Optimized</small>
-                    <strong>{hasResumeCore ? analysis.afterScore : 84}</strong>
-                  </div>
-                </div>
-                <div className="score-track">
-                  <span className="score-bar score-bar-before" style={{ width: `${hasResumeCore ? analysis.beforeScore : 48}%` }} />
-                </div>
-                <div className="score-track score-track-success">
-                  <span className="score-bar score-bar-after" style={{ width: `${hasResumeCore ? analysis.afterScore : 84}%` }} />
-                </div>
+            <div className="job-board-band" aria-labelledby="job-board-title">
+              <div className="job-board-band-head">
+                <span id="job-board-title" className="job-board-label">
+                  Built for online job boards like
+                </span>
               </div>
 
-              <div className="hero-card hero-card-sheet">
-                <div className="resume-mini-sheet">
-                  <div className="resume-mini-header">
-                    <div>
-                      <h2>{personalInfo.name || 'Jordan Rivera'}</h2>
-                      <p>{targetRole || 'Operations Coordinator'}</p>
-                    </div>
-                    <span className="mini-badge mini-badge-success">ATS optimized</span>
-                  </div>
+              <div className="job-board-marquee" aria-label="Supported job boards">
+                <div
+                  className={`job-board-track${jobBoardLoopWidth > 0 ? ' is-ready' : ''}`}
+                  style={
+                    jobBoardLoopWidth > 0
+                      ? ({ '--job-board-loop-width': `${jobBoardLoopWidth}px` } as CSSProperties)
+                      : undefined
+                  }
+                >
+                  {[0, 1].map((copyIndex) => {
+                    const isRepeat = copyIndex === 1
 
-                  <div className="resume-mini-section">
-                    <span>Matched keywords</span>
-                    <div className="mini-chip-row">
-                      {(analysis.matchedKeywords.length ? analysis.matchedKeywords : ['documentation', 'scheduling', 'stakeholder management'])
-                        .slice(0, 4)
-                        .map((keyword) => (
-                          <span key={keyword} className="mini-chip">
-                            {toDisplayKeyword(keyword)}
-                          </span>
+                    return (
+                      <div
+                        key={copyIndex}
+                        className="job-board-sequence"
+                        aria-hidden={isRepeat ? 'true' : undefined}
+                        ref={isRepeat ? undefined : jobBoardSequenceRef}
+                        role={isRepeat ? undefined : 'list'}
+                      >
+                        {supportedJobBoards.map((board) => (
+                          <article
+                            key={`${copyIndex}-${board.id}`}
+                            className={`job-board-node job-board-node-${board.logoType}`}
+                            aria-label={isRepeat ? undefined : board.name}
+                            role={isRepeat ? undefined : 'listitem'}
+                          >
+                            <div className="job-board-node-logo">
+                              <img
+                                src={board.logoSrc}
+                                alt={isRepeat ? '' : `${board.name} logo`}
+                                className={`job-board-logo job-board-logo-${board.logoType}${board.logoClassName ? ` ${board.logoClassName}` : ''}`}
+                              />
+                            </div>
+                          </article>
                         ))}
-                    </div>
-                  </div>
-
-                  <div className="resume-mini-section">
-                    <span>What changes</span>
-                    <ul>
-                      <li>Sharper role-specific summary</li>
-                      <li>Stronger job-description keywords</li>
-                      <li>Cleaner recruiter-facing structure</li>
-                    </ul>
-                  </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             </div>
