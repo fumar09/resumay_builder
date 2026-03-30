@@ -49,6 +49,8 @@ interface JobBoard {
   logoClassName?: string
 }
 
+const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
+
 type ExperienceLevel = 'entry' | 'mid' | 'senior' | 'lead'
 type SummaryTone = 'balanced' | 'strategic' | 'technical' | 'concise'
 
@@ -234,50 +236,50 @@ const supportedJobBoards: JobBoard[] = [
   {
     id: 'onlinejobs',
     name: 'OnlineJobs.ph',
-    logoSrc: '/job-boards/onlinejobs-wordmark.png',
+    logoSrc: assetPath('/job-boards/onlinejobs-wordmark.png'),
     logoType: 'wordmark'
   },
   {
     id: 'bossjob',
     name: 'Bossjob',
-    logoSrc: '/job-boards/bossjob-wordmark.svg',
+    logoSrc: assetPath('/job-boards/bossjob-wordmark.svg'),
     logoType: 'wordmark'
   },
   {
     id: 'hiringcafe',
     name: 'HiringCafe',
-    logoSrc: '/job-boards/hiringcafe-mark.png',
+    logoSrc: assetPath('/job-boards/hiringcafe-mark.png'),
     logoType: 'mark'
   },
   {
     id: 'kalibrr',
     name: 'Kalibrr',
-    logoSrc: '/job-boards/kalibrr-wordmark.png',
+    logoSrc: assetPath('/job-boards/kalibrr-wordmark.png'),
     logoType: 'wordmark'
   },
   {
     id: 'linkedin',
     name: 'LinkedIn',
-    logoSrc: '/job-boards/linkedin-wordmark.svg',
+    logoSrc: assetPath('/job-boards/linkedin-wordmark.svg'),
     logoType: 'wordmark'
   },
   {
     id: 'jobstreet',
     name: 'JobStreet by SEEK',
-    logoSrc: '/job-boards/jobstreet-wordmark.svg',
+    logoSrc: assetPath('/job-boards/jobstreet-wordmark.svg'),
     logoType: 'wordmark',
     logoClassName: 'job-board-logo-jobstreet'
   },
   {
     id: 'upwork',
     name: 'Upwork',
-    logoSrc: '/job-boards/upwork-wordmark.svg',
+    logoSrc: assetPath('/job-boards/upwork-wordmark.svg'),
     logoType: 'wordmark'
   },
   {
     id: 'indeed',
     name: 'Indeed',
-    logoSrc: '/job-boards/indeed-mark.png',
+    logoSrc: assetPath('/job-boards/indeed-mark.png'),
     logoType: 'mark'
   }
 ]
@@ -946,7 +948,7 @@ function App() {
       <header className="topbar">
         <div className="shell">
           <div className="brand-lockup">
-            <img src="/resumay-logo.png" alt="ResuMay!" className="brand-logo" />
+            <img src={assetPath('/resumay-logo.png')} alt="ResuMay!" className="brand-logo" />
           </div>
 
           <nav className="topbar-links" aria-label="Primary">
