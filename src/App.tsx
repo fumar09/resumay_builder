@@ -58,7 +58,7 @@ interface AnalysisResult {
   checklist: { label: string; passed: boolean }[]
 }
 
-const STORAGE_KEY = 'resumeForgeOptimizerData'
+const STORAGE_KEY = 'resumeMayOptimizerData'
 
 const defaultPersonalInfo: PersonalInfo = {
   name: '',
@@ -185,43 +185,43 @@ const sampleData = {
   summaryTone: 'technical' as SummaryTone,
   applyOptimization: true,
   personalInfo: {
-    name: 'Jordan Rivera',
-    email: 'jordan.rivera@example.com',
-    phone: '+1 (555) 214-8801',
-    address: 'Austin, TX',
-    linkedin: 'linkedin.com/in/jordanrivera',
-    website: 'jordancodes.dev',
+    name: 'Maria Santos',
+    email: 'maria.santos@example.com',
+    phone: '+63 917 123 4567',
+    address: 'Manila, NCR',
+    linkedin: 'linkedin.com/in/mariasantos',
+    website: 'mariasantos.dev',
     summary:
       'Frontend engineer with experience shipping product interfaces for SaaS teams. Strong in React, TypeScript, collaboration, and turning messy requirements into polished customer experiences.'
   },
   experience: [
     {
       jobTitle: 'Senior Frontend Engineer',
-      company: 'Northstar Cloud',
+      company: 'Accel Tech PH',
       duration: '2022 - Present',
       description:
         'Built reusable React components for a customer portal. Worked closely with product and design to launch new dashboard experiences. Improved performance across several high-traffic pages.'
     },
     {
       jobTitle: 'Frontend Engineer',
-      company: 'Beacon Labs',
+      company: 'Startup Hub Digital',
       duration: '2019 - 2022',
       description:
         'Maintained TypeScript interfaces for internal tools and marketing pages. Integrated APIs for customer data workflows. Supported QA fixes and collaborated across engineering and support teams.'
     }
   ],
-  education: [{ degree: 'B.S. Computer Science', school: 'University of Texas', year: '2019' }],
+  education: [{ degree: 'B.S. Computer Science', school: 'University of the Philippines', year: '2019' }],
   skills: ['React', 'TypeScript', 'JavaScript', 'CSS', 'Design Systems', 'API Integration', 'Accessibility'],
   projects: [
     {
-      name: 'Analytics Workspace',
+      name: 'Analytics Dashboard',
       description:
         'Designed and shipped a self-serve analytics workspace with reusable charts, filters, and export workflows.',
-      link: 'https://github.com/example/analytics-workspace'
+      link: 'https://github.com/example/analytics-dashboard'
     }
   ],
   certifications: [{ name: 'AWS Cloud Practitioner', issuer: 'Amazon Web Services', year: '2023' }],
-  languages: [{ name: 'Spanish', proficiency: 'Professional' }]
+  languages: [{ name: 'Tagalog', proficiency: 'Native' }, { name: 'English', proficiency: 'Fluent' }]
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -464,7 +464,7 @@ function buildAnalysis(
   ]
 
   const fitNote = trackedKeywords.length
-    ? `ResumeForge found ${matchedKeywords.length} of ${trackedKeywords.length} target signals already present. Bring in ${missingKeywords.slice(0, 3).map(toDisplayKeyword).join(', ') || 'missing priorities'} to make the story tighter.`
+    ? `ResuMay! found ${matchedKeywords.length} of ${trackedKeywords.length} target signals already present. Bring in ${missingKeywords.slice(0, 3).map(toDisplayKeyword).join(', ') || 'missing priorities'} to make the story tighter.`
     : 'Paste a job description to unlock keyword tracking, fit scoring, and stronger ATS guidance.'
 
   return {
@@ -726,9 +726,9 @@ function App() {
       <header className="topbar">
         <div className="shell">
           <div className="brand-lockup">
-            <div className="brand-mark">RF</div>
+            <div className="brand-mark">RM</div>
             <div>
-              <p className="brand-name">ResumeForge</p>
+              <p className="brand-name">ResuMay!</p>
               <p className="brand-subtitle">ATS-first resume optimization studio</p>
             </div>
           </div>
@@ -752,7 +752,7 @@ function App() {
               <span className="eyebrow">Free ATS targeting. No account. No credits.</span>
               <h1>Build a resume that actually mirrors the job you want.</h1>
               <p className="hero-lead">
-                ResumeForge combines a full resume builder with ATS keyword guidance, stronger summary suggestions, and refined
+                ResuMay! combines a full resume builder with ATS keyword guidance, stronger summary suggestions, and refined
                 experience bullets so your resume reads cleaner for both recruiters and scanners.
               </p>
 
@@ -881,7 +881,7 @@ function App() {
         <section id="how-it-works" className="story-section">
           <div className="shell story-grid">
             <div className="section-heading">
-              <span className="eyebrow">How ResumeForge works</span>
+              <span className="eyebrow">How ResuMay! works</span>
               <h2>A FixResume-style flow, but built around your own free builder.</h2>
               <p>
                 We kept the high-conviction product structure users expect from an ATS optimizer, then layered your editable
@@ -898,7 +898,7 @@ function App() {
               <article className="story-card">
                 <span className="story-step">02</span>
                 <h3>Shape the resume around it</h3>
-                <p>Update your summary, experience, and skills while ResumeForge surfaces stronger ATS language and gaps.</p>
+                <p>Update your summary, experience, and skills while ResuMay! surfaces stronger ATS language and gaps.</p>
               </article>
               <article className="story-card">
                 <span className="story-step">03</span>
@@ -1048,7 +1048,7 @@ function App() {
                         name="personalPhone"
                         value={personalInfo.phone}
                         onChange={(event) => setPersonalInfo({ ...personalInfo, phone: event.target.value })}
-                        placeholder="+1 (555) 000-0000"
+                        placeholder="+63 917 XXX XXXX"
                       />
                     </label>
 
@@ -1060,7 +1060,7 @@ function App() {
                         name="personalLocation"
                         value={personalInfo.address}
                         onChange={(event) => setPersonalInfo({ ...personalInfo, address: event.target.value })}
-                        placeholder="City, State"
+                        placeholder="City, Province"
                       />
                     </label>
 
@@ -1097,7 +1097,7 @@ function App() {
                       rows={5}
                       value={personalInfo.summary}
                       onChange={(event) => setPersonalInfo({ ...personalInfo, summary: event.target.value })}
-                      placeholder="Write the version you would normally use. ResumeForge will suggest a tighter ATS-ready version."
+                      placeholder="Write the version you would normally use. ResuMay! will suggest a tighter ATS-ready version."
                     />
                   </label>
                 </section>
@@ -1133,7 +1133,7 @@ function App() {
                             name={`experience_jobTitle_${index}`}
                             value={item.jobTitle}
                             onChange={(event) => updateArrayItem(experience, setExperience, index, 'jobTitle', event.target.value)}
-                            placeholder="Senior Frontend Engineer"
+                            placeholder="Senior Software Engineer"
                           />
                         </label>
 
@@ -1145,7 +1145,7 @@ function App() {
                             name={`experience_company_${index}`}
                             value={item.company}
                             onChange={(event) => updateArrayItem(experience, setExperience, index, 'company', event.target.value)}
-                            placeholder="Northstar Cloud"
+                            placeholder="Tech Company PH"
                           />
                         </label>
                       </div>
@@ -1170,7 +1170,7 @@ function App() {
                           rows={4}
                           value={item.description}
                           onChange={(event) => updateArrayItem(experience, setExperience, index, 'description', event.target.value)}
-                          placeholder="Add 2-4 sentences or bullet-style notes. ResumeForge will tighten them for ATS readability."
+                          placeholder="Add 2-4 sentences or bullet-style notes. ResuMay! will tighten them for ATS readability."
                         />
                       </label>
                     </div>
@@ -1268,7 +1268,7 @@ function App() {
                               name={`education_degree_${index}`}
                               value={item.degree}
                               onChange={(event) => updateArrayItem(education, setEducation, index, 'degree', event.target.value)}
-                              placeholder="B.S. Computer Science"
+                              placeholder="BS Computer Science / BS Information Technology"
                             />
                           </label>
 
@@ -1293,7 +1293,7 @@ function App() {
                             name={`education_school_${index}`}
                             value={item.school}
                             onChange={(event) => updateArrayItem(education, setEducation, index, 'school', event.target.value)}
-                            placeholder="University name"
+                            placeholder="UP / DLSU / Ateneo / UST"
                           />
                         </label>
                       </div>
@@ -1460,7 +1460,7 @@ function App() {
                               name={`language_name_${index}`}
                               value={item.name}
                               onChange={(event) => updateArrayItem(languages, setLanguages, index, 'name', event.target.value)}
-                              placeholder="Spanish"
+                              placeholder="Tagalog / Bisaya / Ilokano"
                             />
                           </label>
 
@@ -1606,7 +1606,7 @@ function App() {
                           ) : null
                         )
                       ) : (
-                        <p className="empty-note">Add experience details and ResumeForge will rewrite them into clearer ATS bullets.</p>
+                        <p className="empty-note">Add experience details and ResuMay! will rewrite them into clearer ATS bullets.</p>
                       )}
                     </div>
                   </section>
@@ -1811,6 +1811,12 @@ function App() {
             </button>
           </div>
         </section>
+
+        <footer className="app-footer">
+          <div className="shell">
+            <p>Made with ❤️ by <strong>FumarDev</strong> • 2024</p>
+          </div>
+        </footer>
       </main>
     </div>
   )
