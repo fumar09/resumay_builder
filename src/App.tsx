@@ -482,39 +482,6 @@ function App() {
               <button className="btn btn-outline-primary" onClick={addAward}><i className="bi bi-plus-circle"></i> Add Award</button>
             </div>
 
-            <div className="form-section p-4 bg-light rounded shadow-sm mt-4">
-              <h2><i className="bi bi-heart"></i> Volunteer Experience</h2>
-              {volunteers.map((vol: Volunteer, index: number) => (
-                <div key={index} className="mb-3 border p-3 rounded">
-                  <div className="d-flex justify-content-between">
-                    <h5>Volunteer {index + 1}</h5>
-                    {volunteers.length > 1 && <button className="btn btn-outline-danger btn-sm" onClick={() => removeVolunteer(index)}><i className="bi bi-trash"></i></button>}
-                  </div>
-                  <input type="text" className="form-control mb-2" placeholder="Role" value={vol.role} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateVolunteer(index, 'role', e.target.value)} />
-                  <input type="text" className="form-control mb-2" placeholder="Organization" value={vol.organization} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateVolunteer(index, 'organization', e.target.value)} />
-                  <input type="text" className="form-control mb-2" placeholder="Duration" value={vol.duration} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateVolunteer(index, 'duration', e.target.value)} />
-                  <textarea className="form-control" placeholder="Description" value={vol.description} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateVolunteer(index, 'description', e.target.value)}></textarea>
-                </div>
-              ))}
-              <button className="btn btn-outline-primary" onClick={addVolunteer}><i className="bi bi-plus-circle"></i> Add Volunteer Experience</button>
-            </div>
-
-            <div className="form-section p-4 bg-light rounded shadow-sm mt-4">
-              <h2><i className="bi bi-trophy"></i> Awards & Honors</h2>
-              {awards.map((award: Award, index: number) => (
-                <div key={index} className="mb-3 border p-3 rounded">
-                  <div className="d-flex justify-content-between">
-                    <h5>Award {index + 1}</h5>
-                    {awards.length > 1 && <button className="btn btn-outline-danger btn-sm" onClick={() => removeAward(index)}><i className="bi bi-trash"></i></button>}
-                  </div>
-                  <input type="text" className="form-control mb-2" placeholder="Award Name" value={award.name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAward(index, 'name', e.target.value)} />
-                  <input type="text" className="form-control mb-2" placeholder="Issuer" value={award.issuer} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAward(index, 'issuer', e.target.value)} />
-                  <input type="text" className="form-control" placeholder="Year" value={award.year} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAward(index, 'year', e.target.value)} />
-                </div>
-              ))}
-              <button className="btn btn-outline-primary" onClick={addAward}><i className="bi bi-plus-circle"></i> Add Award</button>
-            </div>
-
             <div className="mt-4 text-center">
               <button className="btn btn-success me-2" onClick={saveData} disabled={!isFormValid}><i className="bi bi-save"></i> Save Resume</button>
             </div>
