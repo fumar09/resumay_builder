@@ -783,11 +783,7 @@ function App() {
       <header className="topbar">
         <div className="shell">
           <div className="brand-lockup">
-            <div className="brand-mark">RM</div>
-            <div>
-              <p className="brand-name">ResuMay!</p>
-              <p className="brand-subtitle">Senior-crafted ATS-first resume optimization studio</p>
-            </div>
+            <img src="/resumay-logo.png" alt="ResuMay!" className="brand-logo" />
           </div>
 
           <nav className="topbar-links" aria-label="Primary">

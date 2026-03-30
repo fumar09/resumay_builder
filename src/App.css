@@ -4,9 +4,8 @@
   --ink: #1b1b1b;
   --surface: #fdfcf8;
   --surface-soft: #f7f3ec;
-  --surface-strong: #f2ede4;
+  --surface-strong: #efe8dd;
   --workspace: #f1f3f5;
-  --workspace-deep: #e7ebef;
   --success: #285238;
   --success-soft: rgba(40, 82, 56, 0.1);
   --muted: #8e9196;
@@ -23,8 +22,9 @@
   --radius-lg: 22px;
   --radius-md: 18px;
   --radius-sm: 12px;
-  --font-ui: 'Inter', 'Segoe UI', sans-serif;
-  --font-display: 'Libre Baskerville', Georgia, serif;
+  --font-ui: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --font-resume: 'Cormorant Garamond', Georgia, serif;
 }
 
 *,
@@ -41,10 +41,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(165, 28, 48, 0.12), transparent 24%),
-    radial-gradient(circle at top right, rgba(27, 27, 27, 0.07), transparent 22%),
-    linear-gradient(180deg, #f7f5f1 0%, #f4f2ee 42%, #eef1f4 100%);
+  background: #f4f2ee;
   color: var(--ink);
   font-family: var(--font-ui);
   line-height: 1.5;
@@ -92,14 +89,7 @@ main {
 }
 
 .background-glow {
-  position: absolute;
-  z-index: 0;
-  width: 32rem;
-  height: 32rem;
-  border-radius: 999px;
-  filter: blur(92px);
-  opacity: 0.45;
-  pointer-events: none;
+  display: none;
 }
 
 .background-glow-left {
@@ -145,39 +135,14 @@ main {
 .brand-lockup {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 2.9rem;
-  height: 2.9rem;
-  border-radius: 0.95rem;
-  background: linear-gradient(145deg, var(--primary), var(--primary-hover));
-  color: var(--surface);
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  box-shadow: var(--shadow-sm);
-}
-
-.brand-name,
-.brand-subtitle {
-  margin: 0;
-}
-
-.brand-name {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.brand-subtitle {
-  color: var(--muted);
-  font-size: 0.84rem;
+.brand-logo {
+  display: block;
+  width: clamp(11.5rem, 20vw, 18rem);
+  height: auto;
+  max-width: 100%;
 }
 
 .topbar-links {
@@ -399,7 +364,7 @@ main {
 .panel,
 .faq-card,
 .closing-card {
-  background: linear-gradient(180deg, rgba(253, 252, 248, 0.98), rgba(247, 243, 236, 0.96));
+  background: var(--surface);
   border: 1px solid rgba(27, 27, 27, 0.08);
   box-shadow: var(--shadow-lg);
 }
@@ -492,7 +457,7 @@ main {
 }
 
 .hero-card-score {
-  background: linear-gradient(160deg, #1b1b1b 0%, #241c1d 100%);
+  background: #1b1b1b;
   color: #fff;
   border-color: rgba(165, 28, 48, 0.18);
   box-shadow: 0 24px 50px rgba(27, 27, 27, 0.22);
@@ -508,17 +473,13 @@ main {
 }
 
 .hero-card-sheet {
-  background: linear-gradient(180deg, var(--workspace) 0%, var(--workspace-deep) 100%);
+  background: var(--workspace);
   border-color: rgba(27, 27, 27, 0.06);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), var(--shadow-md);
 }
 
 .hero-card-sheet::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.52), transparent 46%);
-  pointer-events: none;
+  content: none;
 }
 
 .score-pair {
@@ -578,20 +539,20 @@ main {
 
 .score-bar-before,
 .meter-fill-before {
-  background: linear-gradient(90deg, #b2b6bc 0%, #767c84 100%);
+  background: #8e9196;
 }
 
 .score-bar-after,
 .meter-fill-after {
-  background: linear-gradient(90deg, var(--primary) 0%, var(--success) 100%);
+  background: var(--success);
 }
 
 .hero-card-score .score-bar-before {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.76));
+  background: rgba(255, 255, 255, 0.56);
 }
 
 .hero-card-score .score-bar-after {
-  background: linear-gradient(90deg, #c13449 0%, #3b6948 100%);
+  background: var(--success);
 }
 
 .resume-mini-sheet,
@@ -600,17 +561,12 @@ main {
   background: var(--surface);
   border: 1px solid rgba(27, 27, 27, 0.08);
   box-shadow: var(--shadow-xl);
+  font-family: var(--font-resume);
 }
 
 .resume-mini-sheet::before,
 .resume-sheet::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 0.35rem;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-hover) 100%);
+  content: none;
 }
 
 .resume-mini-sheet {
@@ -618,15 +574,11 @@ main {
   border-radius: 20px;
 }
 
-.resume-mini-sheet::before {
-  border-radius: 20px 20px 0 0;
-}
-
 .resume-mini-sheet h2,
 .resume-header h2 {
   margin: 0;
   color: var(--ink);
-  font-family: var(--font-display);
+  font-family: var(--font-resume);
 }
 
 .resume-mini-header p,
@@ -716,19 +668,13 @@ main {
   overflow: hidden;
   padding: 1.35rem;
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(253, 252, 248, 0.98), rgba(247, 243, 236, 0.96));
+  background: var(--surface);
   border: 1px solid rgba(27, 27, 27, 0.08);
   box-shadow: var(--shadow-md);
 }
 
 .principle-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 0.24rem;
-  background: linear-gradient(90deg, var(--primary), var(--success));
+  content: none;
 }
 
 .principle-index {
@@ -743,7 +689,7 @@ main {
 .principle-card h3 {
   margin: 0 0 0.55rem;
   color: var(--ink);
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: 1.1rem;
 }
 
@@ -797,22 +743,14 @@ main {
 .panel-contrast {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(160deg, #1b1b1b 0%, #241c1d 100%);
+  background: #1b1b1b;
   color: #fff;
   border-color: rgba(165, 28, 48, 0.18);
   box-shadow: 0 24px 48px rgba(27, 27, 27, 0.22);
 }
 
 .panel-contrast::after {
-  content: '';
-  position: absolute;
-  right: -4rem;
-  bottom: -5rem;
-  width: 16rem;
-  height: 16rem;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(165, 28, 48, 0.22), transparent 60%);
-  pointer-events: none;
+  content: none;
 }
 
 .panel-contrast .panel-kicker,
@@ -834,12 +772,12 @@ main {
 
 .panel-contrast .score-bar-before,
 .panel-contrast .meter-fill-before {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.78));
+  background: rgba(255, 255, 255, 0.56);
 }
 
 .panel-contrast .score-bar-after,
 .panel-contrast .meter-fill-after {
-  background: linear-gradient(90deg, #c13449 0%, #3b6948 100%);
+  background: #3b6948;
 }
 
 .field-grid {
@@ -901,7 +839,7 @@ main {
   align-items: center;
   padding: 1rem 1.1rem;
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(253, 252, 248, 0.98), rgba(247, 243, 236, 0.92));
+  background: var(--surface-soft);
   border: 1px solid rgba(27, 27, 27, 0.08);
 }
 
@@ -1066,7 +1004,7 @@ main {
 .suggestion-card {
   padding: 1rem;
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(253, 252, 248, 0.98), rgba(247, 243, 236, 0.92));
+  background: var(--surface);
   border: 1px solid rgba(27, 27, 27, 0.08);
 }
 
@@ -1080,23 +1018,13 @@ main {
   margin-top: 1rem;
   padding: clamp(1rem, 2vw, 1.6rem);
   border-radius: calc(var(--radius-lg) - 4px);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.44), rgba(255, 255, 255, 0)),
-    linear-gradient(180deg, var(--workspace) 0%, var(--workspace-deep) 100%);
+  background: var(--workspace);
   border: 1px solid rgba(27, 27, 27, 0.06);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
 .resume-workspace::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.18) 0 12px,
-    rgba(255, 255, 255, 0) 12px 24px
-  );
-  pointer-events: none;
+  content: none;
 }
 
 .resume-sheet {
@@ -1104,10 +1032,6 @@ main {
   margin: 0 auto;
   padding: 2rem;
   border-radius: 18px;
-}
-
-.resume-sheet::before {
-  border-radius: 18px 18px 0 0;
 }
 
 .resume-header {
@@ -1145,9 +1069,10 @@ main {
 .resume-section h3 {
   margin: 0 0 0.8rem;
   color: var(--primary);
-  font-family: var(--font-ui);
-  font-size: 0.8rem;
-  letter-spacing: 0.14em;
+  font-family: var(--font-resume);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
