@@ -99,9 +99,44 @@ function App() {
     }
   }, [])
 
+  const cleanTextArray = (arr: string[]) => Array.from(new Set(arr.map(item => item.trim()).filter(item => item !== '')))
+
+  const cleanObjectArray = <T,>(arr: T[], selector: (item: T) => string) => {
+    const seen = new Set<string>()
+    return arr
+      .map(item => ({ item, key: selector(item).trim() }))
+      .filter(({ key }) => key !== '' && !seen.has(key) ? seen.add(key) : false)
+      .map(({ item }) => item)
+  }
+
   // Save to localStorage
   const saveData = () => {
-    const data = { personalInfo, experience, education, skills, projects, certifications, languages, volunteers, awards }
+    const cleanedSkills = cleanTextArray(skills)
+    const cleanedProjects = cleanObjectArray(projects, p => `${p.name}|${p.description}|${p.link}`)
+    const cleanedCertifications = cleanObjectArray(certifications, c => `${c.name}|${c.issuer}|${c.year}`)
+    const cleanedLanguages = cleanObjectArray(languages, l => `${l.name}|${l.proficiency}`)
+    const cleanedVolunteers = cleanObjectArray(volunteers, v => `${v.role}|${v.organization}|${v.duration}|${v.description}`)
+    const cleanedAwards = cleanObjectArray(awards, a => `${a.name}|${a.issuer}|${a.year}`)
+
+    setSkills(cleanedSkills)
+    setProjects(cleanedProjects)
+    setCertifications(cleanedCertifications)
+    setLanguages(cleanedLanguages)
+    setVolunteers(cleanedVolunteers)
+    setAwards(cleanedAwards)
+
+    const data = {
+      personalInfo,
+      experience,
+      education,
+      skills: cleanedSkills,
+      projects: cleanedProjects,
+      certifications: cleanedCertifications,
+      languages: cleanedLanguages,
+      volunteers: cleanedVolunteers,
+      awards: cleanedAwards
+    }
+
     localStorage.setItem('resumeData', JSON.stringify(data))
     setFeedback('Resume saved successfully!')
     setTimeout(() => setFeedback(''), 3000)
