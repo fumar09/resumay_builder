@@ -792,7 +792,7 @@ function App() {
               <div className="hero-card hero-card-score">
                 <div className="hero-card-header">
                   <span>Target match snapshot</span>
-                  <span className="status-pill">Live</span>
+                  <span className="status-pill status-pill-live">Live</span>
                 </div>
                 <div className="score-pair">
                   <div>
@@ -822,7 +822,7 @@ function App() {
                       <h2>{personalInfo.name || 'Jordan Rivera'}</h2>
                       <p>{targetRole || 'Senior Frontend Engineer'}</p>
                     </div>
-                    <span className="mini-badge">ATS preview</span>
+                    <span className="mini-badge mini-badge-success">ATS optimized</span>
                   </div>
 
                   <div className="resume-mini-section">
@@ -937,7 +937,7 @@ function App() {
                       <span className="panel-kicker">Step 1</span>
                       <h3>Targeting brief</h3>
                     </div>
-                    <span className="panel-badge">ATS engine</span>
+                    <span className="panel-badge panel-badge-neutral">ATS engine</span>
                   </div>
 
                   <div className="field-grid field-grid-2">
@@ -1494,7 +1494,7 @@ function App() {
                         <span className="panel-kicker">Live ATS score</span>
                         <h3>{analysis.afterScore}/100 projected match</h3>
                       </div>
-                      <span className="panel-badge panel-badge-warm">Free optimizer</span>
+                      <span className="panel-badge panel-badge-success">ATS optimized</span>
                     </div>
 
                     <p className="panel-description">{analysis.fitNote}</p>
@@ -1628,7 +1628,8 @@ function App() {
                       </div>
                     </div>
 
-                    <div id="resume-preview" className="resume-sheet">
+                    <div className="resume-workspace">
+                      <div id="resume-preview" className="resume-sheet">
                       <header className="resume-header">
                         <div>
                           <h2>{personalInfo.name || 'Your Name'}</h2>
@@ -1759,6 +1760,7 @@ function App() {
                           </div>
                         </section>
                       )}
+                      </div>
                     </div>
                   </section>
                 </div>
