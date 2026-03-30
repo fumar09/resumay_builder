@@ -176,11 +176,11 @@ const toneLabels: Record<SummaryTone, string> = {
 }
 
 const sampleData = {
-  targetRole: 'Senior Frontend Engineer',
+  targetRole: 'Operations Coordinator',
   jobDescription:
-    'We are hiring a Senior Frontend Engineer to lead React and TypeScript development for our customer platform. You will partner cross-functionally with product, design, and backend teams to build accessible interfaces, improve frontend architecture, optimize performance, and mentor engineers. Experience with component libraries, API integration, analytics, testing, and responsive design is strongly preferred.',
-  experienceLevel: 'senior' as ExperienceLevel,
-  summaryTone: 'technical' as SummaryTone,
+    'We are hiring an Operations Coordinator to support daily workflow across client delivery, scheduling, reporting, documentation, and stakeholder communication. You will work closely with leadership and cross-functional teams to keep priorities moving, improve internal processes, maintain accurate records, and coordinate follow-ups. Experience with documentation, spreadsheet reporting, customer communication, process improvement, project coordination, and administrative support is strongly preferred.',
+  experienceLevel: 'mid' as ExperienceLevel,
+  summaryTone: 'balanced' as SummaryTone,
   applyOptimization: true,
   personalInfo: {
     name: 'Maria Santos',
@@ -190,37 +190,41 @@ const sampleData = {
     linkedin: 'linkedin.com/in/mariasantos',
     website: 'mariasantos.dev',
     summary:
-      'Frontend engineer with experience shipping product interfaces for SaaS teams. Strong in React, TypeScript, collaboration, and turning messy requirements into polished customer experiences.'
+      'Operations coordinator with experience keeping fast-moving teams organized through clear documentation, reporting, scheduling, and stakeholder communication. Strong in process improvement and turning scattered workflows into reliable execution.'
   },
   experience: [
     {
-      jobTitle: 'Senior Frontend Engineer',
-      company: 'Accel Tech PH',
+      jobTitle: 'Operations Coordinator',
+      company: 'Northbridge Support Services',
       duration: '2022 - Present',
       description:
-        'Built reusable React components for a customer portal. Worked closely with product and design to launch new dashboard experiences. Improved performance across several high-traffic pages.'
+        'Coordinated daily workflows across onboarding, scheduling, and internal reporting. Maintained documentation and status updates for cross-functional teams. Improved follow-up consistency for recurring operational tasks.'
     },
     {
-      jobTitle: 'Frontend Engineer',
-      company: 'Startup Hub Digital',
+      jobTitle: 'Administrative Assistant',
+      company: 'HarborWorks PH',
       duration: '2019 - 2022',
       description:
-        'Maintained TypeScript interfaces for internal tools and marketing pages. Integrated APIs for customer data workflows. Supported QA fixes and collaborated across engineering and support teams.'
+        'Supported calendars, records, and customer-facing requests for a busy operations team. Prepared spreadsheet reports and tracked deadlines across multiple stakeholders. Helped standardize forms and handoff processes.'
     }
   ],
-  education: [{ degree: 'B.S. Computer Science', school: 'University of the Philippines', year: '2019' }],
-  skills: ['React', 'TypeScript', 'JavaScript', 'CSS', 'Design Systems', 'API Integration', 'Accessibility'],
+  education: [{ degree: 'B.S. Business Administration', school: 'Polytechnic University of the Philippines', year: '2019' }],
+  skills: ['Operations Coordination', 'Documentation', 'Process Improvement', 'Spreadsheet Reporting', 'Scheduling', 'Stakeholder Management', 'Customer Support'],
   projects: [
     {
-      name: 'Analytics Dashboard',
+      name: 'Onboarding Tracker Revamp',
       description:
-        'Designed and shipped a self-serve analytics workspace with reusable charts, filters, and export workflows.',
-      link: 'https://github.com/example/analytics-dashboard'
+        'Reworked a manual onboarding workflow into a clearer tracker with ownership, deadlines, and weekly status visibility.',
+      link: 'https://github.com/example/onboarding-tracker'
     }
   ],
-  certifications: [{ name: 'AWS Cloud Practitioner', issuer: 'Amazon Web Services', year: '2023' }],
+  certifications: [{ name: 'Lean Six Sigma Yellow Belt', issuer: 'Six Sigma PH', year: '2023' }],
   languages: [{ name: 'Tagalog', proficiency: 'Native' }, { name: 'English', proficiency: 'Fluent' }]
 }
+
+const supportedJobBoards = ['OnlineJobs.ph', 'Bossjob', 'HiringCafe', 'Kalibrr', 'LinkedIn', 'JobStreet by SEEK', 'Upwork', 'Indeed']
+
+const roleCoverage = ['Virtual Assistant', 'Admin & Ops', 'Customer Support', 'Sales', 'Marketing', 'Design', 'Engineering']
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
@@ -793,7 +797,7 @@ function App() {
           </nav>
 
           <button type="button" className="ghost-button topbar-button" onClick={scrollToStudio}>
-            Optimize free
+            Open studio
           </button>
         </div>
       </header>
@@ -802,42 +806,55 @@ function App() {
         <section className="hero-section">
           <div className="shell hero-grid">
             <div className="hero-copy">
-              <span className="eyebrow">Senior-crafted UI/UX. No account. No credits.</span>
-              <h1>Build a resume that actually mirrors the job you want.</h1>
+              <span className="eyebrow">Built for job seekers who need stronger callbacks.</span>
+              <h1>You are qualified. ResuMay! helps your resume prove it.</h1>
               <p className="hero-lead">
-                ResuMay! combines a full resume builder with ATS keyword guidance, stronger summary suggestions, and refined
-                experience bullets inside a structure shaped by Don Norman principles: clear signifiers, visible status,
-                fast feedback, and safe constraints.
+                Tailor your resume to each role, see how closely your draft matches the job before you apply, and build a
+                stronger application for real hiring pipelines across modern online job boards.
               </p>
 
               <div className="hero-actions">
                 <button type="button" className="primary-button" onClick={scrollToStudio}>
-                  Start optimizing
+                  Start tailoring
                 </button>
                 <button type="button" className="secondary-button" onClick={loadSample}>
-                  Load sample flow
+                  View sample flow
                 </button>
               </div>
 
-              <div className="hero-chips" aria-label="Product highlights">
-                <span className="chip">Job description matching</span>
-                <span className="chip">Live ATS preview</span>
-                <span className="chip">Local-only save</span>
-                <span className="chip">PDF export</span>
+              <div className="hero-chips" aria-label="Role coverage">
+                {roleCoverage.map((role) => (
+                  <span key={role} className="chip">
+                    {role}
+                  </span>
+                ))}
               </div>
 
               <div className="hero-stats">
                 <div className="stat-card">
-                  <strong>3-in-1</strong>
-                  <span>Builder, optimizer, and export preview in one screen.</span>
+                  <strong>Role-targeted</strong>
+                  <span>Tailor one resume to specific openings without rebuilding everything from scratch.</span>
                 </div>
                 <div className="stat-card">
                   <strong>{analysis.afterScore || 82}/100</strong>
-                  <span>Projected ATS fit once optimized content is applied.</span>
+                  <span>See how much of the job description your optimized draft is covering before you apply.</span>
                 </div>
                 <div className="stat-card">
-                  <strong>0 friction</strong>
-                  <span>Free to use, no signup wall, no credit packs, no gated downloads.</span>
+                  <strong>Export-ready</strong>
+                  <span>Finish with a polished PDF designed to travel better across recruiters, ATS tools, and job boards.</span>
+                </div>
+              </div>
+
+              <div className="job-board-band" aria-labelledby="job-board-title">
+                <span id="job-board-title" className="job-board-label">
+                  Built for online job boards like
+                </span>
+                <div className="job-board-list">
+                  {supportedJobBoards.map((board) => (
+                    <span key={board} className="job-board-chip">
+                      {board}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
@@ -874,7 +891,7 @@ function App() {
                   <div className="resume-mini-header">
                     <div>
                       <h2>{personalInfo.name || 'Jordan Rivera'}</h2>
-                      <p>{targetRole || 'Senior Frontend Engineer'}</p>
+                      <p>{targetRole || 'Operations Coordinator'}</p>
                     </div>
                     <span className="mini-badge mini-badge-success">ATS optimized</span>
                   </div>
@@ -882,7 +899,7 @@ function App() {
                   <div className="resume-mini-section">
                     <span>Matched keywords</span>
                     <div className="mini-chip-row">
-                      {(analysis.matchedKeywords.length ? analysis.matchedKeywords : ['react', 'typescript', 'accessibility'])
+                      {(analysis.matchedKeywords.length ? analysis.matchedKeywords : ['documentation', 'scheduling', 'stakeholder management'])
                         .slice(0, 4)
                         .map((keyword) => (
                           <span key={keyword} className="mini-chip">
@@ -895,8 +912,8 @@ function App() {
                   <div className="resume-mini-section">
                     <span>What changes</span>
                     <ul>
-                      <li>Sharper target-role summary</li>
-                      <li>Keyword-aware bullet refinement</li>
+                      <li>Sharper role-specific summary</li>
+                      <li>Stronger job-description keywords</li>
                       <li>Cleaner recruiter-facing structure</li>
                     </ul>
                   </div>
@@ -911,22 +928,22 @@ function App() {
             <div className="proof-card">
               <i className="bi bi-bullseye" />
               <div>
-                <strong>Job-targeted, not generic</strong>
-                <p>Start with the role and job description so the resume adapts around the hiring signal.</p>
+                <strong>More aligned applications</strong>
+                <p>See the role gaps before you apply so you can send a resume that feels sharper and more intentional.</p>
               </div>
             </div>
             <div className="proof-card">
               <i className="bi bi-stars" />
               <div>
-                <strong>Guided optimization</strong>
-                <p>See matched keywords, gaps, summary upgrades, and stronger bullet language without leaving the builder.</p>
+                <strong>Higher conversion signals</strong>
+                <p>Use job-match scoring, keyword guidance, and stronger resume language in one focused workflow.</p>
               </div>
             </div>
             <div className="proof-card">
-              <i className="bi bi-unlock" />
+              <i className="bi bi-briefcase" />
               <div>
-                <strong>Still free and no-login</strong>
-                <p>Your workflow stays fast: save locally, keep editing, and export without credit walls.</p>
+                <strong>Open to many job types</strong>
+                <p>Useful for virtual assistants, admin, support, sales, marketing, operations, creative, and technical roles.</p>
               </div>
             </div>
           </div>
@@ -974,29 +991,29 @@ function App() {
         <section id="how-it-works" className="story-section">
           <div className="shell story-grid">
             <div className="section-heading">
-              <span className="eyebrow">How ResuMay! works</span>
-              <h2>A FixResume-style flow, but built around your own free builder.</h2>
+              <span className="eyebrow">Process</span>
+              <h2>Three steps to a higher-conversion application.</h2>
               <p>
-                We kept the high-conviction product structure users expect from an ATS optimizer, then layered your editable
-                resume workspace underneath it.
+                Start with the target role, shape the content around the job description, and export a cleaner PDF you can
+                send to real employers with more confidence.
               </p>
             </div>
 
             <div className="story-cards">
               <article className="story-card">
                 <span className="story-step">01</span>
-                <h3>Target the role first</h3>
-                <p>Paste the job description, define your target role, and choose the tone of the resume you want to send.</p>
+                <h3>Paste the role and job description</h3>
+                <p>Drop in the position you are targeting so ResuMay! can read the hiring signal before you edit.</p>
               </article>
               <article className="story-card">
                 <span className="story-step">02</span>
-                <h3>Shape the resume around it</h3>
-                <p>Update your summary, experience, and skills while ResuMay! surfaces stronger ATS language and gaps.</p>
+                <h3>Tailor the resume to the job</h3>
+                <p>Use the match score, keyword visibility, and content suggestions to strengthen the story recruiters will see.</p>
               </article>
               <article className="story-card">
                 <span className="story-step">03</span>
-                <h3>Export the optimized version</h3>
-                <p>Toggle optimized content on, review the live preview, and export a polished PDF when the score looks right.</p>
+                <h3>Export and apply</h3>
+                <p>Review the live paper preview, export the improved PDF, and submit a resume that feels more role-ready.</p>
               </article>
             </div>
           </div>
@@ -1042,7 +1059,7 @@ function App() {
                         name="targetRole"
                         value={targetRole}
                         onChange={(event) => setTargetRole(event.target.value)}
-                        placeholder="e.g. Product Manager or Frontend Engineer"
+                        placeholder="e.g. Virtual Assistant, Admin Officer, Sales Executive, Frontend Engineer"
                       />
                     </label>
 
@@ -1865,29 +1882,30 @@ function App() {
         <section id="faq" className="faq-section">
           <div className="shell">
             <div className="section-heading">
-              <span className="eyebrow">Questions people usually ask</span>
-              <h2>Everything important stays simple.</h2>
+              <span className="eyebrow">Why ResuMay!</span>
+              <h2>Built for real job applications, not generic resume polishing.</h2>
             </div>
 
             <div className="faq-grid">
               <article className="faq-card">
-                <h3>Is this still a builder, or only an optimizer?</h3>
+                <h3>Does this only work for tech resumes?</h3>
                 <p>
-                  Both. ResuMay! keeps the editable builder but wraps it inside a role-first optimization workflow so the
-                  final resume is easier to target.
+                  No. ResuMay! works across admin, VA, support, sales, marketing, operations, creative, and technical roles
+                  because the workflow starts from the job description, not a single template niche.
                 </p>
               </article>
               <article className="faq-card">
-                <h3>Does it require an account or credits?</h3>
+                <h3>Which job boards is it built for?</h3>
                 <p>
-                  No. This version stays free and no-login. You can save locally in your browser and export without any paywall.
+                  It is designed for applications sent through OnlineJobs.ph, Bossjob, HiringCafe, Kalibrr, LinkedIn,
+                  JobStreet by SEEK, Upwork, Indeed, and similar online hiring platforms.
                 </p>
               </article>
               <article className="faq-card">
-                <h3>How does the ATS optimization work?</h3>
+                <h3>What does the match score help me see?</h3>
                 <p>
-                  ResuMay! analyzes the job description, extracts likely keywords, compares them against your draft, and
-                  suggests summary and bullet language that closes the gap.
+                  The match score gives you a fast read on how much of the job description your current draft is covering, so
+                  you can improve weak areas before sending the application.
                 </p>
               </article>
             </div>
@@ -1897,12 +1915,12 @@ function App() {
         <section className="closing-cta">
           <div className="shell closing-card">
             <div>
-              <span className="eyebrow">Ready to tighten your next application?</span>
-              <h2>Turn your resume into a sharper, job-matched story in one pass.</h2>
-              <p>Paste the role, tune the content, and export the optimized version without leaving the page.</p>
+              <span className="eyebrow">Ready to strengthen your next application?</span>
+              <h2>Give every application a resume that feels targeted, credible, and easier to shortlist.</h2>
+              <p>Paste the role, refine the content, and export the version you want recruiters to see.</p>
             </div>
             <button type="button" className="primary-button" onClick={scrollToStudio}>
-              Open optimizer studio
+              Start in the studio
             </button>
           </div>
         </section>

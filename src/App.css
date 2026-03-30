@@ -327,6 +327,43 @@ main {
   margin-top: 1.45rem;
 }
 
+.job-board-band {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.7rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-md);
+  background: rgba(253, 252, 248, 0.92);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+  box-shadow: var(--shadow-sm);
+}
+
+.job-board-label {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.job-board-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.job-board-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(27, 27, 27, 0.04);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
 .chip,
 .tag-chip,
 .resume-tag,

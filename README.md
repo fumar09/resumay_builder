@@ -1,6 +1,6 @@
 # ResuMay!
 
-ResuMay! is a free, no-login ATS resume optimization app built with React, TypeScript, and Vite.
+ResuMay! is an ATS resume optimization app built with React, TypeScript, and Vite.
 
 It combines three things in one workflow:
 
@@ -21,15 +21,15 @@ It combines three things in one workflow:
 
 ## Product Direction
 
-This version of ResuMay! is designed more like an ATS optimization product than a generic form-only builder.
+This version of ResuMay! is designed more like a high-conversion ATS optimization product than a generic form-only builder.
 
 It keeps the app:
 
-- Free
-- No-credit
-- No-subscription
-- No-login
+- Job-targeted
+- Role-flexible
+- Conversion-focused
 - Local-first
+- Built for modern online job boards
 
 ## Getting Started
 
