@@ -854,23 +854,30 @@ function App() {
   const generatePDF = async () => {
     const input = document.getElementById('resume-preview')
 
-    if (!input) {
+    if (!(input instanceof HTMLElement)) {
       showToast('Resume preview is not ready for export yet.')
       return
     }
 
     try {
+      input.classList.add('resume-sheet-export')
+      await new Promise<void>((resolve) => {
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => resolve())
+        })
+      })
+
       const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')])
       const canvas = await html2canvas(input, {
         scale: 2,
-        backgroundColor: '#fffdf8',
+        backgroundColor: '#ffffff',
         useCORS: true
       })
       const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
-      const margin = 8
+      const margin = 5
       const usableWidth = pageWidth - margin * 2
       const usableHeight = pageHeight - margin * 2
       const widthScale = usableWidth / canvas.width
@@ -886,6 +893,8 @@ function App() {
       showToast('ATS resume exported as a single-page PDF.')
     } catch {
       showToast('PDF export failed. Please try again.')
+    } finally {
+      input.classList.remove('resume-sheet-export')
     }
   }
 

@@ -681,6 +681,17 @@ main {
   line-height: 1.38;
 }
 
+.resume-sheet.resume-sheet-export {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0;
+  padding: 14mm 12mm 12mm;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: #ffffff;
+}
+
 .resume-mini-sheet h2,
 .resume-header h2 {
   margin: 0;
