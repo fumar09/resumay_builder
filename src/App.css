@@ -926,6 +926,11 @@ main {
 }
 
 .review-empty-card {
+  grid-column: 1 / -1;
+  width: min(100%, 46rem);
+  margin-inline: auto;
+  justify-self: center;
+  align-content: center;
   justify-items: center;
   min-height: 16.5rem;
   padding: 2rem;
