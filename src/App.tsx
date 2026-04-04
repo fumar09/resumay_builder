@@ -1407,11 +1407,11 @@ function App() {
           <div className="shell">
             <div className="hero-grid">
               <div className="hero-copy">
-                <span className="eyebrow">Real-time ATS intelligence.</span>
-                <h1>Stop guessing. Start scoring. Turn your draft into a high-conversion application.</h1>
+                <span className="eyebrow">Built for job seekers who need stronger callbacks.</span>
+                <h1>You are qualified. ResuMay! helps your resume prove it.</h1>
                 <p className="hero-lead">
-                  ResuMay! uses real-time ATS signaling to show you exactly how closely your resume matches each job before you apply.
-                  Tailor in seconds. Score your improvements. Export with confidence.
+                  Tailor your resume to each role, see how closely your draft matches the job before you apply, and build a
+                  stronger application for real hiring pipelines across modern online job boards.
                 </p>
 
                 <div className="hero-actions">
@@ -1845,19 +1845,6 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                 <h3>Export and apply</h3>
                 <p>Review the live paper preview, export the improved PDF, and submit a resume that feels more role-ready.</p>
               </article>
-            </div>
-
-            <div className="keyword-cloud">
-              <div className="cloud-header">
-                <span className="cloud-label">See it in action: Keywords turn green when matched</span>
-              </div>
-              <div className="keyword-chips-interactive">
-                <span className="keyword-chip-static">documentation</span>
-                <span className="keyword-chip-static">stakeholder management</span>
-                <span className="keyword-chip-static">process improvement</span>
-                <span className="keyword-chip-static">project coordination</span>
-                <span className="keyword-chip-missing">advanced analytics</span>
-              </div>
             </div>
           </div>
         </section>
