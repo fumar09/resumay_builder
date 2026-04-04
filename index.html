@@ -24,6 +24,50 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Disable right-click context menu
+      document.addEventListener('contextmenu', (e) => e.preventDefault());
+      
+      // Disable developer tools keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        // F12 - Developer Tools
+        if (e.key === 'F12') e.preventDefault();
+        // Ctrl+Shift+I - Inspector
+        if (e.ctrlKey && e.shiftKey && e.key === 'I') e.preventDefault();
+        // Ctrl+Shift+J - Console
+        if (e.ctrlKey && e.shiftKey && e.key === 'J') e.preventDefault();
+        // Ctrl+Shift+C - Element Inspector
+        if (e.ctrlKey && e.shiftKey && e.key === 'C') e.preventDefault();
+        // Ctrl+Shift+K - Console (Firefox)
+        if (e.ctrlKey && e.shiftKey && e.key === 'K') e.preventDefault();
+        // Ctrl+Shift+M - Responsive Design Mode
+        if (e.ctrlKey && e.shiftKey && e.key === 'M') e.preventDefault();
+      });
+      
+      // Detect if DevTools is open
+      let devtools = { open: false };
+      const threshold = 160;
+      setInterval(() => {
+        if (window.outerHeight - window.innerHeight > threshold || window.outerWidth - window.innerWidth > threshold) {
+          if (!devtools.open) {
+            devtools.open = true;
+            console.clear();
+            console.log('%c⚠️ Developer Tools Disabled', 'color: red; font-size: 16px; font-weight: bold;');
+            console.log('%cThis application is protected from inspection.', 'color: red;');
+          }
+        } else {
+          devtools.open = false;
+        }
+      }, 500);
+      
+      // Disable copy/paste on sensitive elements
+      document.addEventListener('copy', (e) => {
+        const selection = window.getSelection();
+        if (selection && selection.toString().length > 100) {
+          e.preventDefault();
+        }
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

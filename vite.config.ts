@@ -8,9 +8,22 @@ export default defineConfig({
   build: {
     target: 'esnext',
     minify: 'terser',
+    sourcemap: false,
     terserOptions: {
       compress: {
-        drop_console: false
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info'],
+        passes: 2
+      },
+      mangle: {
+        toplevel: true,
+        properties: {
+          regex: /^_/
+        }
+      },
+      output: {
+        comments: false
       }
     },
     rollupOptions: {
