@@ -163,7 +163,7 @@ main {
 }
 
 .hero-section {
-  padding: 3.2rem 0 3rem;
+  padding: 3.55rem 0 2.6rem;
 }
 
 .hero-grid {
@@ -205,6 +205,11 @@ main {
   max-width: 11ch;
 }
 
+.hero-copy {
+  display: grid;
+  align-content: start;
+}
+
 .hero-lead,
 .section-heading p,
 .closing-card p,
@@ -234,6 +239,44 @@ main {
 
 .hero-actions {
   margin-top: 1.8rem;
+}
+
+.hero-action-note {
+  max-width: 58ch;
+  margin: 0.95rem 0 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.7;
+}
+
+.hero-journey {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 1.1rem;
+}
+
+.hero-journey-step {
+  display: grid;
+  gap: 0.32rem;
+  padding: 0.95rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(253, 252, 248, 0.84);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.hero-journey-step span {
+  color: var(--primary);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.hero-journey-step strong {
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.45;
 }
 
 .primary-button,
@@ -934,6 +977,10 @@ main {
 .faq-section,
 .closing-cta {
   padding: 1.5rem 0 4rem;
+}
+
+.proof-section {
+  padding-top: 1rem;
 }
 
 .proof-row {
@@ -2181,6 +2228,7 @@ main {
   }
 
   .hero-compare-grid,
+  .hero-journey,
   .hero-stats,
   .field-grid-2,
   .field-grid-3,
@@ -2326,6 +2374,10 @@ main {
   .studio-actions,
   .resume-actions {
     width: 100%;
+  }
+
+  .hero-action-note {
+    max-width: none;
   }
 
   .hero-actions > *,

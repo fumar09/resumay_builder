@@ -1414,11 +1414,33 @@ function App() {
 
                 <div className="hero-actions">
                   <button type="button" className="primary-button" onClick={scrollToStudio}>
-                    Start tailoring
+                    <i className="bi bi-arrow-up-right" />
+                    Open ATS studio
                   </button>
                   <button type="button" className="secondary-button" onClick={loadSample}>
-                    View sample flow
+                    <i className="bi bi-file-earmark-text" />
+                    Load sample workspace
                   </button>
+                </div>
+
+                <p className="hero-action-note">
+                  Start with a live sample or go straight into the Studio. ResuMay! shows the score movement, the role fit,
+                  and the export-ready result in the same workflow.
+                </p>
+
+                <div className="hero-journey" aria-label="What happens next">
+                  <div className="hero-journey-step">
+                    <span>01</span>
+                    <strong>Paste the job description</strong>
+                  </div>
+                  <div className="hero-journey-step">
+                    <span>02</span>
+                    <strong>Watch the ATS score move</strong>
+                  </div>
+                  <div className="hero-journey-step">
+                    <span>03</span>
+                    <strong>Export the one-page PDF</strong>
+                  </div>
                 </div>
 
                 <div className="hero-chips" aria-label="Role coverage">
