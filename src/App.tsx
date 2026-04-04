@@ -574,6 +574,246 @@ const officialLaunchReviews: CommunityReview[] = [
     outcome: 'Promoted to Senior Role',
     quote:
       'As someone who works in HR, I can tell this tool is built correctly. It follows the exact logic we use to shortlist candidates.'
+  },
+  {
+    id: 'official-review-kirsten-lim',
+    name: 'Kirsten Lim',
+    role: 'Social Media Manager',
+    board: 'CloudStaff Careers',
+    rating: 5,
+    scoreBefore: 35,
+    scoreAfter: 88,
+    outcome: '2 Interviews in 3 days',
+    quote:
+      "I didn't realize how many 'Content Strategy' keywords I was missing. The live match score helped me fix it in minutes."
+  },
+  {
+    id: 'official-review-mark-villanueva',
+    name: 'Mark Villanueva',
+    role: 'Software Engineer',
+    board: 'Hired.com',
+    rating: 5,
+    scoreBefore: 48,
+    scoreAfter: 94,
+    outcome: 'Hired at a Tech Startup',
+    quote:
+      'The clean, one-page ATS PDF is exactly what high-end tech recruiters want. No fluff, just pure impact and skills.'
+  },
+  {
+    id: 'official-review-trisha-l-santos',
+    name: 'Trisha L. Santos',
+    role: 'General Accountant',
+    board: 'Foundit (Monster)',
+    rating: 4,
+    scoreBefore: 42,
+    scoreAfter: 86,
+    outcome: 'Passed HR screening',
+    quote:
+      'I used this for a local accounting firm application. The recruiter commented on how easy the resume was to scan.'
+  },
+  {
+    id: 'official-review-rafael-de-leon',
+    name: 'Rafael de Leon',
+    role: 'Sales Executive',
+    board: 'Propelld',
+    rating: 5,
+    scoreBefore: 29,
+    scoreAfter: 90,
+    outcome: 'Salary offer exceeded goal',
+    quote:
+      "Targeting my resume to the specific job description was so fast. I knew I was aligned before I even clicked 'Apply'."
+  },
+  {
+    id: 'official-review-angela-m-ruiz',
+    name: 'Angela M. Ruiz',
+    role: 'Content Writer',
+    board: 'ProBlogger',
+    rating: 5,
+    scoreBefore: 55,
+    scoreAfter: 89,
+    outcome: 'Landed 2 trial projects',
+    quote:
+      "My previous resume felt too 'wordy.' The 'Concise' summary tone helped me sound more professional and direct."
+  },
+  {
+    id: 'official-review-joshua-pineda',
+    name: 'Joshua Pineda',
+    role: 'IT Support Specialist',
+    board: 'Dice.com',
+    rating: 5,
+    scoreBefore: 40,
+    scoreAfter: 92,
+    outcome: '3 Callbacks from US firms',
+    quote:
+      'The keyword chips in Step 4 are a game changer. It picked up on certifications I had listed but had not emphasized enough.'
+  },
+  {
+    id: 'official-review-nikki-hernandez',
+    name: 'Nikki Hernandez',
+    role: 'Retail Manager',
+    board: 'SM Careers (Direct)',
+    rating: 4,
+    scoreBefore: 31,
+    scoreAfter: 84,
+    outcome: 'Interviewed at a major mall',
+    quote:
+      "I applied directly to a local corporate site. The PDF format didn't break in their portal, which usually happens with Canva."
+  },
+  {
+    id: 'official-review-gabriel-ramos',
+    name: 'Gabriel Ramos',
+    role: 'Data Entry Specialist',
+    board: 'FreeUp',
+    rating: 5,
+    scoreBefore: 18,
+    scoreAfter: 85,
+    outcome: 'Signed a long-term contract',
+    quote:
+      "I used to get ignored on freelancer boards. Now that my score is consistently 85+, I'm getting much better responses."
+  },
+  {
+    id: 'official-review-liza-mercado',
+    name: 'Liza Mercado',
+    role: 'HR Assistant',
+    board: 'Mynimo',
+    rating: 5,
+    scoreBefore: 45,
+    scoreAfter: 87,
+    outcome: 'Hired by a Cebu-based BPO',
+    quote:
+      "As someone in HR, I appreciate how this tool structures the 'Experience' section. It follows the exact logic we use."
+  },
+  {
+    id: 'official-review-kevin-tan',
+    name: 'Kevin Tan',
+    role: 'Operations Manager',
+    board: 'Wellfound (AngelList)',
+    rating: 5,
+    scoreBefore: 60,
+    scoreAfter: 96,
+    outcome: 'Equity offer + Remote role',
+    quote:
+      "The 'Click-to-fix' flow is genius. It takes the guesswork out of tailoring. I hit a 96% match and got the interview."
+  },
+  {
+    id: 'official-review-rina-alcantara',
+    name: 'Rina Alcantara',
+    role: 'Virtual Bookkeeper',
+    board: 'Belay Solutions',
+    rating: 4,
+    scoreBefore: 33,
+    scoreAfter: 82,
+    outcome: 'Moved to final trial',
+    quote:
+      'The delta highlight showed me exactly what the AI improved. It made my bullet points much more action-oriented.'
+  },
+  {
+    id: 'official-review-justin-s-king',
+    name: 'Justin S. King',
+    role: 'Frontend Developer',
+    board: 'Turing',
+    rating: 5,
+    scoreBefore: 50,
+    scoreAfter: 95,
+    outcome: 'Passed technical ATS filter',
+    quote:
+      'ATS optimization is real. I went from zero responses to a recruiter call within 24 hours of using ResuMay!.'
+  },
+  {
+    id: 'official-review-patricia-go',
+    name: 'Patricia Go',
+    role: 'Customer Success',
+    board: 'Workana',
+    rating: 5,
+    scoreBefore: 25,
+    scoreAfter: 88,
+    outcome: 'Hired for a LatAm project',
+    quote:
+      'Simple, fast, and effective. I love that I can keep my basics the same but tailor the experience for every single lead.'
+  },
+  {
+    id: 'official-review-miguel-borja',
+    name: 'Miguel Borja',
+    role: 'Logistics Lead',
+    board: 'SupplyChainJobs',
+    rating: 5,
+    scoreBefore: 55,
+    scoreAfter: 91,
+    outcome: 'Promoted to Senior Lead',
+    quote:
+      'Used this for an internal promotion. My boss was impressed with the professional summary and clear business impact.'
+  },
+  {
+    id: 'official-review-sofia-castillo',
+    name: 'Sofia Castillo',
+    role: 'Graphic Designer',
+    board: 'Behance (Job List)',
+    rating: 4,
+    scoreBefore: 38,
+    scoreAfter: 83,
+    outcome: '2 Freelance callbacks',
+    quote:
+      'Even for creative roles, keywords matter. This helped me bridge the gap between my portfolio and the job post.'
+  },
+  {
+    id: 'official-review-rico-j-blanco',
+    name: 'Rico J. Blanco',
+    role: 'Security Analyst',
+    board: 'CyberSecJobs',
+    rating: 5,
+    scoreBefore: 42,
+    scoreAfter: 93,
+    outcome: 'Hired at a top fintech',
+    quote:
+      "The PDF export travels perfectly across job boards. It's the most reliable ATS-ready format I've ever used."
+  },
+  {
+    id: 'official-review-jasmine-tee',
+    name: 'Jasmine Tee',
+    role: 'Pharmacy Assistant',
+    board: 'Watsons Careers',
+    rating: 5,
+    scoreBefore: 20,
+    scoreAfter: 81,
+    outcome: 'Interviewed at local branch',
+    quote:
+      'Very easy to use on mobile too. I optimized my draft while on the commute and exported the PDF instantly.'
+  },
+  {
+    id: 'official-review-anton-vizcarra',
+    name: 'Anton Vizcarra',
+    role: 'Digital Marketer',
+    board: 'Remote.co',
+    rating: 5,
+    scoreBefore: 44,
+    scoreAfter: 90,
+    outcome: 'Landed a $2k/mo retainer',
+    quote:
+      'The ROI on this tool is insane. One optimized resume got me a client that pays for the whole year of job searching.'
+  },
+  {
+    id: 'official-review-celine-dionisio',
+    name: 'Celine Dionisio',
+    role: 'Office Secretary',
+    board: 'PinoyJobs.ph',
+    rating: 4,
+    scoreBefore: 27,
+    scoreAfter: 85,
+    outcome: 'Hired by a law firm',
+    quote:
+      "I was worried about my gaps, but the layout focused on my skills so well that the recruiter didn't even mention the gap."
+  },
+  {
+    id: 'official-review-paolo-mendoza',
+    name: 'Paolo Mendoza',
+    role: 'Quality Analyst',
+    board: 'Remotasks',
+    rating: 5,
+    scoreBefore: 39,
+    scoreAfter: 94,
+    outcome: 'Approved for premium tier',
+    quote:
+      "Seeing the 'Missing Signals' helped me realize I wasn't explaining my tech stack correctly. Fixed it in one click."
   }
 ]
 
