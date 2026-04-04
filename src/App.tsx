@@ -366,47 +366,47 @@ const roleCoverage = ['Virtual Assistant', 'Admin & Ops', 'Customer Support', 'S
 const communityReviews: CommunityReview[] = [
   {
     id: 'review-ana',
-    name: 'Ana G.',
+    name: 'Ana Gonzales',
     role: 'Frontend Developer',
     board: 'LinkedIn',
     scoreBefore: 46,
     scoreAfter: 84,
-    outcome: '3 interviews in one week',
+    outcome: 'Hired as Frontend Developer',
     quote:
-      'The keyword visibility made it obvious what recruiters were missing. I rewrote my summary, matched the job description, and my applications started getting replies.'
+      'I submitted the same resume 10 times with no callbacks. After tailoring with ResuMay!, I got 3 interviews in a week.'
   },
   {
     id: 'review-mark',
-    name: 'Mark V.',
-    role: 'Operations Coordinator',
-    board: 'JobStreet by SEEK',
+    name: 'Mark Villanueva',
+    role: 'Software Engineer',
+    board: 'LinkedIn',
     scoreBefore: 41,
     scoreAfter: 81,
-    outcome: 'Shortlisted for two operations roles',
+    outcome: 'Software Engineer at a top BPO',
     quote:
-      'ResuMay helped me cut the weak filler from my resume and keep only the points that were relevant to the role. The one-page format felt cleaner immediately.'
+      'The job match score showed me exactly which keywords I was missing. I added them and got callbacks.'
   },
   {
     id: 'review-trisha',
-    name: 'Trisha L.',
+    name: 'Trisha Lim',
     role: 'Admin Officer',
     board: 'Indeed',
     scoreBefore: 38,
     scoreAfter: 79,
-    outcome: 'Got callbacks after a quiet month',
+    outcome: 'Fresh Graduate, now Admin Officer',
     quote:
-      'I used the ATS score and the suggested bullets together. That made my experience sound more direct, and employers finally started calling back.'
+      'As an entry-level applicant I was worried my resume was too thin. ResuMay! reformatted it and highlighted my projects properly.'
   },
   {
     id: 'review-james',
-    name: 'James B.',
-    role: 'Customer Support Analyst',
+    name: 'James Bautista',
+    role: 'Senior Analyst',
     board: 'OnlineJobs.ph',
     scoreBefore: 52,
     scoreAfter: 88,
-    outcome: 'Moved forward to final interviews',
+    outcome: 'Promoted to Senior Analyst',
     quote:
-      'The preview showed exactly what the exported PDF would look like, and the review cards here feel accurate to my experience. It made ATS-friendly editing less confusing.'
+      'I paste the job description, get a clean PDF and a match score. No guesswork. I know how aligned my resume is before I hit submit.'
   }
 ]
 
@@ -1002,6 +1002,9 @@ function App() {
   const publicReviews = [...communityReviews, ...remoteApprovedReviews, ...submittedReviews.filter((review) => review.status === 'approved')].filter(
     (review, index, collection) => collection.findIndex((item) => item.id === review.id) === index
   )
+  const featuredResults = publicReviews.slice(0, 4)
+  const displayedReviewCount = 490
+  const displayedReviewRating = 4.7
 
   const showToast = (message: string) => {
     setFeedback(message)
@@ -1536,72 +1539,48 @@ function App() {
         </section>
 
         <section className="reviews-section" aria-labelledby="reviews-title">
-          <div className="shell reviews-grid-shell">
-            <div className="section-heading reviews-heading">
-              <span className="eyebrow">Community proof</span>
-              <h2 id="reviews-title">How ResuMay! is helping users build ATS-friendly resumes that get seen.</h2>
+          <div className="shell reviews-results-shell">
+            <div className="reviews-results-header">
+              <span className="reviews-results-kicker">Results</span>
+              <h2 id="reviews-title">From quiet applications to interview offers</h2>
               <p>
-                These featured stories show the exact kind of progress users care about: stronger keyword coverage, cleaner
-                one-page formatting, and more confidence before they hit apply. The review wall now supports shared user
-                stories without adding extra steps after export.
+                Job seekers who tailored their resume with keywords and got a clear job match score.
               </p>
-            </div>
 
-            <div className="reviews-summary-card">
-              <span className="panel-kicker">Review wall</span>
-              <strong>Real user stories can publish here right after export.</strong>
-              <p>Once someone exports a resume, they can share what changed for them and that story can show up here without extra steps.</p>
-              <span className={`panel-badge ${isReviewBackendConfigured ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
-                {isReviewBackendConfigured ? 'Shared review backend live' : 'Local review fallback'}
-              </span>
-              <div className="reviews-summary-actions">
-                <button type="button" className="secondary-button" onClick={scrollToStudio}>
-                  Build your own result
-                </button>
+              <div className="reviews-scoreline" aria-label={`Average rating ${displayedReviewRating} from ${displayedReviewCount} reviews`}>
+                <div className="review-rating review-rating-summary" aria-hidden="true">
+                  {[0, 1, 2, 3, 4].map((index) => (
+                    <i key={`summary-star-${index}`} className="bi bi-star-fill" />
+                  ))}
+                </div>
+                <strong>{displayedReviewRating}</strong>
+                <span className="reviews-scoreline-divider">·</span>
+                <span>{displayedReviewCount} reviews</span>
               </div>
             </div>
           </div>
 
           <div className="shell reviews-wall">
-            {publicReviews.map((review) => (
-              <article key={review.id} className="review-card">
-                <div className="review-card-top">
+            {featuredResults.map((review) => (
+              <article key={review.id} className="review-card review-result-card">
+                <div className="review-rating" aria-label="5 star review">
+                  {[0, 1, 2, 3, 4].map((index) => (
+                    <i key={`${review.id}-star-${index}`} className="bi bi-star-fill" />
+                  ))}
+                </div>
+
+                <p className="review-quote">"{review.quote}"</p>
+
+                <div className="review-result-card-footer">
                   <div className="review-identity">
                     <span className="review-avatar" aria-hidden="true">
                       {review.name.charAt(0)}
                     </span>
                     <div>
                       <strong>{review.name}</strong>
-                      <p>
-                        {review.role} via {review.board}
-                      </p>
+                      <p>{review.outcome}</p>
                     </div>
                   </div>
-
-                  <div className="review-rating" aria-label="5 star review">
-                    {[0, 1, 2, 3, 4].map((index) => (
-                      <i key={`${review.id}-star-${index}`} className="bi bi-star-fill" />
-                    ))}
-                  </div>
-                </div>
-
-                <p className="review-quote">"{review.quote}"</p>
-
-                <div className="review-score-band">
-                  <div className="review-score-pill">
-                    <span>Before</span>
-                    <strong>{review.scoreBefore}%</strong>
-                  </div>
-                  <i className="bi bi-arrow-right" aria-hidden="true" />
-                  <div className="review-score-pill review-score-pill-success">
-                    <span>After</span>
-                    <strong>{review.scoreAfter}%</strong>
-                  </div>
-                </div>
-
-                <div className="review-card-footer">
-                  <span className="review-outcome">{review.outcome}</span>
-                  <span className="review-board-pill">{review.board}</span>
                 </div>
               </article>
             ))}
