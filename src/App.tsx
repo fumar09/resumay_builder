@@ -89,6 +89,7 @@ const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/
 
 type ExperienceLevel = 'entry' | 'mid' | 'senior' | 'lead'
 type SummaryTone = 'balanced' | 'strategic' | 'technical' | 'concise'
+type RoleFamily = 'operations' | 'support' | 'sales' | 'marketing' | 'design' | 'engineering' | 'leadership' | 'general'
 
 interface AnalysisResult {
   trackedKeywords: string[]
@@ -276,6 +277,39 @@ const toneLabels: Record<SummaryTone, string> = {
   strategic: 'strategic and leadership-oriented',
   technical: 'technical and detail-aware',
   concise: 'short and recruiter-friendly'
+}
+
+const roleFamilySignals: Record<RoleFamily, string[]> = {
+  operations: ['operations', 'coordinator', 'admin', 'administrative', 'scheduler', 'documentation', 'reporting', 'process', 'workflow', 'executive assistant', 'virtual assistant'],
+  support: ['support', 'customer', 'service', 'success', 'helpdesk', 'client care', 'ticket', 'resolution'],
+  sales: ['sales', 'account executive', 'business development', 'pipeline', 'lead generation', 'closing', 'prospecting'],
+  marketing: ['marketing', 'brand', 'campaign', 'content', 'seo', 'sem', 'social media', 'growth'],
+  design: ['design', 'designer', 'ux', 'ui', 'product design', 'visual', 'creative', 'figma'],
+  engineering: ['engineer', 'developer', 'software', 'frontend', 'backend', 'full stack', 'typescript', 'api', 'architecture', 'qa'],
+  leadership: ['manager', 'lead', 'director', 'head', 'strategy', 'roadmap', 'stakeholder'],
+  general: []
+}
+
+const roleFamilyFocus: Record<RoleFamily, string> = {
+  operations: 'coordination, documentation, reporting, and process reliability',
+  support: 'customer communication, issue resolution, and dependable follow-through',
+  sales: 'pipeline momentum, client communication, and commercial follow-through',
+  marketing: 'campaign execution, content clarity, and performance visibility',
+  design: 'visual clarity, collaboration, and user-facing delivery quality',
+  engineering: 'implementation quality, problem solving, and maintainable delivery',
+  leadership: 'cross-functional leadership, prioritization, and business execution',
+  general: 'execution, communication, and delivery'
+}
+
+const roleFamilyActionVerbs: Record<RoleFamily, string[]> = {
+  operations: ['Coordinated', 'Streamlined', 'Organized', 'Improved'],
+  support: ['Resolved', 'Supported', 'Handled', 'Strengthened'],
+  sales: ['Generated', 'Advanced', 'Converted', 'Expanded'],
+  marketing: ['Launched', 'Optimized', 'Produced', 'Improved'],
+  design: ['Designed', 'Refined', 'Shaped', 'Improved'],
+  engineering: ['Built', 'Implemented', 'Improved', 'Delivered'],
+  leadership: ['Led', 'Directed', 'Aligned', 'Drove'],
+  general: actionVerbs
 }
 
 const sampleData = {
@@ -599,13 +633,86 @@ function extractKeywords(jobDescription: string) {
   return Array.from(new Set([...phraseMatches, ...rankedTokens])).slice(0, 12)
 }
 
+function inferRoleFamily(targetRole: string, keywords: string[], skills: string[]) {
+  const normalizedContext = normalizeText([targetRole, ...keywords, ...skills].join(' '))
+
+  for (const family of Object.keys(roleFamilySignals) as RoleFamily[]) {
+    if (family === 'general') {
+      continue
+    }
+
+    if (roleFamilySignals[family].some((signal) => normalizedContext.includes(normalizeText(signal)))) {
+      return family
+    }
+  }
+
+  return 'general' as const
+}
+
+function buildRoleAwareBridge(roleFamily: RoleFamily, keyword: string, index: number) {
+  const keywordText = lowercaseFirstCharacter(toDisplayKeyword(keyword))
+  const bridgeMap: Record<RoleFamily, string[]> = {
+    operations: [
+      `to keep ${keywordText} clearer across daily workflows`,
+      `while improving ${keywordText} follow-through`,
+      `to make ${keywordText} easier for teams to track`,
+      `with tighter ${keywordText} coordination`
+    ],
+    support: [
+      `to strengthen ${keywordText} during customer-facing work`,
+      `while improving ${keywordText} consistency`,
+      `with clearer ${keywordText} support coverage`,
+      `to keep ${keywordText} visible in follow-up work`
+    ],
+    sales: [
+      `to reinforce ${keywordText} across revenue work`,
+      `while improving ${keywordText} visibility in the pipeline`,
+      `with stronger ${keywordText} support during outreach`,
+      `to keep ${keywordText} clearer for decision-makers`
+    ],
+    marketing: [
+      `to strengthen ${keywordText} across campaign execution`,
+      `while improving ${keywordText} visibility in delivery work`,
+      `with clearer ${keywordText} support in content and reporting`,
+      `to keep ${keywordText} easier to spot in the work`
+    ],
+    design: [
+      `to reinforce ${keywordText} in user-facing delivery`,
+      `while improving ${keywordText} visibility in collaboration`,
+      `with clearer ${keywordText} support across design work`,
+      `to keep ${keywordText} easier for teams to read`
+    ],
+    engineering: [
+      `to reinforce ${keywordText} in implementation work`,
+      `while improving ${keywordText} coverage in delivery`,
+      `with clearer ${keywordText} support across build work`,
+      `to make ${keywordText} easier to spot in the project story`
+    ],
+    leadership: [
+      `to keep ${keywordText} clearer across team delivery`,
+      `while improving ${keywordText} visibility for stakeholders`,
+      `with stronger ${keywordText} alignment across priorities`,
+      `to reinforce ${keywordText} in execution planning`
+    ],
+    general: [
+      `to strengthen ${keywordText}`,
+      `while improving ${keywordText}`,
+      `with clearer ${keywordText} support`,
+      `to keep ${keywordText} visible`
+    ]
+  }
+
+  return bridgeMap[roleFamily][index % bridgeMap[roleFamily].length]
+}
+
 function createSummary(
   targetRole: string,
   summaryTone: SummaryTone,
   experienceLevel: ExperienceLevel,
   skills: string[],
   matchedKeywords: string[],
-  missingKeywords: string[]
+  missingKeywords: string[],
+  roleFamily: RoleFamily
 ) {
   const spotlightTerms = cleanTextArray([
     ...matchedKeywords.slice(0, 2).map(toDisplayKeyword),
@@ -613,23 +720,24 @@ function createSummary(
     ...missingKeywords.slice(0, 1).map(toDisplayKeyword)
   ]).slice(0, 4)
 
-  const spotlightText = spotlightTerms.length ? spotlightTerms.join(', ') : 'execution, communication, and delivery'
+  const spotlightText = spotlightTerms.length ? spotlightTerms.join(', ') : roleFamilyFocus[roleFamily]
   const roleText = targetRole ? toDisplayKeyword(targetRole) : 'Candidate'
   const experienceLabel = toDisplayKeyword(experienceLabels[experienceLevel])
   const toneText = toneLabels[summaryTone]
+  const familyFocus = roleFamilyFocus[roleFamily]
 
-  return `${experienceLabel} ${roleText} with strengths in ${spotlightText}. Brings a ${toneText} voice and positions experience around role-relevant execution so hiring teams can quickly map the draft to the job.`
+  return `${experienceLabel} ${roleText} with strengths in ${spotlightText}. Brings a ${toneText} voice and frames experience around ${familyFocus} so hiring teams can quickly map the draft to the role.`
 }
 
-function createOptimizedBullet(statement: string, keyword: string, index: number, targetRole: string) {
+function createOptimizedBullet(statement: string, keyword: string, index: number, targetRole: string, roleFamily: RoleFamily) {
   const cleaned = statement
     .replace(/^(responsible for|worked on|tasked with|helped with)\s+/i, '')
     .replace(/\.$/, '')
     .trim()
 
   const hasActionVerb = actionVerbs.some((verb) => cleaned.toLowerCase().startsWith(verb.toLowerCase()))
-  const starter = actionVerbs[index % actionVerbs.length]
-  const keywordText = lowercaseFirstCharacter(toDisplayKeyword(keyword || targetRole || 'role priorities'))
+  const verbPool = roleFamilyActionVerbs[roleFamily]
+  const starter = verbPool[index % verbPool.length]
   const body = cleaned
     ? hasActionVerb
       ? cleaned
@@ -640,14 +748,7 @@ function createOptimizedBullet(statement: string, keyword: string, index: number
     return `${body}.`
   }
 
-  const bridges = [
-    `with stronger focus on ${keywordText}`,
-    `to support ${keywordText}`,
-    `across ${keywordText} workflows`,
-    `while improving ${keywordText}`
-  ]
-
-  return `${body} ${bridges[index % bridges.length]}.`
+  return `${body} ${buildRoleAwareBridge(roleFamily, keyword || targetRole || 'the target role', index)}.`
 }
 
 function collectResumeText(
@@ -690,6 +791,7 @@ function buildAnalysis(
   const currentResumeText = collectResumeText(personalInfo, targetRole, experience, education, skills, projects, certifications, languages)
   const matchedKeywords = trackedKeywords.filter((keyword) => keywordExists(currentResumeText, keyword))
   const missingKeywords = trackedKeywords.filter((keyword) => !matchedKeywords.includes(keyword))
+  const roleFamily = inferRoleFamily(targetRole, [...matchedKeywords, ...missingKeywords], skills)
   const completenessChecks = [
     Boolean(personalInfo.name.trim()),
     Boolean(personalInfo.email.trim()),
@@ -706,20 +808,20 @@ function buildAnalysis(
     ? Math.round(coverageRatio * 68 + completenessRatio * 24 + Math.min(cleanTextArray(skills).length, 10))
     : Math.round(completenessRatio * 62 + Math.min(cleanTextArray(skills).length, 8) * 2.5)
   const beforeScore = clamp(baseScore, 18, 88)
-  const optimizedSummary = createSummary(targetRole, summaryTone, experienceLevel, skills, matchedKeywords, missingKeywords)
+  const optimizedSummary = createSummary(targetRole, summaryTone, experienceLevel, skills, matchedKeywords, missingKeywords, roleFamily)
   const optimizedExperience = experience.map((item, index) => {
     const statements = splitIntoStatements(item.description)
     const keywordPool = [...missingKeywords, ...matchedKeywords]
 
     if (!statements.length) {
       return keywordPool.slice(index, index + 2).map((keyword, keywordIndex) =>
-        createOptimizedBullet('', keyword, index + keywordIndex, targetRole)
+        createOptimizedBullet('', keyword, index + keywordIndex, targetRole, roleFamily)
       )
     }
 
     return statements.slice(0, 3).map((statement, statementIndex) => {
       const keyword = keywordPool[(index + statementIndex) % Math.max(keywordPool.length, 1)] ?? targetRole ?? 'core skills'
-      return createOptimizedBullet(statement, keyword, index + statementIndex, targetRole)
+      return createOptimizedBullet(statement, keyword, index + statementIndex, targetRole, roleFamily)
     })
   })
 
@@ -1107,12 +1209,6 @@ function App() {
       : isReviewBackendConfigured
         ? 'Your review will publish to the shared review wall as soon as you submit it.'
         : 'Shared review publishing is not configured yet on this build.'
-  const reviewPreviewName = reviewDraft.name.trim() || personalInfo.name.trim() || 'Your name'
-  const reviewPreviewRole = reviewDraft.role.trim() || targetRole.trim() || 'Target role'
-  const reviewPreviewBoard = reviewDraft.board.trim() || 'Job board'
-  const reviewPreviewOutcome = reviewDraft.outcome.trim() || 'Outcome will appear here'
-  const reviewPreviewQuote = reviewDraft.quote.trim() || 'Write a short result-focused review so other job seekers can quickly see what changed.'
-  const reviewPreviewRating = clampReviewRating(reviewDraft.rating)
   const publishedReviews = remoteApprovedReviews.filter(
     (review, index, collection) => collection.findIndex((item) => item.id === review.id) === index
   )
@@ -1675,7 +1771,7 @@ function App() {
             <div className="hero-grid">
               <div className="hero-copy">
                 <span className="eyebrow">Built for job seekers who want scoring, not guesswork.</span>
-                <h1>Stop guessing. Start scoring your resume.</h1>
+                <h1>You are qualified. ResuMay! helps your resume prove it.</h1>
                 <p className="hero-lead">
                   ResuMay! uses real-time ATS signaling to show what hiring systems see, surface the missing signals, and
                   turn your draft into a higher-conversion application before you apply.
@@ -2105,62 +2201,6 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                   </div>
                 </fieldset>
               </section>
-
-              <aside className="panel review-preview-panel" aria-label="Published review preview">
-                <div className="panel-heading">
-                  <div>
-                    <span className="panel-kicker">Live publish preview</span>
-                    <h3>What the review wall will show</h3>
-                  </div>
-                  <span className="panel-badge panel-badge-success">Public view</span>
-                </div>
-
-                <p className="review-form-copy">
-                  This preview updates while you type, so you can shape the public result before you publish it.
-                </p>
-
-                <article className="review-preview-card">
-                  <div className="review-rating" aria-label={`${reviewPreviewRating} star preview`}>
-                    {[0, 1, 2, 3, 4].map((index) => (
-                      <i key={`review-preview-star-${index}`} className={`bi ${getStarIcon(reviewPreviewRating, index)}`} />
-                    ))}
-                  </div>
-
-                  <p className="review-quote">"{reviewPreviewQuote}"</p>
-
-                  <div className="review-preview-inline">
-                    <span>{analysis.beforeScore}% to {analysis.afterScore}%</span>
-                    <span>{reviewPreviewBoard}</span>
-                  </div>
-
-                  <div className="review-result-card-footer">
-                    <div className="review-identity">
-                      <span className="review-avatar" aria-hidden="true">
-                        {reviewPreviewName.charAt(0).toUpperCase()}
-                      </span>
-                      <div>
-                        <strong>{reviewPreviewName}</strong>
-                        <p>{reviewPreviewOutcome}</p>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-
-                <div className="review-preview-points">
-                  <div>
-                    <strong>Role shown</strong>
-                    <span>{reviewPreviewRole}</span>
-                  </div>
-                  <div>
-                    <strong>Appears when</strong>
-                    <span>{canSubmitReview ? 'Immediately after publish' : 'After export unlocks reviews'}</span>
-                  </div>
-                  <div>
-                    <strong>Best result</strong>
-                    <span>Keep the quote short, specific, and outcome-focused.</span>
-                  </div>
-                </div>
-              </aside>
             </div>
           </div>
         </section>

@@ -202,7 +202,7 @@ main {
 
 .hero-copy h1 {
   font-size: clamp(3rem, 6vw, 5.2rem);
-  max-width: 11ch;
+  max-width: 13ch;
 }
 
 .hero-copy {
@@ -1170,9 +1170,9 @@ main {
 
 .review-submission-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
-  max-width: 68rem;
+  max-width: 52rem;
   margin-inline: auto;
   align-items: start;
 }
@@ -1325,11 +1325,6 @@ main {
   gap: 1rem;
 }
 
-.review-preview-panel {
-  display: grid;
-  gap: 1rem;
-}
-
 .review-form-copy {
   margin: 0;
   color: var(--muted);
@@ -1357,59 +1352,6 @@ main {
 .review-submission-note span {
   color: var(--muted);
   font-size: 0.84rem;
-}
-
-.review-preview-card {
-  display: grid;
-  gap: 1rem;
-  padding: 1.35rem;
-  border-radius: calc(var(--radius-lg) - 2px);
-  background: rgba(247, 243, 236, 0.92);
-  border: 1px solid rgba(27, 27, 27, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-}
-
-.review-preview-inline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.review-preview-inline span {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem 0.72rem;
-  border-radius: 999px;
-  background: rgba(27, 27, 27, 0.05);
-  border: 1px solid rgba(27, 27, 27, 0.08);
-  color: var(--ink);
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.review-preview-points {
-  display: grid;
-  gap: 0.7rem;
-}
-
-.review-preview-points div {
-  display: grid;
-  gap: 0.16rem;
-  padding: 0.85rem 0.95rem;
-  border-radius: var(--radius-md);
-  background: rgba(253, 252, 248, 0.86);
-  border: 1px solid rgba(27, 27, 27, 0.08);
-}
-
-.review-preview-points strong {
-  color: var(--ink);
-  font-size: 0.84rem;
-}
-
-.review-preview-points span {
-  color: var(--muted);
-  font-size: 0.83rem;
-  line-height: 1.58;
 }
 
 .story-grid,
