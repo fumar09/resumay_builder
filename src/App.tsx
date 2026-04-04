@@ -12,6 +12,7 @@ interface PersonalInfo {
 }
 
 interface Experience {
+  id: string
   jobTitle: string
   company: string
   duration: string
@@ -19,24 +20,28 @@ interface Experience {
 }
 
 interface Education {
+  id: string
   degree: string
   school: string
   year: string
 }
 
 interface Project {
+  id: string
   name: string
   description: string
   link: string
 }
 
 interface Certification {
+  id: string
   name: string
   issuer: string
   year: string
 }
 
 interface Language {
+  id: string
   name: string
   proficiency: string
 }
@@ -78,11 +83,53 @@ const defaultPersonalInfo: PersonalInfo = {
   summary: ''
 }
 
-const emptyExperience: Experience = { jobTitle: '', company: '', duration: '', description: '' }
-const emptyEducation: Education = { degree: '', school: '', year: '' }
-const emptyProject: Project = { name: '', description: '', link: '' }
-const emptyCertification: Certification = { name: '', issuer: '', year: '' }
-const emptyLanguage: Language = { name: '', proficiency: '' }
+const createEntryId = (prefix: string) => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `${prefix}-${crypto.randomUUID()}`
+  }
+
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+const createExperience = (entry: Partial<Experience> = {}): Experience => ({
+  id: entry.id ?? createEntryId('exp'),
+  jobTitle: '',
+  company: '',
+  duration: '',
+  description: '',
+  ...entry
+})
+
+const createEducation = (entry: Partial<Education> = {}): Education => ({
+  id: entry.id ?? createEntryId('edu'),
+  degree: '',
+  school: '',
+  year: '',
+  ...entry
+})
+
+const createProject = (entry: Partial<Project> = {}): Project => ({
+  id: entry.id ?? createEntryId('proj'),
+  name: '',
+  description: '',
+  link: '',
+  ...entry
+})
+
+const createCertification = (entry: Partial<Certification> = {}): Certification => ({
+  id: entry.id ?? createEntryId('cert'),
+  name: '',
+  issuer: '',
+  year: '',
+  ...entry
+})
+
+const createLanguage = (entry: Partial<Language> = {}): Language => ({
+  id: entry.id ?? createEntryId('lang'),
+  name: '',
+  proficiency: '',
+  ...entry
+})
 
 const stopWords = new Set([
   'about',
@@ -339,6 +386,18 @@ function normalizeExternalUrl(value: string) {
   }
 
   return `https://${trimmed}`
+}
+
+function buildResumeFileName(name: string) {
+  const normalizedName = name
+    .trim()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .replace(/_+/g, '_')
+
+  return `${normalizedName || 'ResuMay'}_Resume.pdf`
 }
 
 function keywordExists(text: string, keyword: string) {
@@ -607,12 +666,12 @@ function App() {
   const [jobDescription, setJobDescription] = useState('')
   const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>('mid')
   const [summaryTone, setSummaryTone] = useState<SummaryTone>('balanced')
-  const [experience, setExperience] = useState<Experience[]>([{ ...emptyExperience }])
-  const [education, setEducation] = useState<Education[]>([{ ...emptyEducation }])
+  const [experience, setExperience] = useState<Experience[]>([createExperience()])
+  const [education, setEducation] = useState<Education[]>([createEducation()])
   const [skills, setSkills] = useState<string[]>([])
-  const [projects, setProjects] = useState<Project[]>([{ ...emptyProject }])
-  const [certifications, setCertifications] = useState<Certification[]>([{ ...emptyCertification }])
-  const [languages, setLanguages] = useState<Language[]>([{ ...emptyLanguage }])
+  const [projects, setProjects] = useState<Project[]>([createProject()])
+  const [certifications, setCertifications] = useState<Certification[]>([createCertification()])
+  const [languages, setLanguages] = useState<Language[]>([createLanguage()])
   const [pendingSkill, setPendingSkill] = useState('')
   const [applyOptimization, setApplyOptimization] = useState(true)
   const [feedback, setFeedback] = useState('')
@@ -632,29 +691,29 @@ function App() {
         setSummaryTone(data.summaryTone ?? 'balanced')
         setExperience(
           Array.isArray(data.experience) && data.experience.length
-            ? data.experience.map((item: Experience) => ({ ...emptyExperience, ...item }))
-            : [{ ...emptyExperience }]
+            ? data.experience.map((item: Experience) => createExperience(item))
+            : [createExperience()]
         )
         setEducation(
           Array.isArray(data.education) && data.education.length
-            ? data.education.map((item: Education) => ({ ...emptyEducation, ...item }))
-            : [{ ...emptyEducation }]
+            ? data.education.map((item: Education) => createEducation(item))
+            : [createEducation()]
         )
         setSkills(Array.isArray(data.skills) ? cleanTextArray(data.skills) : [])
         setProjects(
           Array.isArray(data.projects) && data.projects.length
-            ? data.projects.map((item: Project) => ({ ...emptyProject, ...item }))
-            : [{ ...emptyProject }]
+            ? data.projects.map((item: Project) => createProject(item))
+            : [createProject()]
         )
         setCertifications(
           Array.isArray(data.certifications) && data.certifications.length
-            ? data.certifications.map((item: Certification) => ({ ...emptyCertification, ...item }))
-            : [{ ...emptyCertification }]
+            ? data.certifications.map((item: Certification) => createCertification(item))
+            : [createCertification()]
         )
         setLanguages(
           Array.isArray(data.languages) && data.languages.length
-            ? data.languages.map((item: Language) => ({ ...emptyLanguage, ...item }))
-            : [{ ...emptyLanguage }]
+            ? data.languages.map((item: Language) => createLanguage(item))
+            : [createLanguage()]
         )
         setApplyOptimization(data.applyOptimization ?? true)
       }
@@ -729,13 +788,13 @@ function App() {
   const previewExperience = experience.map((item, index) =>
     applyOptimization ? analysis.optimizedExperience[index] ?? [] : splitIntoStatements(item.description).slice(0, 3)
   )
-  const resumeHeadline = cleanTextArray([targetRole, ...skills.slice(0, 3)]).slice(0, 4).join(' | ')
-  const resumeContactLine = [personalInfo.address, personalInfo.email, personalInfo.phone, personalInfo.linkedin, personalInfo.website]
+  const resumeHeadlineParts = cleanTextArray([targetRole, ...skills.slice(0, 3)]).slice(0, 4)
+  const resumeContactItems = [personalInfo.address, personalInfo.email, personalInfo.phone, personalInfo.linkedin, personalInfo.website]
     .map((value) => value.trim())
     .filter(Boolean)
-    .join(' | ')
   const resumeSummary = condenseResumeSummary(personalInfo.summary.trim() || previewSummary)
   const resumeSkills = cleanTextArray(skills).slice(0, 10)
+  const exportFileName = buildResumeFileName(personalInfo.name)
   const resumeExperienceEntries = experience
     .map((item, index) => ({
       ...item,
@@ -792,9 +851,9 @@ function App() {
     })
 
     setSkills(cleanedSkills)
-    setProjects(cleanedProjects.length ? cleanedProjects : [{ ...emptyProject }])
-    setCertifications(cleanedCertifications.length ? cleanedCertifications : [{ ...emptyCertification }])
-    setLanguages(cleanedLanguages.length ? cleanedLanguages : [{ ...emptyLanguage }])
+    setProjects(cleanedProjects.length ? cleanedProjects : [createProject()])
+    setCertifications(cleanedCertifications.length ? cleanedCertifications : [createCertification()])
+    setLanguages(cleanedLanguages.length ? cleanedLanguages : [createLanguage()])
 
     try {
       localStorage.setItem(STORAGE_KEY, workspaceSnapshot)
@@ -811,12 +870,12 @@ function App() {
     setSummaryTone(sampleData.summaryTone)
     setApplyOptimization(sampleData.applyOptimization)
     setPersonalInfo(sampleData.personalInfo)
-    setExperience(sampleData.experience)
-    setEducation(sampleData.education)
+    setExperience(sampleData.experience.map((item) => createExperience(item)))
+    setEducation(sampleData.education.map((item) => createEducation(item)))
     setSkills(sampleData.skills)
-    setProjects(sampleData.projects)
-    setCertifications(sampleData.certifications)
-    setLanguages(sampleData.languages)
+    setProjects(sampleData.projects.map((item) => createProject(item)))
+    setCertifications(sampleData.certifications.map((item) => createCertification(item)))
+    setLanguages(sampleData.languages.map((item) => createLanguage(item)))
     setPendingSkill('')
     showToast('Sample ATS workspace loaded.')
 
@@ -836,12 +895,12 @@ function App() {
     setJobDescription('')
     setExperienceLevel('mid')
     setSummaryTone('balanced')
-    setExperience([{ ...emptyExperience }])
-    setEducation([{ ...emptyEducation }])
+    setExperience([createExperience()])
+    setEducation([createEducation()])
     setSkills([])
-    setProjects([{ ...emptyProject }])
-    setCertifications([{ ...emptyCertification }])
-    setLanguages([{ ...emptyLanguage }])
+    setProjects([createProject()])
+    setCertifications([createCertification()])
+    setLanguages([createLanguage()])
     setPendingSkill('')
     setApplyOptimization(true)
 
@@ -891,7 +950,7 @@ function App() {
 
       pdf.addImage(imgData, 'PNG', horizontalOffset, margin, renderedWidth, renderedHeight)
 
-      pdf.save('resumay-ats-resume.pdf')
+      pdf.save(exportFileName)
       showToast('ATS resume exported as a single-page PDF.')
     } catch {
       showToast('PDF export failed. Please try again.')
@@ -926,10 +985,8 @@ function App() {
     setSkills((current) => [...current, toDisplayKeyword(keyword)])
   }
 
-  const updateArrayItem = <T,>(items: T[], setter: Dispatch<SetStateAction<T[]>>, index: number, field: keyof T, value: string) => {
-    const next = [...items]
-    next[index] = { ...next[index], [field]: value }
-    setter(next)
+  const updateArrayItem = <T, K extends keyof T>(setter: Dispatch<SetStateAction<T[]>>, index: number, field: K, value: T[K]) => {
+    setter((current) => current.map((item, itemIndex) => (itemIndex === index ? { ...item, [field]: value } : item)))
   }
 
   const addArrayItem = <T,>(setter: Dispatch<SetStateAction<T[]>>, item: T) => {
@@ -1239,6 +1296,24 @@ function App() {
 
             {feedback && <div className="toast-banner">{feedback}</div>}
 
+            <div className="studio-overview" aria-label="Studio summary">
+              <article className="overview-card">
+                <span className="panel-kicker">Projected match</span>
+                <strong>{analysis.afterScore}/100</strong>
+                <p>Keep the score, keywords, and preview aligned while you write.</p>
+              </article>
+              <article className="overview-card">
+                <span className="panel-kicker">Download name</span>
+                <strong>{exportFileName}</strong>
+                <p>Your PDF now exports with the actual candidate name instead of a generic filename.</p>
+              </article>
+              <article className="overview-card">
+                <span className="panel-kicker">Resume format</span>
+                <strong>Concise one-page ATS PDF</strong>
+                <p>The live preview and exported PDF stay synchronized to the same clean layout.</p>
+              </article>
+            </div>
+
             <div className="studio-grid">
               <div className="studio-form-column">
                 <section className="panel">
@@ -1418,13 +1493,13 @@ function App() {
                       <span className="panel-kicker">Step 3</span>
                       <h3>Experience</h3>
                     </div>
-                    <button type="button" className="text-button" onClick={() => addArrayItem(setExperience, { ...emptyExperience })}>
+                    <button type="button" className="text-button" onClick={() => addArrayItem(setExperience, createExperience())}>
                       <i className="bi bi-plus-circle" /> Add role
                     </button>
                   </div>
 
                   {experience.map((item, index) => (
-                    <div key={`${item.jobTitle}-${index}`} className="repeat-card">
+                    <div key={item.id} className="repeat-card">
                       <div className="repeat-card-header">
                         <strong>Role {index + 1}</strong>
                         {experience.length > 1 && (
@@ -1442,7 +1517,7 @@ function App() {
                             id={`experience_jobTitle_${index}`}
                             name={`experience_jobTitle_${index}`}
                             value={item.jobTitle}
-                            onChange={(event) => updateArrayItem(experience, setExperience, index, 'jobTitle', event.target.value)}
+                            onChange={(event) => updateArrayItem(setExperience, index, 'jobTitle', event.target.value)}
                             placeholder="Senior Software Engineer"
                           />
                         </label>
@@ -1454,7 +1529,7 @@ function App() {
                             id={`experience_company_${index}`}
                             name={`experience_company_${index}`}
                             value={item.company}
-                            onChange={(event) => updateArrayItem(experience, setExperience, index, 'company', event.target.value)}
+                            onChange={(event) => updateArrayItem(setExperience, index, 'company', event.target.value)}
                             placeholder="Tech Company PH"
                           />
                         </label>
@@ -1467,7 +1542,7 @@ function App() {
                           id={`experience_duration_${index}`}
                           name={`experience_duration_${index}`}
                           value={item.duration}
-                          onChange={(event) => updateArrayItem(experience, setExperience, index, 'duration', event.target.value)}
+                          onChange={(event) => updateArrayItem(setExperience, index, 'duration', event.target.value)}
                           placeholder="2022 - Present"
                         />
                       </label>
@@ -1479,7 +1554,7 @@ function App() {
                           name={`experience_description_${index}`}
                           rows={4}
                           value={item.description}
-                          onChange={(event) => updateArrayItem(experience, setExperience, index, 'description', event.target.value)}
+                          onChange={(event) => updateArrayItem(setExperience, index, 'description', event.target.value)}
                           placeholder="Add 2-4 sentences or bullet-style notes. ResuMay! will tighten them for ATS readability."
                         />
                       </label>
@@ -1553,13 +1628,13 @@ function App() {
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Education</strong>
-                      <button type="button" className="text-button" onClick={() => addArrayItem(setEducation, { ...emptyEducation })}>
+                      <button type="button" className="text-button" onClick={() => addArrayItem(setEducation, createEducation())}>
                         <i className="bi bi-plus-circle" /> Add
                       </button>
                     </div>
 
                     {education.map((item, index) => (
-                      <div key={`${item.degree}-${index}`} className="repeat-card compact-repeat-card">
+                      <div key={item.id} className="repeat-card compact-repeat-card">
                         <div className="repeat-card-header">
                           <strong>Education {index + 1}</strong>
                           {education.length > 1 && (
@@ -1577,7 +1652,7 @@ function App() {
                               id={`education_degree_${index}`}
                               name={`education_degree_${index}`}
                               value={item.degree}
-                              onChange={(event) => updateArrayItem(education, setEducation, index, 'degree', event.target.value)}
+                              onChange={(event) => updateArrayItem(setEducation, index, 'degree', event.target.value)}
                               placeholder="BS Computer Science / BS Information Technology"
                             />
                           </label>
@@ -1589,7 +1664,7 @@ function App() {
                               id={`education_year_${index}`}
                               name={`education_year_${index}`}
                               value={item.year}
-                              onChange={(event) => updateArrayItem(education, setEducation, index, 'year', event.target.value)}
+                              onChange={(event) => updateArrayItem(setEducation, index, 'year', event.target.value)}
                               placeholder="2023"
                             />
                           </label>
@@ -1602,7 +1677,7 @@ function App() {
                             id={`education_school_${index}`}
                             name={`education_school_${index}`}
                             value={item.school}
-                            onChange={(event) => updateArrayItem(education, setEducation, index, 'school', event.target.value)}
+                            onChange={(event) => updateArrayItem(setEducation, index, 'school', event.target.value)}
                             placeholder="UP / DLSU / Ateneo / UST"
                           />
                         </label>
@@ -1613,13 +1688,13 @@ function App() {
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Projects</strong>
-                      <button type="button" className="text-button" onClick={() => addArrayItem(setProjects, { ...emptyProject })}>
+                      <button type="button" className="text-button" onClick={() => addArrayItem(setProjects, createProject())}>
                         <i className="bi bi-plus-circle" /> Add
                       </button>
                     </div>
 
                     {projects.map((item, index) => (
-                      <div key={`${item.name}-${index}`} className="repeat-card compact-repeat-card">
+                      <div key={item.id} className="repeat-card compact-repeat-card">
                         <div className="repeat-card-header">
                           <strong>Project {index + 1}</strong>
                           {projects.length > 1 && (
@@ -1636,7 +1711,7 @@ function App() {
                             id={`project_name_${index}`}
                             name={`project_name_${index}`}
                             value={item.name}
-                            onChange={(event) => updateArrayItem(projects, setProjects, index, 'name', event.target.value)}
+                            onChange={(event) => updateArrayItem(setProjects, index, 'name', event.target.value)}
                             placeholder="Analytics workspace"
                           />
                         </label>
@@ -1648,7 +1723,7 @@ function App() {
                             name={`project_description_${index}`}
                             rows={3}
                             value={item.description}
-                            onChange={(event) => updateArrayItem(projects, setProjects, index, 'description', event.target.value)}
+                            onChange={(event) => updateArrayItem(setProjects, index, 'description', event.target.value)}
                             placeholder="What impact did the project have?"
                           />
                         </label>
@@ -1660,7 +1735,7 @@ function App() {
                             id={`project_link_${index}`}
                             name={`project_link_${index}`}
                             value={item.link}
-                            onChange={(event) => updateArrayItem(projects, setProjects, index, 'link', event.target.value)}
+                            onChange={(event) => updateArrayItem(setProjects, index, 'link', event.target.value)}
                             placeholder="https://github.com/..."
                           />
                         </label>
@@ -1680,13 +1755,13 @@ function App() {
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Certifications</strong>
-                      <button type="button" className="text-button" onClick={() => addArrayItem(setCertifications, { ...emptyCertification })}>
+                      <button type="button" className="text-button" onClick={() => addArrayItem(setCertifications, createCertification())}>
                         <i className="bi bi-plus-circle" /> Add
                       </button>
                     </div>
 
                     {certifications.map((item, index) => (
-                      <div key={`${item.name}-${index}`} className="repeat-card compact-repeat-card">
+                      <div key={item.id} className="repeat-card compact-repeat-card">
                         <div className="repeat-card-header">
                           <strong>Certification {index + 1}</strong>
                           {certifications.length > 1 && (
@@ -1709,7 +1784,7 @@ function App() {
                               id={`certification_name_${index}`}
                               name={`certification_name_${index}`}
                               value={item.name}
-                              onChange={(event) => updateArrayItem(certifications, setCertifications, index, 'name', event.target.value)}
+                              onChange={(event) => updateArrayItem(setCertifications, index, 'name', event.target.value)}
                               placeholder="AWS Cloud Practitioner"
                             />
                           </label>
@@ -1721,7 +1796,7 @@ function App() {
                               id={`certification_year_${index}`}
                               name={`certification_year_${index}`}
                               value={item.year}
-                              onChange={(event) => updateArrayItem(certifications, setCertifications, index, 'year', event.target.value)}
+                              onChange={(event) => updateArrayItem(setCertifications, index, 'year', event.target.value)}
                               placeholder="2024"
                             />
                           </label>
@@ -1734,7 +1809,7 @@ function App() {
                             id={`certification_issuer_${index}`}
                             name={`certification_issuer_${index}`}
                             value={item.issuer}
-                            onChange={(event) => updateArrayItem(certifications, setCertifications, index, 'issuer', event.target.value)}
+                            onChange={(event) => updateArrayItem(setCertifications, index, 'issuer', event.target.value)}
                             placeholder="Issuer"
                           />
                         </label>
@@ -1745,13 +1820,13 @@ function App() {
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Languages</strong>
-                      <button type="button" className="text-button" onClick={() => addArrayItem(setLanguages, { ...emptyLanguage })}>
+                      <button type="button" className="text-button" onClick={() => addArrayItem(setLanguages, createLanguage())}>
                         <i className="bi bi-plus-circle" /> Add
                       </button>
                     </div>
 
                     {languages.map((item, index) => (
-                      <div key={`${item.name}-${index}`} className="repeat-card compact-repeat-card">
+                      <div key={item.id} className="repeat-card compact-repeat-card">
                         <div className="repeat-card-header">
                           <strong>Language {index + 1}</strong>
                           {languages.length > 1 && (
@@ -1769,7 +1844,7 @@ function App() {
                               id={`language_name_${index}`}
                               name={`language_name_${index}`}
                               value={item.name}
-                              onChange={(event) => updateArrayItem(languages, setLanguages, index, 'name', event.target.value)}
+                              onChange={(event) => updateArrayItem(setLanguages, index, 'name', event.target.value)}
                               placeholder="Tagalog / Bisaya / Ilokano"
                             />
                           </label>
@@ -1780,7 +1855,7 @@ function App() {
                               id={`language_proficiency_${index}`}
                               name={`language_proficiency_${index}`}
                               value={item.proficiency}
-                              onChange={(event) => updateArrayItem(languages, setLanguages, index, 'proficiency', event.target.value)}
+                              onChange={(event) => updateArrayItem(setLanguages, index, 'proficiency', event.target.value)}
                             >
                               <option value="">Select</option>
                               <option value="Basic">Basic</option>
@@ -1798,6 +1873,143 @@ function App() {
 
               <aside className="studio-side-column">
                 <div className="sticky-stack">
+                  <section className="panel resume-panel">
+                    <div className="resume-panel-topbar">
+                      <div>
+                        <span className="panel-kicker">Output preview</span>
+                        <h3>Optimized resume sheet</h3>
+                        <div className="resume-panel-meta">
+                          <span>1-page ATS format</span>
+                          <span>{exportFileName}</span>
+                        </div>
+                      </div>
+
+                      <div className="resume-actions">
+                        <button type="button" className="ghost-button compact-button" onClick={saveWorkspace}>
+                          Save locally
+                        </button>
+                        <button type="button" className="primary-button compact-button" onClick={generatePDF} disabled={!hasResumeCore}>
+                          Export PDF
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="resume-workspace">
+                      <div id="resume-preview" className="resume-sheet">
+                        <header className="resume-header">
+                          <h2>{personalInfo.name || 'Your Name'}</h2>
+                          <p className="resume-role">
+                            {(resumeHeadlineParts.length ? resumeHeadlineParts : [targetRole || 'Target Role']).map((part, index) => (
+                              <span key={`${part}-${index}`}>{part}</span>
+                            ))}
+                          </p>
+                          {resumeContactItems.length > 0 && (
+                            <div className="resume-contact-line">
+                              {resumeContactItems.map((item, index) => (
+                                <span key={`${item}-${index}`}>{item}</span>
+                              ))}
+                            </div>
+                          )}
+                        </header>
+
+                        {resumeSummary && (
+                          <section className="resume-section">
+                            <h3>Professional Summary</h3>
+                            <p className="resume-section-copy">{resumeSummary}</p>
+                          </section>
+                        )}
+
+                        {resumeExperienceEntries.length > 0 && (
+                          <section className="resume-section">
+                            <h3>Work Experience</h3>
+                            {resumeExperienceEntries.map((item) => (
+                              <article key={item.id} className="resume-role-block">
+                                <div className="resume-role-row">
+                                  <div>
+                                    <strong>{item.jobTitle}</strong>
+                                    <span>{item.company}</span>
+                                  </div>
+                                  {item.duration && <em>{item.duration}</em>}
+                                </div>
+
+                                {item.bullets.length > 0 && (
+                                  <ul className="resume-bullets">
+                                    {item.bullets.map((bullet, bulletIndex) => (
+                                      <li key={`${item.id}-bullet-${bulletIndex}`}>{bullet}</li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </article>
+                            ))}
+                          </section>
+                        )}
+
+                        {resumeEducationEntries.length > 0 && (
+                          <section className="resume-section">
+                            <h3>Education</h3>
+                            {resumeEducationEntries.map((item) => (
+                              <article key={item.id} className="resume-inline-block">
+                                <strong>{item.degree}</strong>
+                                <p>
+                                  {item.school}
+                                  {item.year ? ` | ${item.year}` : ''}
+                                </p>
+                              </article>
+                            ))}
+                          </section>
+                        )}
+
+                        {resumeSkillGroups.length > 0 && (
+                          <section className="resume-section">
+                            <h3>Skills</h3>
+                            <ul className="resume-bullets resume-bullets-compact">
+                              {resumeSkillGroups.map((group, index) => (
+                                <li key={index}>{group.join(', ')}</li>
+                              ))}
+                            </ul>
+                            {resumeLanguages.length > 0 && (
+                              <p className="resume-section-note">
+                                <strong>Languages:</strong>{' '}
+                                {resumeLanguages
+                                  .map((item) => (item.proficiency ? `${item.name} (${item.proficiency})` : item.name))
+                                  .join(', ')}
+                              </p>
+                            )}
+                          </section>
+                        )}
+
+                        {resumeCertifications.length > 0 && (
+                          <section className="resume-section">
+                            <h3>Certifications</h3>
+                            <ul className="resume-bullets resume-bullets-compact">
+                              {resumeCertifications.map((item) => (
+                                <li key={item.id}>
+                                  {item.name}
+                                  {[item.issuer, item.year].filter(Boolean).length
+                                    ? ` | ${[item.issuer, item.year].filter(Boolean).join(' | ')}`
+                                    : ''}
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
+
+                        {showProjectsInResume && (
+                          <section className="resume-section">
+                            <h3>Projects</h3>
+                            {resumeProjects.map((item) => (
+                              <article key={item.id} className="resume-inline-block">
+                                <strong>{item.name}</strong>
+                                <p>{truncateText(item.description, 120)}</p>
+                                {item.link && <span className="resume-link-line">{normalizeExternalUrl(item.link)}</span>}
+                              </article>
+                            ))}
+                          </section>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+
                   <section className="panel panel-contrast">
                     <div className="panel-heading">
                       <div>
@@ -1908,8 +2120,8 @@ function App() {
                             <div key={`optimized-${index}`} className="suggestion-card">
                               <strong>{experience[index]?.jobTitle || `Role ${index + 1}`}</strong>
                               <ul>
-                                {group.map((bullet) => (
-                                  <li key={bullet}>{bullet}</li>
+                                {group.map((bullet, bulletIndex) => (
+                                  <li key={`optimized-${index}-${bulletIndex}`}>{bullet}</li>
                                 ))}
                               </ul>
                             </div>
@@ -1918,129 +2130,6 @@ function App() {
                       ) : (
                         <p className="empty-note">Add experience details and ResuMay! will rewrite them into clearer ATS bullets.</p>
                       )}
-                    </div>
-                  </section>
-
-                  <section className="panel resume-panel">
-                    <div className="resume-panel-topbar">
-                      <div>
-                        <span className="panel-kicker">Output preview</span>
-                        <h3>Optimized resume sheet</h3>
-                      </div>
-
-                      <div className="resume-actions">
-                        <button type="button" className="ghost-button compact-button" onClick={saveWorkspace}>
-                          Save locally
-                        </button>
-                        <button type="button" className="primary-button compact-button" onClick={generatePDF} disabled={!hasResumeCore}>
-                          Export PDF
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="resume-workspace">
-                      <div id="resume-preview" className="resume-sheet">
-                        <header className="resume-header">
-                          <h2>{personalInfo.name || 'Your Name'}</h2>
-                          <p className="resume-role">{resumeHeadline || targetRole || 'Target Role'}</p>
-                          {resumeContactLine && <p className="resume-contact-line">{resumeContactLine}</p>}
-                        </header>
-
-                      {resumeSummary && (
-                        <section className="resume-section">
-                          <h3>Professional Summary</h3>
-                          <p className="resume-section-copy">{resumeSummary}</p>
-                        </section>
-                      )}
-
-                      {resumeExperienceEntries.length > 0 && (
-                        <section className="resume-section">
-                          <h3>Work Experience</h3>
-                          {resumeExperienceEntries.map((item, index) => (
-                            <article key={`${item.jobTitle}-${index}`} className="resume-role-block">
-                              <div className="resume-role-row">
-                                <div>
-                                  <strong>{item.jobTitle}</strong>
-                                  <span>{item.company}</span>
-                                </div>
-                                {item.duration && <em>{item.duration}</em>}
-                              </div>
-
-                              {item.bullets.length > 0 && (
-                                <ul className="resume-bullets">
-                                  {item.bullets.map((bullet) => (
-                                    <li key={bullet}>{bullet}</li>
-                                  ))}
-                                </ul>
-                              )}
-                            </article>
-                          ))}
-                        </section>
-                      )}
-
-                      {resumeEducationEntries.length > 0 && (
-                        <section className="resume-section">
-                          <h3>Education</h3>
-                          {resumeEducationEntries.map((item, index) => (
-                            <article key={`${item.degree}-${index}`} className="resume-inline-block">
-                              <strong>{item.degree}</strong>
-                              <p>
-                                {item.school}
-                                {item.year ? ` | ${item.year}` : ''}
-                              </p>
-                            </article>
-                          ))}
-                        </section>
-                      )}
-
-                      {resumeSkillGroups.length > 0 && (
-                        <section className="resume-section">
-                          <h3>Skills</h3>
-                          <ul className="resume-bullets resume-bullets-compact">
-                            {resumeSkillGroups.map((group, index) => (
-                              <li key={index}>{group.join(', ')}</li>
-                            ))}
-                          </ul>
-                          {resumeLanguages.length > 0 && (
-                            <p className="resume-section-note">
-                              <strong>Languages:</strong>{' '}
-                              {resumeLanguages
-                                .map((item) => (item.proficiency ? `${item.name} (${item.proficiency})` : item.name))
-                                .join(', ')}
-                            </p>
-                          )}
-                        </section>
-                      )}
-
-                      {resumeCertifications.length > 0 && (
-                        <section className="resume-section">
-                          <h3>Certifications</h3>
-                          <ul className="resume-bullets resume-bullets-compact">
-                            {resumeCertifications.map((item, index) => (
-                              <li key={`${item.name}-${index}`}>
-                                {item.name}
-                                {[item.issuer, item.year].filter(Boolean).length
-                                  ? ` | ${[item.issuer, item.year].filter(Boolean).join(' | ')}`
-                                  : ''}
-                              </li>
-                            ))}
-                          </ul>
-                        </section>
-                      )}
-
-                      {showProjectsInResume && (
-                        <section className="resume-section">
-                          <h3>Projects</h3>
-                          {resumeProjects.map((item, index) => (
-                            <article key={`${item.name}-${index}`} className="resume-inline-block">
-                              <strong>{item.name}</strong>
-                              <p>{truncateText(item.description, 120)}</p>
-                              {item.link && <span className="resume-link-line">{normalizeExternalUrl(item.link)}</span>}
-                            </article>
-                          ))}
-                        </section>
-                      )}
-                      </div>
                     </div>
                   </section>
                 </div>
