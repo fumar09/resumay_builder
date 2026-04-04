@@ -55,6 +55,26 @@ function sanitizeReviewState(value) {
   }
 }
 
+function upgradeReviewState(state) {
+  if (!state.pending.length) {
+    return state
+  }
+
+  const approvedById = new Map(state.approved.map((review) => [review.id, review]))
+
+  for (const pendingReview of state.pending) {
+    if (!approvedById.has(pendingReview.id)) {
+      approvedById.set(pendingReview.id, { ...pendingReview, status: 'approved' })
+    }
+  }
+
+  return {
+    version: 1,
+    approved: [...approvedById.values()],
+    pending: [],
+  }
+}
+
 async function readReviewState() {
   if (!isReviewStoreConfigured()) {
     return {
@@ -105,12 +125,7 @@ async function writeReviewState(state, etag) {
 
 export async function getApprovedReviews() {
   const { state } = await readReviewState()
-  return state.approved
-}
-
-export async function getPendingReviews() {
-  const { state } = await readReviewState()
-  return state.pending
+  return upgradeReviewState(state).approved
 }
 
 export async function submitReview(reviewInput) {
@@ -124,17 +139,19 @@ export async function submitReview(reviewInput) {
       id: reviewInput?.id ?? `review-${Date.now()}`,
       submittedAt: reviewInput?.submittedAt ?? new Date().toISOString(),
     },
-    'pending'
+    'approved'
   )
 
   for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt += 1) {
     const { state, etag } = await readReviewState()
+    const nextState = upgradeReviewState(state)
 
     try {
       await writeReviewState(
         {
-          ...state,
-          pending: [submittedReview, ...state.pending],
+          ...nextState,
+          approved: [submittedReview, ...nextState.approved.filter((review) => review.id !== submittedReview.id)],
+          pending: [],
         },
         etag
       )
@@ -150,53 +167,4 @@ export async function submitReview(reviewInput) {
   }
 
   throw new Error('Review submission could not be completed.')
-}
-
-export async function moderateReview(reviewId, action) {
-  if (!isReviewStoreConfigured()) {
-    throw new Error('Review store is not configured.')
-  }
-
-  const normalizedAction = action === 'approve' ? 'approve' : action === 'reject' ? 'reject' : ''
-
-  if (!normalizedAction) {
-    throw new Error('Invalid moderation action.')
-  }
-
-  for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt += 1) {
-    const { state, etag } = await readReviewState()
-    const reviewIndex = state.pending.findIndex((review) => review.id === reviewId)
-
-    if (reviewIndex === -1) {
-      return null
-    }
-
-    const pendingReview = state.pending[reviewIndex]
-    const nextPending = state.pending.filter((review) => review.id !== reviewId)
-    const nextApproved =
-      normalizedAction === 'approve'
-        ? [{ ...pendingReview, status: 'approved' }, ...state.approved]
-        : state.approved
-
-    try {
-      await writeReviewState(
-        {
-          ...state,
-          pending: nextPending,
-          approved: nextApproved,
-        },
-        etag
-      )
-
-      return normalizedAction === 'approve' ? { ...pendingReview, status: 'approved' } : pendingReview
-    } catch (error) {
-      if (error instanceof BlobPreconditionFailedError && attempt < MAX_WRITE_ATTEMPTS - 1) {
-        continue
-      }
-
-      throw error
-    }
-  }
-
-  throw new Error('Review moderation could not be completed.')
 }

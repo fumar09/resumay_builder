@@ -61,7 +61,7 @@ export async function POST(request) {
       {
         review,
         backendConfigured: true,
-        message: 'Review submitted for moderation.',
+        message: 'Review published successfully.',
       },
       201
     )
