@@ -1537,7 +1537,8 @@ function App() {
       const canvas = await html2canvas(input, {
         scale: 2,
         backgroundColor: '#ffffff',
-        useCORS: true
+        useCORS: true,
+        logging: false
       })
       const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF('p', 'mm', 'a4')
