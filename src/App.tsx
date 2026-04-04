@@ -59,6 +59,7 @@ interface CommunityReview {
   name: string
   role: string
   board: string
+  rating: number
   scoreBefore: number
   scoreAfter: number
   outcome: string
@@ -74,6 +75,7 @@ interface ReviewDraft {
   name: string
   role: string
   board: string
+  rating: number
   outcome: string
   quote: string
 }
@@ -367,6 +369,7 @@ const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
   name: '',
   role: '',
   board: supportedJobBoards.find((board) => board.id === 'linkedin')?.name ?? supportedJobBoards[0]?.name ?? '',
+  rating: 5,
   outcome: '',
   quote: '',
   ...draft
@@ -374,6 +377,22 @@ const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
+}
+
+function clampReviewRating(value: number) {
+  return clamp(Math.round(value), 1, 5)
+}
+
+function getStarIcon(rating: number, index: number) {
+  if (rating >= index + 1) {
+    return 'bi-star-fill'
+  }
+
+  if (rating >= index + 0.5) {
+    return 'bi-star-half'
+  }
+
+  return 'bi-star'
 }
 
 function normalizeText(value: string) {
@@ -838,6 +857,7 @@ function App() {
               typeof review.name === 'string' &&
               typeof review.role === 'string' &&
               typeof review.board === 'string' &&
+              (typeof review.rating === 'number' || typeof review.rating === 'undefined') &&
               typeof review.outcome === 'string' &&
               typeof review.quote === 'string' &&
               typeof review.scoreBefore === 'number' &&
@@ -848,6 +868,7 @@ function App() {
           })
           .map((review) => ({
             ...review,
+            rating: clampReviewRating(typeof review.rating === 'number' ? review.rating : 5),
             status: 'approved' as const
           }))
       )
@@ -957,8 +978,8 @@ function App() {
   )
   const reviewCount = publishedReviews.length
   const featuredResults = publishedReviews.slice(0, 4)
-  const averageReviewLift = reviewCount
-    ? Math.round(publishedReviews.reduce((total, review) => total + Math.max(review.scoreAfter - review.scoreBefore, 0), 0) / reviewCount)
+  const averageReviewRating = reviewCount
+    ? publishedReviews.reduce((total, review) => total + clampReviewRating(review.rating), 0) / reviewCount
     : 0
   const hasPublishedReviews = reviewCount > 0
 
@@ -1192,6 +1213,7 @@ function App() {
       const name = reviewDraft.name.trim() || personalInfo.name.trim()
       const role = reviewDraft.role.trim() || targetRole.trim()
       const board = reviewDraft.board.trim()
+      const rating = clampReviewRating(reviewDraft.rating)
       const outcome = reviewDraft.outcome.trim()
       const quote = reviewDraft.quote.trim()
 
@@ -1205,6 +1227,7 @@ function App() {
         name,
         role,
         board,
+        rating,
         scoreBefore: analysis.beforeScore,
         scoreAfter: analysis.afterScore,
         outcome,
@@ -1225,6 +1248,7 @@ function App() {
               name: nextReview.name,
               role: nextReview.role,
               board: nextReview.board,
+              rating: nextReview.rating,
               scoreBefore: nextReview.scoreBefore,
               scoreAfter: nextReview.scoreAfter,
               outcome: nextReview.outcome,
@@ -1259,7 +1283,8 @@ function App() {
         createReviewDraft({
           name,
           role,
-          board
+          board,
+          rating
         })
       )
 
@@ -1509,19 +1534,18 @@ function App() {
                 className="reviews-scoreline"
                 aria-label={
                   hasPublishedReviews
-                    ? `Average ATS lift ${averageReviewLift} percent across ${reviewCount} reviews`
+                    ? `Average review rating ${averageReviewRating.toFixed(1)} from ${reviewCount} reviews`
                     : 'No published user reviews yet'
                 }
               >
                 {hasPublishedReviews && (
                   <div className="review-rating review-rating-summary" aria-hidden="true">
                     {[0, 1, 2, 3, 4].map((index) => (
-                      <i key={`summary-star-${index}`} className="bi bi-star-fill" />
+                      <i key={`summary-star-${index}`} className={`bi ${getStarIcon(averageReviewRating, index)}`} />
                     ))}
                   </div>
                 )}
-                <strong>{hasPublishedReviews ? `+${averageReviewLift}%` : '0'}</strong>
-                <span className="reviews-scoreline-label">{hasPublishedReviews ? 'avg ATS lift' : 'reviews'}</span>
+                <strong>{hasPublishedReviews ? averageReviewRating.toFixed(1) : '0.0'}</strong>
                 <span className="reviews-scoreline-divider">·</span>
                 <span>{hasPublishedReviews ? `${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'}` : 'No reviews yet'}</span>
               </div>
@@ -1532,9 +1556,9 @@ function App() {
             {featuredResults.length ? (
               featuredResults.map((review) => (
                 <article key={review.id} className="review-card review-result-card">
-                  <div className="review-rating" aria-label="5 star review">
+                  <div className="review-rating" aria-label={`${clampReviewRating(review.rating)} star review`}>
                     {[0, 1, 2, 3, 4].map((index) => (
-                      <i key={`${review.id}-star-${index}`} className="bi bi-star-fill" />
+                      <i key={`${review.id}-star-${index}`} className={`bi ${getStarIcon(clampReviewRating(review.rating), index)}`} />
                     ))}
                   </div>
 
@@ -1616,7 +1640,7 @@ function App() {
                   </label>
                 </div>
 
-                <div className="field-grid field-grid-2">
+                <div className="field-grid field-grid-3">
                   <label className="field">
                     <span>Job board</span>
                     <select id="reviewBoard" name="reviewBoard" value={reviewDraft.board} onChange={(event) => updateReviewDraft('board', event.target.value)}>
@@ -1625,6 +1649,22 @@ function App() {
                           {board.name}
                         </option>
                       ))}
+                    </select>
+                  </label>
+
+                  <label className="field">
+                    <span>Rating</span>
+                    <select
+                      id="reviewRating"
+                      name="reviewRating"
+                      value={reviewDraft.rating}
+                      onChange={(event) => updateReviewDraft('rating', Number(event.target.value))}
+                    >
+                      <option value={5}>5 stars</option>
+                      <option value={4}>4 stars</option>
+                      <option value={3}>3 stars</option>
+                      <option value={2}>2 stars</option>
+                      <option value={1}>1 star</option>
                     </select>
                   </label>
 

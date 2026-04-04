@@ -18,6 +18,10 @@ function clampScore(value) {
   return Math.min(100, Math.max(0, Number.isFinite(value) ? Math.round(value) : 0))
 }
 
+function clampRating(value) {
+  return Math.min(5, Math.max(1, Number.isFinite(value) ? Math.round(value) : 5))
+}
+
 function sanitizeText(value, fallback = '', maxLength = 280) {
   const normalized = typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : fallback
   return normalized.slice(0, maxLength) || fallback
@@ -29,6 +33,7 @@ function sanitizeReview(review, status = 'pending') {
     name: sanitizeText(review.name, 'Anonymous', 80),
     role: sanitizeText(review.role, 'Job seeker', 120),
     board: sanitizeText(review.board, 'ResuMay!', 120),
+    rating: clampRating(Number(review.rating)),
     scoreBefore: clampScore(Number(review.scoreBefore)),
     scoreAfter: clampScore(Number(review.scoreAfter)),
     outcome: sanitizeText(review.outcome, 'Shared a ResuMay result', 160),

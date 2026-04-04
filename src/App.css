@@ -873,12 +873,6 @@ main {
   font-weight: 800;
 }
 
-.reviews-scoreline-label {
-  color: rgba(255, 255, 255, 0.74);
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
 .reviews-scoreline-divider {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0;
@@ -1026,6 +1020,14 @@ main {
 
 .review-rating .bi {
   font-size: 0.96rem;
+}
+
+.review-rating .bi-star-half {
+  opacity: 0.82;
+}
+
+.review-rating .bi-star {
+  opacity: 0.34;
 }
 
 .review-quote {

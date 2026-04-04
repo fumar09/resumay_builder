@@ -54,6 +54,10 @@ export async function POST(request) {
     return json({ error: 'A review quote is required.' }, 400)
   }
 
+  if (typeof body.rating !== 'number' || body.rating < 1 || body.rating > 5) {
+    return json({ error: 'A rating between 1 and 5 is required.' }, 400)
+  }
+
   try {
     const review = await submitReview(body)
 
