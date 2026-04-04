@@ -1928,6 +1928,7 @@ function App() {
   const guidedFieldTimeoutRef = useRef<number | null>(null)
   const previousAfterScoreRef = useRef<number | null>(null)
   const highestScoreMilestoneRef = useRef(0)
+  const reviewsWallRef = useRef<HTMLDivElement | null>(null)
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>(defaultPersonalInfo)
   const [targetRole, setTargetRole] = useState('')
@@ -1953,6 +1954,7 @@ function App() {
   const [remoteApprovedReviews, setRemoteApprovedReviews] = useState<CommunityReview[]>([])
   const [isReviewBackendConfigured, setIsReviewBackendConfigured] = useState(false)
   const [currentReviewPage, setCurrentReviewPage] = useState(1)
+  const [reviewsWallInView, setReviewsWallInView] = useState(false)
 
   useEffect(() => {
     try {
@@ -2132,6 +2134,31 @@ function App() {
 
     return () => {
       isMounted = false
+    }
+  }, [])
+
+  useEffect(() => {
+    const reviewsWall = reviewsWallRef.current
+    if (!reviewsWall || typeof IntersectionObserver === 'undefined') {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setReviewsWallInView(true)
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(reviewsWall)
+
+    return () => {
+      observer.disconnect()
     }
   }, [])
 
@@ -4098,8 +4125,9 @@ function App() {
             </div>
           </div>
 
-          <div className="shell reviews-wall">
+          <div className="shell reviews-wall" ref={reviewsWallRef}>
             {displayedResults.length ? (
+              reviewsWallInView ? (
               displayedResults.map((review) => (
                 <article key={review.id} className="review-card review-result-card">
                   <div className="review-result-card-topbar">
@@ -4132,6 +4160,7 @@ function App() {
                   </div>
                 </article>
               ))
+            ) : null
             ) : (
               <article className="review-card review-empty-card">
                 <span className="reviews-empty-kicker">No published reviews yet</span>
