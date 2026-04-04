@@ -98,8 +98,6 @@ interface AnalysisResult {
   afterScore: number
   optimizedSummary: string
   optimizedExperience: string[][]
-  fitNote: string
-  checklist: { label: string; passed: boolean }[]
 }
 
 interface ResumeBulletPreview {
@@ -696,17 +694,6 @@ function buildAnalysis(
     98
   )
 
-  const checklist = [
-    { label: 'Target role is defined', passed: Boolean(targetRole.trim()) },
-    { label: 'Job description added', passed: Boolean(jobDescription.trim()) },
-    { label: 'Keyword coverage is strong', passed: optimizedCoverageRatio >= 0.55 || trackedKeywords.length === 0 },
-    { label: 'Summary is ATS-focused', passed: optimizedSummary.length >= 120 }
-  ]
-
-  const fitNote = trackedKeywords.length
-    ? `ResuMay! found ${matchedKeywords.length} of ${trackedKeywords.length} target signals already present. Bring in ${missingKeywords.slice(0, 3).map(toDisplayKeyword).join(', ') || 'missing priorities'} to make the story tighter.`
-    : 'Paste a job description to unlock keyword tracking, fit scoring, and stronger ATS guidance.'
-
   return {
     trackedKeywords,
     matchedKeywords: optimizedMatchedKeywords,
@@ -714,9 +701,7 @@ function buildAnalysis(
     beforeScore,
     afterScore,
     optimizedSummary,
-    optimizedExperience,
-    fitNote,
-    checklist
+    optimizedExperience
   }
 }
 

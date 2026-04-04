@@ -208,7 +208,6 @@ main {
 .hero-lead,
 .section-heading p,
 .closing-card p,
-.panel-description,
 .reviews-summary-card p,
 .review-card p,
 .faq-card p,
@@ -864,14 +863,9 @@ main {
 
 .reviews-scoreline-divider {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0;
+  font-size: 1rem;
   line-height: 1;
   font-weight: 700;
-}
-
-.reviews-scoreline-divider::before {
-  content: '\00B7';
-  font-size: 1rem;
 }
 
 .review-rating-summary {
