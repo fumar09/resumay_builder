@@ -602,6 +602,173 @@ main {
   color: rgba(255, 255, 255, 0.72);
 }
 
+.hero-score-hud {
+  padding: 1.35rem 1.5rem;
+}
+
+.hero-score-delta {
+  color: #dceede;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.hero-score-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.2rem 0 1rem;
+}
+
+.hero-score-row small {
+  display: block;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.8rem;
+}
+
+.hero-score-row strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2.45rem;
+}
+
+.hero-score-meter {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 0.78rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.hero-score-meter-before,
+.hero-score-meter-after {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+}
+
+.hero-score-meter-before {
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.hero-score-meter-after {
+  background: #3f7a52;
+}
+
+.hero-score-copy {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-top: 0.7rem;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.hero-score-copy span:last-child {
+  text-align: right;
+}
+
+.hero-card-compare {
+  background: var(--workspace);
+  border-color: rgba(27, 27, 27, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), var(--shadow-md);
+}
+
+.hero-compare-caption {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.hero-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.95rem;
+  margin-top: 1rem;
+}
+
+.hero-compare-panel {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.hero-compare-panel-before {
+  background: rgba(253, 252, 248, 0.72);
+}
+
+.hero-compare-panel-after {
+  background: rgba(247, 252, 248, 0.96);
+  border-color: rgba(40, 82, 56, 0.16);
+}
+
+.hero-compare-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hero-compare-head span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-compare-head strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 2rem;
+}
+
+.hero-compare-panel p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.62;
+}
+
+.hero-compare-chip-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.hero-compare-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.52rem 0.78rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.hero-compare-chip-muted {
+  background: rgba(27, 27, 27, 0.05);
+  color: var(--muted);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+}
+
+.hero-compare-chip-success {
+  background: var(--success-soft);
+  color: var(--success);
+  border: 1px solid rgba(40, 82, 56, 0.16);
+}
+
+.hero-compare-chip-success .bi {
+  font-size: 0.76rem;
+}
+
 .hero-card-sheet {
   background: var(--workspace);
   border-color: rgba(27, 27, 27, 0.06);
@@ -1085,6 +1252,97 @@ main {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.signal-demo-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  gap: 1.2rem;
+  align-items: center;
+  margin-top: 1.3rem;
+  padding: 1.35rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+  box-shadow: var(--shadow-md);
+}
+
+.signal-demo-copy {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.signal-demo-copy h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  line-height: 1.08;
+}
+
+.signal-demo-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.68;
+}
+
+.signal-demo-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.9rem;
+}
+
+.signal-demo-chip {
+  position: relative;
+  display: inline-grid;
+  gap: 0.45rem;
+  min-width: 12rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(27, 27, 27, 0.04);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+.signal-demo-chip:hover {
+  transform: translateY(-2px);
+  background: rgba(40, 82, 56, 0.08);
+  border-color: rgba(40, 82, 56, 0.18);
+  box-shadow: var(--shadow-sm);
+  color: var(--success);
+}
+
+.signal-demo-chip-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.signal-demo-chip-label-missing {
+  color: var(--muted);
+}
+
+.signal-demo-chip-label-recovered {
+  display: none;
+  color: var(--success);
+}
+
+.signal-demo-chip:hover .signal-demo-chip-label-missing {
+  display: none;
+}
+
+.signal-demo-chip:hover .signal-demo-chip-label-recovered {
+  display: inline;
+}
+
 .principles-heading {
   margin-bottom: 1.25rem;
 }
@@ -1512,7 +1770,7 @@ main {
 }
 
 .score-hud-bar-after {
-  background: linear-gradient(90deg, #2f5f3f 0%, #3f7a52 100%);
+  background: #3f7a52;
 }
 
 .score-hud-meta {
@@ -1881,6 +2139,7 @@ main {
   .review-submission-grid,
   .reviews-wall,
   .proof-row,
+  .signal-demo-card,
   .story-cards,
   .faq-grid {
     grid-template-columns: 1fr;
@@ -1921,6 +2180,7 @@ main {
     max-width: none;
   }
 
+  .hero-compare-grid,
   .hero-stats,
   .field-grid-2,
   .field-grid-3,
@@ -1947,12 +2207,18 @@ main {
   }
 
   .score-hud-topbar,
-  .score-hud-meta {
+  .score-hud-meta,
+  .hero-score-copy {
     flex-direction: column;
   }
 
-  .score-hud-meta span:last-child {
+  .score-hud-meta span:last-child,
+  .hero-score-copy span:last-child {
     text-align: left;
+  }
+
+  .signal-demo-cloud {
+    justify-content: flex-start;
   }
 
   .resume-header h2 {
@@ -1993,8 +2259,13 @@ main {
   .overview-card,
   .review-card,
   .reviews-summary-card,
-  .closing-card {
+  .closing-card,
+  .signal-demo-card {
     padding: 1.1rem;
+  }
+
+  .signal-demo-chip {
+    min-width: 100%;
   }
 
   .panel-lock-copy {

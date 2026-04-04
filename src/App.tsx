@@ -370,6 +370,10 @@ const supportedJobBoards: JobBoard[] = [
 
 const roleCoverage = ['Virtual Assistant', 'Admin & Ops', 'Customer Support', 'Sales', 'Marketing', 'Design', 'Engineering']
 
+const landingTeaserBeforeSignals = ['Generic summary', 'Weak keyword spread', 'Missing ops signals', 'Low ATS fit']
+const landingTeaserAfterSignals = ['Documentation', 'Process Improvement', 'Stakeholder Management', 'Reporting']
+const landingSignalDemoKeywords = ['Stakeholder Management', 'Process Improvement', 'Scheduling', 'Documentation']
+
 const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
   name: '',
   role: '',
@@ -998,6 +1002,15 @@ function App() {
   const matchedSignalLabel = analysis.trackedKeywords.length
     ? `${analysis.matchedKeywords.length} of ${analysis.trackedKeywords.length} signals matched`
     : 'Paste a job description to start matching.'
+  const heroBeforeScore = hasResumeCore ? analysis.beforeScore : 48
+  const heroAfterScore = hasResumeCore ? analysis.afterScore : 84
+  const heroScoreDelta = Math.max(heroAfterScore - heroBeforeScore, 0)
+  const heroRecoveredSignals = (analysis.matchedKeywords.length ? analysis.matchedKeywords : landingTeaserAfterSignals)
+    .slice(0, 4)
+    .map(toDisplayKeyword)
+  const heroMissingSignals = (analysis.missingKeywords.length ? analysis.missingKeywords : landingTeaserBeforeSignals)
+    .slice(0, 4)
+    .map(toDisplayKeyword)
 
   const showToast = (message: string) => {
     setFeedback(message)
@@ -1392,11 +1405,11 @@ function App() {
           <div className="shell">
             <div className="hero-grid">
               <div className="hero-copy">
-                <span className="eyebrow">Built for job seekers who need stronger callbacks.</span>
-                <h1>You are qualified. ResuMay! helps your resume prove it.</h1>
+                <span className="eyebrow">Built for job seekers who want scoring, not guesswork.</span>
+                <h1>Stop guessing. Start scoring your resume.</h1>
                 <p className="hero-lead">
-                  Tailor your resume to each role, see how closely your draft matches the job before you apply, and build a
-                  stronger application for real hiring pipelines across modern online job boards.
+                  ResuMay! uses real-time ATS signaling to show what hiring systems see, surface the missing signals, and
+                  turn your draft into a higher-conversion application before you apply.
                 </p>
 
                 <div className="hero-actions">
@@ -1418,76 +1431,89 @@ function App() {
 
                 <div className="hero-stats">
                   <div className="stat-card">
-                    <strong>Role-targeted</strong>
-                    <span>Tailor one resume to specific openings without rebuilding everything from scratch.</span>
+                    <strong>Signal coverage</strong>
+                    <span>See missing ATS signals before you send the same draft into another hiring pipeline.</span>
                   </div>
                   <div className="stat-card">
-                    <strong>{analysis.afterScore || 82}/100</strong>
-                    <span>See how much of the job description your optimized draft is covering before you apply.</span>
+                    <strong>+{heroScoreDelta || 36} points</strong>
+                    <span>Use live score movement as proof that the edits are improving match quality, not just wording.</span>
                   </div>
                   <div className="stat-card">
-                    <strong>Export-ready</strong>
-                    <span>Finish with a polished PDF designed to travel better across recruiters, ATS tools, and job boards.</span>
+                    <strong>Board-ready PDF</strong>
+                    <span>Export a one-page resume designed to travel better across recruiters, ATS tools, and job boards.</span>
                   </div>
                 </div>
               </div>
 
               <div className="hero-visual">
-                <div className="hero-card hero-card-score">
+                <div className="hero-card hero-card-score hero-score-hud">
                   <div className="hero-card-header">
-                    <span>Target match snapshot</span>
+                    <span>Live ATS signal gauge</span>
+                    <strong className="hero-score-delta">+{heroScoreDelta || 36}</strong>
                   </div>
-                  <div className="score-pair">
+
+                  <div className="hero-score-row">
                     <div>
-                      <small>Current</small>
-                      <strong>{hasResumeCore ? analysis.beforeScore : 48}</strong>
+                      <small>Before</small>
+                      <strong>{heroBeforeScore}</strong>
                     </div>
                     <div className="score-arrow">
                       <i className="bi bi-arrow-right" />
                     </div>
                     <div>
-                      <small>Optimized</small>
-                      <strong>{hasResumeCore ? analysis.afterScore : 84}</strong>
+                      <small>After</small>
+                      <strong>{heroAfterScore}</strong>
                     </div>
                   </div>
-                  <div className="score-track">
-                    <span className="score-bar score-bar-before" style={{ width: `${hasResumeCore ? analysis.beforeScore : 48}%` }} />
+
+                  <div className="hero-score-meter" aria-hidden="true">
+                    <span className="hero-score-meter-before" style={{ width: `${heroBeforeScore}%` }} />
+                    <span className="hero-score-meter-after" style={{ width: `${heroAfterScore}%` }} />
                   </div>
-                  <div className="score-track score-track-success">
-                    <span className="score-bar score-bar-after" style={{ width: `${hasResumeCore ? analysis.afterScore : 84}%` }} />
+
+                  <div className="hero-score-copy">
+                    <span>{heroRecoveredSignals.length} recruiter-facing signals visible</span>
+                    <span>Animated preview of the score movement inside the Studio</span>
                   </div>
                 </div>
 
-                <div className="hero-card hero-card-sheet">
-                  <div className="resume-mini-sheet">
-                    <div className="resume-mini-header">
-                      <div>
-                        <h2>{personalInfo.name || 'Jordan Rivera'}</h2>
-                        <p>{targetRole || 'Operations Coordinator'}</p>
-                      </div>
-                    </div>
+                <div className="hero-card hero-card-compare">
+                  <div className="hero-card-header">
+                    <span>Split-view teaser</span>
+                    <span className="hero-compare-caption">Before vs. after ATS visibility</span>
+                  </div>
 
-                    <div className="resume-mini-section">
-                      <span>Matched keywords</span>
-                      <div className="mini-chip-row">
-                        {(analysis.matchedKeywords.length ? analysis.matchedKeywords : ['documentation', 'scheduling', 'stakeholder management'])
-                          .slice(0, 4)
-                          .map((keyword) => (
-                            <span key={keyword} className="mini-chip">
-                              {toDisplayKeyword(keyword)}
-                            </span>
-                          ))}
+                  <div className="hero-compare-grid">
+                    <article className="hero-compare-panel hero-compare-panel-before">
+                      <div className="hero-compare-head">
+                        <span>Before</span>
+                        <strong>{heroBeforeScore}%</strong>
                       </div>
-                    </div>
+                      <p>Generic draft. Strong qualifications, weak signaling.</p>
+                      <div className="hero-compare-chip-cloud">
+                        {heroMissingSignals.map((signal) => (
+                          <span key={`before-${signal}`} className="hero-compare-chip hero-compare-chip-muted">
+                            {signal}
+                          </span>
+                        ))}
+                      </div>
+                    </article>
 
-                    <div className="resume-mini-section">
-                      <span>What changes</span>
-                      <ul>
-                        <li>Sharper role-specific summary</li>
-                        <li>Stronger job-description keywords</li>
-                        <li>Cleaner recruiter-facing structure</li>
-                      </ul>
-                    </div>
+                    <article className="hero-compare-panel hero-compare-panel-after">
+                      <div className="hero-compare-head">
+                        <span>After</span>
+                        <strong>{heroAfterScore}%</strong>
+                      </div>
+                      <p>Sharper opener, clearer bullets, stronger ATS coverage.</p>
+                      <div className="hero-compare-chip-cloud">
+                        {heroRecoveredSignals.map((signal) => (
+                          <span key={`after-${signal}`} className="hero-compare-chip hero-compare-chip-success">
+                            <i className="bi bi-check-circle-fill" />
+                            {signal}
+                          </span>
+                        ))}
+                      </div>
+                    </article>
                   </div>
                 </div>
               </div>
@@ -1830,6 +1856,27 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                 <h3>Export and apply</h3>
                 <p>Review the live paper preview, export the improved PDF, and submit a resume that feels more role-ready.</p>
               </article>
+            </div>
+
+            <div className="signal-demo-card">
+              <div className="signal-demo-copy">
+                <span className="eyebrow">Signal rehearsal</span>
+                <h3>Hover a missing signal. Preview the recovery path.</h3>
+                <p>
+                  This mirrors the click-to-fix logic inside the Studio. Missing ATS signals stop being vague feedback and
+                  start acting like clear next actions.
+                </p>
+              </div>
+
+              <div className="signal-demo-cloud" aria-label="Missing keyword signal demo">
+                {landingSignalDemoKeywords.map((keyword) => (
+                  <button key={keyword} type="button" className="signal-demo-chip">
+                    <span className="signal-demo-chip-label signal-demo-chip-label-missing">Missing</span>
+                    <span className="signal-demo-chip-label signal-demo-chip-label-recovered">Recovered</span>
+                    <span>{keyword}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </section>
