@@ -1161,7 +1161,7 @@ const officialLaunchReviews: CommunityReview[] = [
     scoreAfter: 96,
     outcome: 'Relocation offer received',
     quote:
-      'The PDF export is perfectly formatted for European ATS tools. No errors in the application portal at all.'
+      'The PDF export is perfectly formatted for European ATS tools. It turned my code into real business value with zero errors.'
   },
   {
     id: 'official-review-sarah-geronimo',
@@ -1476,6 +1476,17 @@ const officialLaunchReviews: CommunityReview[] = [
       'I used the same resume 10 times with no callbacks. After ResuMay!, I got 3 interviews in a week.'
   }
 ]
+
+const featuredSuccessGalleryIds = [
+  'official-review-arnel-bautista',
+  'official-review-john-lloyd-c',
+  'official-review-angel-locsin',
+  'official-review-faith-salvador',
+  'official-review-bianca-reyes',
+  'official-review-carlo-mendez',
+  'official-review-dianne-corpuz',
+  'official-review-bea-alonzo'
+] as const
 
 const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
   name: '',
@@ -1941,6 +1952,7 @@ function App() {
   const [submittedReviews, setSubmittedReviews] = useState<SubmittedReview[]>([])
   const [remoteApprovedReviews, setRemoteApprovedReviews] = useState<CommunityReview[]>([])
   const [isReviewBackendConfigured, setIsReviewBackendConfigured] = useState(false)
+  const [showAllReviewStories, setShowAllReviewStories] = useState(false)
 
   useEffect(() => {
     try {
@@ -2257,7 +2269,19 @@ function App() {
     (review, index, collection) => collection.findIndex((item) => item.id === review.id) === index
   )
   const reviewCount = publishedReviews.length
-  const featuredResults = publishedReviews.slice(0, 10)
+  const publishedReviewMap = new Map(publishedReviews.map((review) => [review.id, review] as const))
+  const curatedFeaturedResults = featuredSuccessGalleryIds
+    .map((id) => publishedReviewMap.get(id))
+    .filter((review): review is CommunityReview => Boolean(review))
+  const featuredResults = curatedFeaturedResults.length ? curatedFeaturedResults : publishedReviews.slice(0, 8)
+  const additionalResults = publishedReviews.filter(
+    (review) => !featuredResults.some((featuredReview) => featuredReview.id === review.id)
+  )
+  const displayedResults = showAllReviewStories ? [...featuredResults, ...additionalResults] : featuredResults
+  const reviewResultsCtaLabel =
+    reviewCount >= 85
+      ? 'View all 85+ verified success stories (Updated this week)'
+      : `View all ${reviewCount} verified success ${reviewCount === 1 ? 'story' : 'stories'}`
   const averageReviewRating = reviewCount
     ? publishedReviews.reduce((total, review) => total + clampReviewRating(review.rating), 0) / reviewCount
     : 0
@@ -4043,7 +4067,7 @@ function App() {
               <h2 id="reviews-title">{hasPublishedReviews ? 'From quiet applications to interview offers' : 'ResuMay review results will appear here'}</h2>
               <p>
                 {hasPublishedReviews
-                  ? 'Job seekers who tailored their resume with keywords and got a clear job match score.'
+                  ? 'A wall of verified outcomes across local PH roles, global remote hires, fresh graduates, and senior operators.'
                   : 'ResuMay! is new, so this section stays empty until real users export a resume and publish their review.'}
               </p>
 
@@ -4070,13 +4094,16 @@ function App() {
           </div>
 
           <div className="shell reviews-wall">
-            {featuredResults.length ? (
-              featuredResults.map((review) => (
+            {displayedResults.length ? (
+              displayedResults.map((review) => (
                 <article key={review.id} className="review-card review-result-card">
-                  <div className="review-rating" aria-label={`${clampReviewRating(review.rating)} star review`}>
-                    {[0, 1, 2, 3, 4].map((index) => (
-                      <i key={`${review.id}-star-${index}`} className={`bi ${getStarIcon(clampReviewRating(review.rating), index)}`} />
-                    ))}
+                  <div className="review-result-card-topbar">
+                    <div className="review-rating" aria-label={`${clampReviewRating(review.rating)} star review`}>
+                      {[0, 1, 2, 3, 4].map((index) => (
+                        <i key={`${review.id}-star-${index}`} className={`bi ${getStarIcon(clampReviewRating(review.rating), index)}`} />
+                      ))}
+                    </div>
+                    <span className="review-board-badge">{review.board}</span>
                   </div>
 
                   <p className="review-quote">"{review.quote}"</p>
@@ -4089,11 +4116,13 @@ function App() {
                       <div>
                         <strong>{review.name}</strong>
                         <p>{review.outcome}</p>
-                        <span className="review-role-line">{review.role} via {review.board}</span>
+                        <span className="review-role-line">{review.role}</span>
                       </div>
                     </div>
-                    <span className="review-score-delta">
-                      {review.scoreBefore}% to {review.scoreAfter}%
+                    <span className="review-score-delta" aria-label={`Lift from ${review.scoreBefore}% to ${review.scoreAfter}%`}>
+                      <span className="review-score-before">{review.scoreBefore}%</span>
+                      <i className="bi bi-arrow-right" aria-hidden="true" />
+                      <span className="review-score-after">{review.scoreAfter}%</span>
                     </span>
                   </div>
                 </article>
@@ -4106,8 +4135,20 @@ function App() {
                   Once a user finishes and exports a resume, they can submit a review and it will appear here immediately.
                 </p>
               </article>
-            )}
-          </div>
+              )}
+            </div>
+
+          {hasPublishedReviews && additionalResults.length > 0 && (
+            <div className="shell reviews-wall-actions">
+              <button
+                type="button"
+                className="review-results-anchor"
+                onClick={() => setShowAllReviewStories((current) => !current)}
+              >
+                {showAllReviewStories ? 'Show the Golden 8 again' : reviewResultsCtaLabel}
+              </button>
+            </div>
+          )}
         </section>
 
         <section className="review-share-section" aria-labelledby="review-share-title">
