@@ -814,6 +814,10 @@ main {
   background: var(--ink);
 }
 
+.review-share-section {
+  padding: 4rem 0 4.5rem;
+}
+
 .reviews-results-shell {
   display: grid;
   gap: 1rem;
@@ -897,11 +901,14 @@ main {
   gap: 1rem;
 }
 
+.review-share-heading {
+  margin-bottom: 1.4rem;
+}
+
 .review-submission-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.04fr) minmax(280px, 0.96fr);
   gap: 1rem;
-  margin-top: 1.75rem;
 }
 
 .review-card {

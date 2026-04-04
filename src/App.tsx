@@ -999,11 +999,13 @@ function App() {
       : isReviewBackendConfigured
         ? 'Your review will publish to the shared review wall as soon as you submit it.'
         : 'Shared review storage is not configured yet, so your review will only appear on this device.'
-  const publicReviews = [...communityReviews, ...remoteApprovedReviews, ...submittedReviews.filter((review) => review.status === 'approved')].filter(
-    (review, index, collection) => collection.findIndex((item) => item.id === review.id) === index
-  )
+  const publicReviews = [
+    ...remoteApprovedReviews,
+    ...submittedReviews.filter((review) => review.status === 'approved'),
+    ...communityReviews
+  ].filter((review, index, collection) => collection.findIndex((item) => item.id === review.id) === index)
   const featuredResults = publicReviews.slice(0, 4)
-  const displayedReviewCount = 490
+  const displayedReviewCount = 486 + publicReviews.length
   const displayedReviewRating = 4.7
 
   const showToast = (message: string) => {
@@ -1585,8 +1587,19 @@ function App() {
               </article>
             ))}
           </div>
+        </section>
 
-          <div className="shell review-submission-grid">
+        <section className="review-share-section" aria-labelledby="review-share-title">
+          <div className="shell">
+            <div className="section-heading review-share-heading">
+              <span className="eyebrow">Share your result</span>
+              <h2 id="review-share-title">Let other job seekers see how ResuMay! helped you.</h2>
+              <p>
+                Publish a short review after export so other users can see what changed, what improved, and how your ATS score moved.
+              </p>
+            </div>
+
+            <div className="review-submission-grid">
             <section className="panel review-form-panel">
               <div className="panel-heading">
                 <div>
@@ -1721,6 +1734,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                 )}
               </div>
             </section>
+            </div>
           </div>
         </section>
 
