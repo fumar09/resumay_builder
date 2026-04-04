@@ -2336,7 +2336,7 @@ function App() {
                   <div className="repeat-add-row">
                     <button
                       type="button"
-                      className="ghost-button compact-button add-button add-button-bottom"
+                      className="secondary-button compact-button add-button add-button-bottom"
                       onClick={() => addArrayItem(setExperience, createExperience())}
                       disabled={!isOptimizationUnlocked}
                     >
@@ -2382,8 +2382,8 @@ function App() {
                       }}
                       placeholder="Add a skill or keyword and press Enter"
                     />
-                    <button type="button" className="primary-button compact-button" onClick={addSkill}>
-                      Add
+                    <button type="button" className="secondary-button compact-button add-button" onClick={addSkill}>
+                      <i className="bi bi-plus-circle" /> Add skill
                     </button>
                   </div>
 
@@ -2744,7 +2744,7 @@ function App() {
                       </div>
 
                       <div className="resume-actions">
-                        <button type="button" className="ghost-button compact-button" onClick={saveWorkspace}>
+                        <button type="button" className="ghost-button compact-button save-button" onClick={saveWorkspace}>
                           Save locally
                         </button>
                         <button type="button" className="primary-button compact-button export-button" onClick={generatePDF} disabled={!hasResumeCore}>
