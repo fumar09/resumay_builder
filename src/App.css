@@ -1,6 +1,7 @@
 :root {
   --primary: #a51c30;
   --primary-hover: #821626;
+  --review-star: #f4c84a;
   --ink: #1b1b1b;
   --surface: #fdfcf8;
   --surface-soft: #f7f3ec;
@@ -886,7 +887,7 @@ main {
 }
 
 .review-rating-summary {
-  color: var(--surface-strong);
+  color: var(--review-star);
 }
 
 .review-rating-summary .bi {
@@ -1011,11 +1012,11 @@ main {
 
 .review-rating {
   gap: 0.18rem;
-  color: var(--primary);
+  color: var(--review-star);
 }
 
 .review-result-card .review-rating {
-  color: var(--surface-strong);
+  color: var(--review-star);
 }
 
 .review-rating .bi {

@@ -368,7 +368,7 @@ const roleCoverage = ['Virtual Assistant', 'Admin & Ops', 'Customer Support', 'S
 const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
   name: '',
   role: '',
-  board: supportedJobBoards.find((board) => board.id === 'linkedin')?.name ?? supportedJobBoards[0]?.name ?? '',
+  board: '',
   rating: 5,
   outcome: '',
   quote: '',
@@ -1643,13 +1643,14 @@ function App() {
                 <div className="field-grid field-grid-3">
                   <label className="field">
                     <span>Job board</span>
-                    <select id="reviewBoard" name="reviewBoard" value={reviewDraft.board} onChange={(event) => updateReviewDraft('board', event.target.value)}>
-                      {supportedJobBoards.map((board) => (
-                        <option key={board.id} value={board.name}>
-                          {board.name}
-                        </option>
-                      ))}
-                    </select>
+                    <input
+                      type="text"
+                      id="reviewBoard"
+                      name="reviewBoard"
+                      value={reviewDraft.board}
+                      onChange={(event) => updateReviewDraft('board', event.target.value)}
+                      placeholder="LinkedIn, OnlineJobs.ph, JobStreet by SEEK"
+                    />
                   </label>
 
                   <label className="field">
