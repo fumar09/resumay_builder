@@ -107,15 +107,7 @@ interface ResumeBulletPreview {
 }
 
 type GuidedFieldTarget = { type: 'skill' } | { type: 'experience'; index: number }
-type ReadinessSignalId = 'jobDescription' | 'identity' | 'contact' | 'summary' | 'experience' | 'skills'
-type ReadinessSignalLevel = 'ready' | 'warning' | 'blocker'
-
-interface ReadinessSignal {
-  id: ReadinessSignalId
-  label: string
-  level: ReadinessSignalLevel
-  message: string
-}
+type CompletionTarget = 'jobDescription' | 'identity' | 'contact' | 'summary' | 'experience' | 'skills'
 
 const STORAGE_KEY = 'resumeMayOptimizerData'
 const REVIEW_STORAGE_KEY = 'resumeMaySubmittedReviews'
@@ -415,7 +407,6 @@ const roleCoverage = ['Virtual Assistant', 'Admin & Ops', 'Customer Support', 'S
 
 const landingTeaserBeforeSignals = ['Generic summary', 'Weak keyword spread', 'Missing ops signals', 'Low ATS fit']
 const landingTeaserAfterSignals = ['Documentation', 'Process Improvement', 'Stakeholder Management', 'Reporting']
-const landingSignalDemoKeywords = ['Stakeholder Management', 'Process Improvement', 'Scheduling', 'Documentation']
 
 const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
   name: '',
@@ -1134,73 +1125,18 @@ function App() {
   const hasContactMethod = Boolean(hasValidEmail || personalInfo.phone.trim())
   const summaryWordCount = countWords(personalInfo.summary)
   const populatedExperienceCount = experience.filter((item) => item.jobTitle.trim() || item.company.trim() || item.description.trim()).length
-  const strongExperienceCount = experience.filter((item) => countWords(item.description) >= 8).length
-  const readinessSignals: ReadinessSignal[] = [
-    {
-      id: 'jobDescription',
-      label: 'Target brief',
-      level: isOptimizationUnlocked ? 'ready' : 'blocker',
-      message: isOptimizationUnlocked ? 'Job description is loaded and ATS matching is active.' : 'Paste the job description to unlock real ATS matching.'
-    },
-    {
-      id: 'identity',
-      label: 'Candidate identity',
-      level: personalInfo.name.trim() ? 'ready' : 'blocker',
-      message: personalInfo.name.trim() ? 'Candidate name is ready for the export file and resume header.' : 'Add the candidate name before exporting.'
-    },
-    {
-      id: 'contact',
-      label: 'Contact details',
-      level: hasContactMethod ? 'ready' : personalInfo.email.trim() && !hasValidEmail ? 'warning' : 'blocker',
-      message: hasContactMethod
-        ? 'At least one recruiter contact method is visible.'
-        : personalInfo.email.trim() && !hasValidEmail
-          ? 'Fix the email format or add a phone number so recruiters can reach you.'
-          : 'Add a valid email or phone number for recruiter contact.'
-    },
-    {
-      id: 'summary',
-      label: 'Summary strength',
-      level: summaryWordCount >= 14 ? 'ready' : summaryWordCount >= 6 ? 'warning' : 'blocker',
-      message: summaryWordCount >= 14
-        ? 'Summary is long enough to frame the resume clearly.'
-        : summaryWordCount >= 6
-          ? 'The summary is thin. Add a little more role-specific context.'
-          : 'Add a short professional summary before exporting.'
-    },
-    {
-      id: 'experience',
-      label: 'Experience detail',
-      level: strongExperienceCount > 0 ? 'ready' : populatedExperienceCount > 0 ? 'warning' : 'blocker',
-      message: strongExperienceCount > 0
-        ? 'At least one experience entry has enough detail to optimize.'
-        : populatedExperienceCount > 0
-          ? 'Experience exists, but the descriptions need stronger detail.'
-          : 'Add at least one role with a clear description of what you did.'
-    },
-    {
-      id: 'skills',
-      label: 'Skills coverage',
-      level: skills.length >= 5 ? 'ready' : skills.length >= 2 ? 'warning' : 'blocker',
-      message: skills.length >= 5
-        ? 'Skill coverage is broad enough for a focused one-page export.'
-        : skills.length >= 2
-          ? 'Add a few more role-relevant skills or keywords.'
-          : 'Add skills so the ATS and recruiter can see your core signals.'
-    }
-  ]
-  const exportBlockers = readinessSignals.filter((signal) => signal.level === 'blocker')
-  const exportWarnings = readinessSignals.filter((signal) => signal.level === 'warning')
-  const readinessHeadline = exportBlockers.length
-    ? `${exportBlockers.length} blocker${exportBlockers.length === 1 ? '' : 's'} before export`
-    : exportWarnings.length
-      ? `${exportWarnings.length} area${exportWarnings.length === 1 ? '' : 's'} to tighten`
-      : 'Resume looks ready for export'
-  const readinessCopy = exportBlockers.length
-    ? 'Clear the blockers below so the PDF is strong enough to send.'
-    : exportWarnings.length
-      ? 'The resume can export now, but these refinements will make it stronger.'
-      : 'The draft has the core information, contact path, and content depth needed for a clean one-page application.'
+  const exportBlockers: Array<{ id: CompletionTarget; message: string }> = [
+    !isOptimizationUnlocked ? { id: 'jobDescription', message: 'Paste the job description to unlock ATS matching before export.' } : null,
+    !personalInfo.name.trim() ? { id: 'identity', message: 'Add the candidate name before exporting.' } : null,
+    !hasContactMethod
+      ? { id: 'contact', message: 'Add a valid email or phone number for recruiter contact.' }
+      : personalInfo.email.trim() && !hasValidEmail
+        ? { id: 'contact', message: 'Fix the email format or add a phone number so recruiters can reach you.' }
+        : null,
+    summaryWordCount < 6 ? { id: 'summary', message: 'Add a short professional summary before exporting.' } : null,
+    populatedExperienceCount === 0 ? { id: 'experience', message: 'Add at least one role with a clear description of what you did.' } : null,
+    skills.length === 0 ? { id: 'skills', message: 'Add skills so the ATS and recruiter can see your core signals.' } : null
+  ].filter((item): item is { id: CompletionTarget; message: string } => item !== null)
   const canSubmitReview = Boolean(isOptimizationUnlocked && hasResumeCore && hasExportedResume)
   const reviewSubmissionHint = !isOptimizationUnlocked
     ? 'Paste a job description first to unlock review submission.'
@@ -1378,7 +1314,7 @@ function App() {
     resumePanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const focusReadinessSignal = (signalId: ReadinessSignalId) => {
+  const focusCompletionTarget = (signalId: CompletionTarget) => {
     if (signalId === 'experience') {
       const targetIndex = experience.findIndex((item) => !item.description.trim())
       const fallbackIndex = targetIndex >= 0 ? targetIndex : 0
@@ -1407,7 +1343,7 @@ function App() {
       return
     }
 
-    const targetMap: Record<Exclude<ReadinessSignalId, 'experience' | 'skills'>, string> = {
+    const targetMap: Record<Exclude<CompletionTarget, 'experience' | 'skills'>, string> = {
       jobDescription: 'jobDescription',
       identity: 'personalName',
       contact: personalInfo.email.trim() && !hasValidEmail ? 'personalEmail' : 'personalPhone',
@@ -1520,8 +1456,8 @@ function App() {
 
     if (exportBlockers.length > 0) {
       const firstBlocker = exportBlockers[0]
-      showToast(`Finish "${firstBlocker.label}" before exporting the PDF.`)
-      focusReadinessSignal(firstBlocker.id)
+      showToast(firstBlocker.message)
+      focusCompletionTarget(firstBlocker.id)
       return
     }
 
@@ -2013,199 +1949,6 @@ function App() {
           </div>
         </section>
 
-        <section className="reviews-section" aria-labelledby="reviews-title">
-          <div className="shell reviews-results-shell">
-            <div className="reviews-results-header">
-              <span className="reviews-results-kicker">Results</span>
-              <h2 id="reviews-title">{hasPublishedReviews ? 'From quiet applications to interview offers' : 'ResuMay review results will appear here'}</h2>
-              <p>
-                {hasPublishedReviews
-                  ? 'Job seekers who tailored their resume with keywords and got a clear job match score.'
-                  : 'ResuMay! is new, so this section will stay empty until real users export a resume and publish their review.'}
-              </p>
-
-              <div
-                className="reviews-scoreline"
-                aria-label={
-                  hasPublishedReviews
-                    ? `Average review rating ${averageReviewRating.toFixed(1)} from ${reviewCount} reviews`
-                    : 'No published user reviews yet'
-                }
-              >
-                {hasPublishedReviews && (
-                  <div className="review-rating review-rating-summary" aria-hidden="true">
-                    {[0, 1, 2, 3, 4].map((index) => (
-                      <i key={`summary-star-${index}`} className={`bi ${getStarIcon(averageReviewRating, index)}`} />
-                    ))}
-                  </div>
-                )}
-                <strong>{hasPublishedReviews ? averageReviewRating.toFixed(1) : '0.0'}</strong>
-                <span className="reviews-scoreline-divider">&middot;</span>
-                <span>{hasPublishedReviews ? `${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'}` : 'No reviews yet'}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="shell reviews-wall">
-            {featuredResults.length ? (
-              featuredResults.map((review) => (
-                <article key={review.id} className="review-card review-result-card">
-                  <div className="review-rating" aria-label={`${clampReviewRating(review.rating)} star review`}>
-                    {[0, 1, 2, 3, 4].map((index) => (
-                      <i key={`${review.id}-star-${index}`} className={`bi ${getStarIcon(clampReviewRating(review.rating), index)}`} />
-                    ))}
-                  </div>
-
-                  <p className="review-quote">"{review.quote}"</p>
-
-                  <div className="review-result-card-footer">
-                    <div className="review-identity">
-                      <span className="review-avatar" aria-hidden="true">
-                        {review.name.charAt(0)}
-                      </span>
-                      <div>
-                        <strong>{review.name}</strong>
-                        <p>{review.outcome}</p>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              ))
-            ) : (
-              <article className="review-card review-empty-card">
-                <span className="reviews-empty-kicker">No published reviews yet</span>
-                <h3>Be the first ResuMay success story on this wall.</h3>
-                <p>
-                  Once a user finishes and exports a resume, they can submit a review and it will appear here immediately.
-                </p>
-              </article>
-            )}
-          </div>
-        </section>
-
-        <section className="review-share-section" aria-labelledby="review-share-title">
-          <div className="shell">
-            <div className="section-heading review-share-heading">
-              <span className="eyebrow">Publish your result</span>
-              <h2 id="review-share-title">Show other job seekers what changed after you used ResuMay!.</h2>
-              <p>
-                Publish a short review after export so other users can see the role, the outcome, and how your ATS score moved.
-              </p>
-            </div>
-
-            <div className="review-submission-grid">
-              <section className="panel review-form-panel">
-                <div className="panel-heading">
-                  <div>
-                    <span className="panel-kicker">Publish your result</span>
-                    <h3>Submit your ResuMay review</h3>
-                  </div>
-                  <span className={`panel-badge ${canSubmitReview ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
-                    {canSubmitReview ? 'Unlocked' : 'Locked'}
-                  </span>
-                </div>
-
-                <p className="review-form-copy">{reviewSubmissionHint}</p>
-
-                <fieldset className="panel-fieldset" disabled={!canSubmitReview}>
-                  <div className="field-grid field-grid-2">
-                    <label className="field">
-                      <span>Name</span>
-                      <input
-                        type="text"
-                        id="reviewName"
-                        name="reviewName"
-                        value={reviewDraft.name}
-                        onChange={(event) => updateReviewDraft('name', event.target.value)}
-                        placeholder={personalInfo.name || 'Your name'}
-                      />
-                    </label>
-
-                    <label className="field">
-                      <span>Target role</span>
-                      <input
-                        type="text"
-                        id="reviewRole"
-                        name="reviewRole"
-                        value={reviewDraft.role}
-                        onChange={(event) => updateReviewDraft('role', event.target.value)}
-                        placeholder={targetRole || 'Operations Coordinator'}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="field-grid field-grid-3">
-                    <label className="field">
-                      <span>Job board</span>
-                      <input
-                        type="text"
-                        id="reviewBoard"
-                        name="reviewBoard"
-                        value={reviewDraft.board}
-                        onChange={(event) => updateReviewDraft('board', event.target.value)}
-                        placeholder="LinkedIn, OnlineJobs.ph, JobStreet by SEEK"
-                      />
-                    </label>
-
-                    <label className="field">
-                      <span>Rating</span>
-                      <select
-                        id="reviewRating"
-                        name="reviewRating"
-                        value={reviewDraft.rating}
-                        onChange={(event) => updateReviewDraft('rating', Number(event.target.value))}
-                      >
-                        <option value={5}>5 stars</option>
-                        <option value={4}>4 stars</option>
-                        <option value={3}>3 stars</option>
-                        <option value={2}>2 stars</option>
-                        <option value={1}>1 star</option>
-                      </select>
-                    </label>
-
-                    <label className="field">
-                      <span>Outcome</span>
-                      <input
-                        type="text"
-                        id="reviewOutcome"
-                        name="reviewOutcome"
-                        value={reviewDraft.outcome}
-                        onChange={(event) => updateReviewDraft('outcome', event.target.value)}
-                        placeholder="e.g. 2 callbacks in one week"
-                      />
-                    </label>
-                  </div>
-
-                  <label className="field">
-                    <span>Your review</span>
-                    <textarea
-                      className="guided-textarea"
-                      id="reviewQuote"
-                      name="reviewQuote"
-                      rows={5}
-                      value={reviewDraft.quote}
-                      onChange={(event) => updateReviewDraft('quote', event.target.value)}
-                      placeholder="Example:
-ResuMay made it easier to see which keywords were missing, so I tightened my summary, cleaned up my bullets, and my resume started feeling more ATS-ready."
-                    />
-                  </label>
-
-                  <div className="review-form-footer">
-                    <div className="review-submission-note">
-                      <strong>{analysis.beforeScore}% to {analysis.afterScore}%</strong>
-                      <span>Your current ATS score delta will be attached to this review.</span>
-                    </div>
-
-                    <button type="button" className="primary-button" onClick={submitReview} disabled={!canSubmitReview}>
-                      Publish my result
-                    </button>
-                  </div>
-                </fieldset>
-              </section>
-            </div>
-          </div>
-        </section>
-
         <section className="principles-section" aria-labelledby="principles-title">
           <div className="shell">
             <div className="section-heading principles-heading">
@@ -2251,8 +1994,8 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
               <span className="eyebrow">Process</span>
               <h2>Three steps to a higher-conversion application.</h2>
               <p>
-                Start with the target role, shape the content around the job description, and export a cleaner PDF you can
-                send to real employers with more confidence.
+                Start with the role, shape the draft around the job description, and export a cleaner one-page PDF that is
+                easier to send with confidence.
               </p>
             </div>
 
@@ -2272,27 +2015,6 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                 <h3>Export and apply</h3>
                 <p>Review the live paper preview, export the improved PDF, and submit a resume that feels more role-ready.</p>
               </article>
-            </div>
-
-            <div className="signal-demo-card">
-              <div className="signal-demo-copy">
-                <span className="eyebrow">Signal rehearsal</span>
-                <h3>Hover a missing signal. Preview the recovery path.</h3>
-                <p>
-                  This mirrors the click-to-fix logic inside the Studio. Missing ATS signals stop being vague feedback and
-                  start acting like clear next actions.
-                </p>
-              </div>
-
-              <div className="signal-demo-cloud" aria-label="Missing keyword signal demo">
-                {landingSignalDemoKeywords.map((keyword) => (
-                  <button key={keyword} type="button" className="signal-demo-chip">
-                    <span className="signal-demo-chip-label signal-demo-chip-label-missing">Missing</span>
-                    <span className="signal-demo-chip-label signal-demo-chip-label-recovered">Recovered</span>
-                    <span>{keyword}</span>
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         </section>
@@ -2334,39 +2056,6 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                 <p>The live preview and exported PDF stay synchronized to the same clean layout.</p>
               </article>
             </div>
-
-            <section className="panel studio-readiness-panel" aria-labelledby="readiness-title">
-              <div className="panel-heading">
-                <div>
-                  <span className="panel-kicker">Resume readiness</span>
-                  <h3 id="readiness-title">{readinessHeadline}</h3>
-                </div>
-                <span className={`panel-badge ${exportBlockers.length ? 'panel-badge-warm' : exportWarnings.length ? 'panel-badge-neutral' : 'panel-badge-success'}`}>
-                  {exportBlockers.length ? 'Needs work' : exportWarnings.length ? 'Almost ready' : 'Ready'}
-                </span>
-              </div>
-
-              <p className="panel-intro">{readinessCopy}</p>
-
-              <div className="readiness-grid">
-                {readinessSignals.map((signal) => (
-                  <button
-                    key={signal.id}
-                    type="button"
-                    className={`readiness-item readiness-item-${signal.level}`}
-                    onClick={() => focusReadinessSignal(signal.id)}
-                  >
-                    <span className="readiness-item-topline">
-                      <strong>{signal.label}</strong>
-                      <span className="readiness-state">
-                        {signal.level === 'ready' ? 'Ready' : signal.level === 'warning' ? 'Tighten' : 'Required'}
-                      </span>
-                    </span>
-                    <span className="readiness-message">{signal.message}</span>
-                  </button>
-                ))}
-              </div>
-            </section>
 
             <div className="studio-progress-strip" aria-label="Studio step progress">
               {studioStepCards.map((step) => (
@@ -3197,6 +2886,197 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
               </aside>
             </div>
 
+          </div>
+        </section>
+
+        <section className="reviews-section" aria-labelledby="reviews-title">
+          <div className="shell reviews-results-shell">
+            <div className="reviews-results-header">
+              <span className="reviews-results-kicker">Results</span>
+              <h2 id="reviews-title">{hasPublishedReviews ? 'From quiet applications to interview offers' : 'ResuMay review results will appear here'}</h2>
+              <p>
+                {hasPublishedReviews
+                  ? 'Job seekers who tailored their resume with keywords and got a clear job match score.'
+                  : 'ResuMay! is new, so this section stays empty until real users export a resume and publish their review.'}
+              </p>
+
+              <div
+                className="reviews-scoreline"
+                aria-label={
+                  hasPublishedReviews
+                    ? `Average review rating ${averageReviewRating.toFixed(1)} from ${reviewCount} reviews`
+                    : 'No published user reviews yet'
+                }
+              >
+                {hasPublishedReviews && (
+                  <div className="review-rating review-rating-summary" aria-hidden="true">
+                    {[0, 1, 2, 3, 4].map((index) => (
+                      <i key={`summary-star-${index}`} className={`bi ${getStarIcon(averageReviewRating, index)}`} />
+                    ))}
+                  </div>
+                )}
+                <strong>{hasPublishedReviews ? averageReviewRating.toFixed(1) : '0.0'}</strong>
+                <span className="reviews-scoreline-divider">&middot;</span>
+                <span>{hasPublishedReviews ? `${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'}` : 'No reviews yet'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="shell reviews-wall">
+            {featuredResults.length ? (
+              featuredResults.map((review) => (
+                <article key={review.id} className="review-card review-result-card">
+                  <div className="review-rating" aria-label={`${clampReviewRating(review.rating)} star review`}>
+                    {[0, 1, 2, 3, 4].map((index) => (
+                      <i key={`${review.id}-star-${index}`} className={`bi ${getStarIcon(clampReviewRating(review.rating), index)}`} />
+                    ))}
+                  </div>
+
+                  <p className="review-quote">"{review.quote}"</p>
+
+                  <div className="review-result-card-footer">
+                    <div className="review-identity">
+                      <span className="review-avatar" aria-hidden="true">
+                        {review.name.charAt(0)}
+                      </span>
+                      <div>
+                        <strong>{review.name}</strong>
+                        <p>{review.outcome}</p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <article className="review-card review-empty-card">
+                <span className="reviews-empty-kicker">No published reviews yet</span>
+                <h3>Be the first ResuMay success story on this wall.</h3>
+                <p>
+                  Once a user finishes and exports a resume, they can submit a review and it will appear here immediately.
+                </p>
+              </article>
+            )}
+          </div>
+        </section>
+
+        <section className="review-share-section" aria-labelledby="review-share-title">
+          <div className="shell">
+            <div className="section-heading review-share-heading">
+              <span className="eyebrow">Publish your result</span>
+              <h2 id="review-share-title">Share what changed after you used ResuMay!.</h2>
+              <p>After export, publish a short review so other job seekers can see the role, the outcome, and the score lift.</p>
+            </div>
+
+            <div className="review-submission-grid">
+              <section className="panel review-form-panel">
+                <div className="panel-heading">
+                  <div>
+                    <span className="panel-kicker">Publish your result</span>
+                    <h3>Submit your ResuMay review</h3>
+                  </div>
+                  <span className={`panel-badge ${canSubmitReview ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
+                    {canSubmitReview ? 'Unlocked' : 'Locked'}
+                  </span>
+                </div>
+
+                <p className="review-form-copy">{reviewSubmissionHint}</p>
+
+                <fieldset className="panel-fieldset" disabled={!canSubmitReview}>
+                  <div className="field-grid field-grid-2">
+                    <label className="field">
+                      <span>Name</span>
+                      <input
+                        type="text"
+                        id="reviewName"
+                        name="reviewName"
+                        value={reviewDraft.name}
+                        onChange={(event) => updateReviewDraft('name', event.target.value)}
+                        placeholder={personalInfo.name || 'Your name'}
+                      />
+                    </label>
+
+                    <label className="field">
+                      <span>Target role</span>
+                      <input
+                        type="text"
+                        id="reviewRole"
+                        name="reviewRole"
+                        value={reviewDraft.role}
+                        onChange={(event) => updateReviewDraft('role', event.target.value)}
+                        placeholder={targetRole || 'Operations Coordinator'}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="field-grid field-grid-3">
+                    <label className="field">
+                      <span>Job board</span>
+                      <input
+                        type="text"
+                        id="reviewBoard"
+                        name="reviewBoard"
+                        value={reviewDraft.board}
+                        onChange={(event) => updateReviewDraft('board', event.target.value)}
+                        placeholder="LinkedIn, OnlineJobs.ph, JobStreet by SEEK"
+                      />
+                    </label>
+
+                    <label className="field">
+                      <span>Rating</span>
+                      <select
+                        id="reviewRating"
+                        name="reviewRating"
+                        value={reviewDraft.rating}
+                        onChange={(event) => updateReviewDraft('rating', Number(event.target.value))}
+                      >
+                        <option value={5}>5 stars</option>
+                        <option value={4}>4 stars</option>
+                        <option value={3}>3 stars</option>
+                        <option value={2}>2 stars</option>
+                        <option value={1}>1 star</option>
+                      </select>
+                    </label>
+
+                    <label className="field">
+                      <span>Outcome</span>
+                      <input
+                        type="text"
+                        id="reviewOutcome"
+                        name="reviewOutcome"
+                        value={reviewDraft.outcome}
+                        onChange={(event) => updateReviewDraft('outcome', event.target.value)}
+                        placeholder="e.g. 2 callbacks in one week"
+                      />
+                    </label>
+                  </div>
+
+                  <label className="field">
+                    <span>Your review</span>
+                    <textarea
+                      className="guided-textarea"
+                      id="reviewQuote"
+                      name="reviewQuote"
+                      rows={5}
+                      value={reviewDraft.quote}
+                      onChange={(event) => updateReviewDraft('quote', event.target.value)}
+                      placeholder="Example:
+ResuMay made it easier to see which keywords were missing, so I tightened my summary, cleaned up my bullets, and my resume started feeling more ATS-ready."
+                    />
+                  </label>
+
+                  <div className="review-form-footer">
+                    <div className="review-submission-note">
+                      <strong>{analysis.beforeScore}% to {analysis.afterScore}%</strong>
+                      <span>Your current ATS score delta will be attached to this review.</span>
+                    </div>
+
+                    <button type="button" className="primary-button" onClick={submitReview} disabled={!canSubmitReview}>
+                      Publish my result
+                    </button>
+                  </div>
+                </fieldset>
+              </section>
+            </div>
           </div>
         </section>
 
