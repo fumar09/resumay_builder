@@ -1181,6 +1181,14 @@ main {
   align-items: start;
 }
 
+.studio-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+  align-items: start;
+}
+
 .studio-form-column,
 .studio-side-column,
 .sticky-stack {
@@ -1193,6 +1201,7 @@ main {
   top: calc(var(--header-height) + 1.4rem);
   display: grid;
   gap: 1rem;
+  z-index: 1;
 }
 
 .panel {
@@ -1463,6 +1472,10 @@ main {
 .checklist {
   display: grid;
   gap: 1rem;
+}
+
+.studio-bullets-panel {
+  align-self: start;
 }
 
 .meter-row {
@@ -1835,6 +1848,7 @@ main {
   .studio-overview,
   .hero-grid,
   .studio-grid,
+  .studio-insights-grid,
   .reviews-grid-shell,
   .review-submission-grid,
   .reviews-wall,

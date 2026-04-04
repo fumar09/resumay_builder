@@ -2608,89 +2608,91 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                     </div>
                   </section>
                   </div>
-
-                  <section className="panel">
-                    <div className="panel-heading">
-                      <div>
-                        <span className="panel-kicker">Keyword visibility</span>
-                        <h3>Matched and missing signals</h3>
-                      </div>
-                    </div>
-
-                    <div className="keyword-panel">
-                      <div>
-                        <strong>Matched</strong>
-                        <div className="keyword-cluster">
-                          {analysis.matchedKeywords.length ? (
-                            analysis.matchedKeywords.map((keyword) => (
-                              <span key={keyword} className="tag-chip tag-chip-solid matched-keyword-pill">
-                                <i className="bi bi-check-circle-fill" />
-                                {toDisplayKeyword(keyword)}
-                              </span>
-                            ))
-                          ) : (
-                            <p className="empty-note">Add a job description to start tracking matches.</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <strong>Still missing</strong>
-                        <div className="keyword-cluster">
-                          {analysis.missingKeywords.length ? (
-                            analysis.missingKeywords.map((keyword) => (
-                              <button key={keyword} type="button" className="tag-chip suggestion-chip" onClick={() => promoteKeywordToSkills(keyword)}>
-                                + {toDisplayKeyword(keyword)}
-                              </button>
-                            ))
-                          ) : (
-                            <p className="empty-note">The optimized draft already covers the strongest signals we tracked.</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section className="panel">
-                    <div className="panel-heading">
-                      <div>
-                        <span className="panel-kicker">Suggested summary</span>
-                        <h3>ATS-ready opener</h3>
-                      </div>
-                    </div>
-
-                    <p className="suggestion-copy">{analysis.optimizedSummary}</p>
-                  </section>
-
-                  <section className="panel">
-                    <div className="panel-heading">
-                      <div>
-                        <span className="panel-kicker">Refined experience bullets</span>
-                        <h3>Stronger recruiter language</h3>
-                      </div>
-                    </div>
-
-                    <div className="suggestion-stack">
-                      {analysis.optimizedExperience.some((group) => group.length) ? (
-                        analysis.optimizedExperience.map((group, index) =>
-                          group.length ? (
-                            <div key={`optimized-${index}`} className="suggestion-card">
-                              <strong>{experience[index]?.jobTitle || `Role ${index + 1}`}</strong>
-                              <ul>
-                                {group.map((bullet, bulletIndex) => (
-                                  <li key={`optimized-${index}-${bulletIndex}`}>{bullet}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          ) : null
-                        )
-                      ) : (
-                        <p className="empty-note">Add experience details and ResuMay! will rewrite them into clearer ATS bullets.</p>
-                      )}
-                    </div>
-                  </section>
                 </div>
               </aside>
+            </div>
+
+            <div className="studio-insights-grid">
+              <section className="panel">
+                <div className="panel-heading">
+                  <div>
+                    <span className="panel-kicker">Keyword visibility</span>
+                    <h3>Matched and missing signals</h3>
+                  </div>
+                </div>
+
+                <div className="keyword-panel">
+                  <div>
+                    <strong>Matched</strong>
+                    <div className="keyword-cluster">
+                      {analysis.matchedKeywords.length ? (
+                        analysis.matchedKeywords.map((keyword) => (
+                          <span key={keyword} className="tag-chip tag-chip-solid matched-keyword-pill">
+                            <i className="bi bi-check-circle-fill" />
+                            {toDisplayKeyword(keyword)}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="empty-note">Add a job description to start tracking matches.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <strong>Still missing</strong>
+                    <div className="keyword-cluster">
+                      {analysis.missingKeywords.length ? (
+                        analysis.missingKeywords.map((keyword) => (
+                          <button key={keyword} type="button" className="tag-chip suggestion-chip" onClick={() => promoteKeywordToSkills(keyword)}>
+                            + {toDisplayKeyword(keyword)}
+                          </button>
+                        ))
+                      ) : (
+                        <p className="empty-note">The optimized draft already covers the strongest signals we tracked.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="panel">
+                <div className="panel-heading">
+                  <div>
+                    <span className="panel-kicker">Suggested summary</span>
+                    <h3>ATS-ready opener</h3>
+                  </div>
+                </div>
+
+                <p className="suggestion-copy">{analysis.optimizedSummary}</p>
+              </section>
+
+              <section className="panel studio-bullets-panel">
+                <div className="panel-heading">
+                  <div>
+                    <span className="panel-kicker">Refined experience bullets</span>
+                    <h3>Stronger recruiter language</h3>
+                  </div>
+                </div>
+
+                <div className="suggestion-stack">
+                  {analysis.optimizedExperience.some((group) => group.length) ? (
+                    analysis.optimizedExperience.map((group, index) =>
+                      group.length ? (
+                        <div key={`optimized-${index}`} className="suggestion-card">
+                          <strong>{experience[index]?.jobTitle || `Role ${index + 1}`}</strong>
+                          <ul>
+                            {group.map((bullet, bulletIndex) => (
+                              <li key={`optimized-${index}-${bulletIndex}`}>{bullet}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null
+                    )
+                  ) : (
+                    <p className="empty-note">Add experience details and ResuMay! will rewrite them into clearer ATS bullets.</p>
+                  )}
+                </div>
+              </section>
             </div>
           </div>
         </section>
