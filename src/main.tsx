@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import 'bootstrap/dist/css/bootstrap.min.css'
+// REMOVED BOOTSTRAP TEMPORARILY TO TEST
+// import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const rootElement = document.getElementById('root')
@@ -12,9 +13,9 @@ if (!rootElement) {
 try {
   ReactDOM.createRoot(rootElement).render(
     <div style={{ padding: '40px', fontFamily: 'system-ui', lineHeight: '1.6' }}>
-      <h1 style={{ color: '#a51c30' }}>ResuMay! Loading...</h1>
+      <h1 style={{ color: '#a51c30' }}>ResuMay! Test (Bootstrap Removed)</h1>
       <p>
-        If you see this, React is working. If you don't see this message, there's a render issue.
+        If you see this, React IS working! Bootstrap CSS was likely the issue.
       </p>
       <hr style={{ margin: '20px 0' }} />
       <details>
