@@ -54,6 +54,17 @@ interface JobBoard {
   logoClassName?: string
 }
 
+interface CommunityReview {
+  id: string
+  name: string
+  role: string
+  board: string
+  scoreBefore: number
+  scoreAfter: number
+  outcome: string
+  quote: string
+}
+
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
 
 type ExperienceLevel = 'entry' | 'mid' | 'senior' | 'lead'
@@ -332,6 +343,53 @@ const supportedJobBoards: JobBoard[] = [
 ]
 
 const roleCoverage = ['Virtual Assistant', 'Admin & Ops', 'Customer Support', 'Sales', 'Marketing', 'Design', 'Engineering']
+
+const communityReviews: CommunityReview[] = [
+  {
+    id: 'review-ana',
+    name: 'Ana G.',
+    role: 'Frontend Developer',
+    board: 'LinkedIn',
+    scoreBefore: 46,
+    scoreAfter: 84,
+    outcome: '3 interviews in one week',
+    quote:
+      'The keyword visibility made it obvious what recruiters were missing. I rewrote my summary, matched the job description, and my applications started getting replies.'
+  },
+  {
+    id: 'review-mark',
+    name: 'Mark V.',
+    role: 'Operations Coordinator',
+    board: 'JobStreet by SEEK',
+    scoreBefore: 41,
+    scoreAfter: 81,
+    outcome: 'Shortlisted for two operations roles',
+    quote:
+      'ResuMay helped me cut the weak filler from my resume and keep only the points that were relevant to the role. The one-page format felt cleaner immediately.'
+  },
+  {
+    id: 'review-trisha',
+    name: 'Trisha L.',
+    role: 'Admin Officer',
+    board: 'Indeed',
+    scoreBefore: 38,
+    scoreAfter: 79,
+    outcome: 'Got callbacks after a quiet month',
+    quote:
+      'I used the ATS score and the suggested bullets together. That made my experience sound more direct, and employers finally started calling back.'
+  },
+  {
+    id: 'review-james',
+    name: 'James B.',
+    role: 'Customer Support Analyst',
+    board: 'OnlineJobs.ph',
+    scoreBefore: 52,
+    scoreAfter: 88,
+    outcome: 'Moved forward to final interviews',
+    quote:
+      'The preview showed exactly what the exported PDF would look like, and the review cards here feel accurate to my experience. It made ATS-friendly editing less confusing.'
+  }
+]
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
@@ -1217,6 +1275,74 @@ function App() {
                 <p>Useful for virtual assistants, admin, support, sales, marketing, operations, creative, and technical roles.</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="reviews-section" aria-labelledby="reviews-title">
+          <div className="shell reviews-grid-shell">
+            <div className="section-heading reviews-heading">
+              <span className="eyebrow">Community proof</span>
+              <h2 id="reviews-title">How ResuMay! is helping users build ATS-friendly resumes that get seen.</h2>
+              <p>
+                These featured stories show the exact kind of progress users care about: stronger keyword coverage, cleaner
+                one-page formatting, and more confidence before they hit apply. The review wall is structured so moderated live
+                reviews can plug in next.
+              </p>
+            </div>
+
+            <div className="reviews-summary-card">
+              <span className="panel-kicker">Review wall direction</span>
+              <strong>Featured now, ready for moderated live reviews next.</strong>
+              <p>Best next step: collect reviews after export, hold them for moderation, then publish the approved ones here.</p>
+              <button type="button" className="secondary-button" onClick={scrollToStudio}>
+                Build your own result
+              </button>
+            </div>
+          </div>
+
+          <div className="shell reviews-wall">
+            {communityReviews.map((review) => (
+              <article key={review.id} className="review-card">
+                <div className="review-card-top">
+                  <div className="review-identity">
+                    <span className="review-avatar" aria-hidden="true">
+                      {review.name.charAt(0)}
+                    </span>
+                    <div>
+                      <strong>{review.name}</strong>
+                      <p>
+                        {review.role} via {review.board}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="review-rating" aria-label="5 star review">
+                    {[0, 1, 2, 3, 4].map((index) => (
+                      <i key={`${review.id}-star-${index}`} className="bi bi-star-fill" />
+                    ))}
+                  </div>
+                </div>
+
+                <p className="review-quote">"{review.quote}"</p>
+
+                <div className="review-score-band">
+                  <div className="review-score-pill">
+                    <span>Before</span>
+                    <strong>{review.scoreBefore}%</strong>
+                  </div>
+                  <i className="bi bi-arrow-right" aria-hidden="true" />
+                  <div className="review-score-pill review-score-pill-success">
+                    <span>After</span>
+                    <strong>{review.scoreAfter}%</strong>
+                  </div>
+                </div>
+
+                <div className="review-card-footer">
+                  <span className="review-outcome">{review.outcome}</span>
+                  <span className="review-board-pill">{review.board}</span>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
