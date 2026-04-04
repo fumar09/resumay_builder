@@ -751,6 +751,8 @@ function App() {
   const [submittedReviews, setSubmittedReviews] = useState<SubmittedReview[]>([])
   const [remoteApprovedReviews, setRemoteApprovedReviews] = useState<CommunityReview[]>([])
   const [isReviewBackendConfigured, setIsReviewBackendConfigured] = useState(false)
+  const [celebrationThresholdReached, setCelebrationThresholdReached] = useState(false)
+  const [hasPlayedCelebration, setHasPlayedCelebration] = useState(false)
 
   useEffect(() => {
     try {
@@ -928,6 +930,54 @@ function App() {
       isMounted = false
     }
   }, [])
+
+  useEffect(() => {
+    const analysis = buildAnalysis(
+      personalInfo,
+      targetRole,
+      jobDescription,
+      experienceLevel,
+      summaryTone,
+      experience,
+      education,
+      skills,
+      projects,
+      certifications,
+      languages
+    )
+
+    // Trigger celebration on first time crossing 80 threshold
+    if (analysis.afterScore >= 80 && !hasPlayedCelebration && !celebrationThresholdReached) {
+      setCelebrationThresholdReached(true)
+      setHasPlayedCelebration(true)
+      
+      // Play subtle celebration sound (low-shelf neutral "ding")
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+        const now = audioContext.currentTime
+        const osc = audioContext.createOscillator()
+        const gain = audioContext.createGain()
+        
+        osc.connect(gain)
+        gain.connect(audioContext.destination)
+        
+        osc.frequency.value = 528 // Soothing neutral frequency
+        osc.type = 'sine'
+        
+        gain.gain.setValueAtTime(0.15, now)
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
+        
+        osc.start(now)
+        osc.stop(now + 0.4)
+      } catch {
+        // Audio context not available, silently continue
+      }
+      
+      showToast('🏆 Excellent match! Your resume is ATS-optimized and ready to export.')
+    } else if (analysis.afterScore < 80) {
+      setCelebrationThresholdReached(false)
+    }
+  }, [analysis.afterScore, hasPlayedCelebration, celebrationThresholdReached])
 
   const analysis = buildAnalysis(
     personalInfo,
@@ -1407,11 +1457,11 @@ function App() {
           <div className="shell">
             <div className="hero-grid">
               <div className="hero-copy">
-                <span className="eyebrow">Built for job seekers who need stronger callbacks.</span>
-                <h1>You are qualified. ResuMay! helps your resume prove it.</h1>
+                <span className="eyebrow">Real-time ATS intelligence.</span>
+                <h1>Stop guessing. Start scoring. Turn your draft into a high-conversion application.</h1>
                 <p className="hero-lead">
-                  Tailor your resume to each role, see how closely your draft matches the job before you apply, and build a
-                  stronger application for real hiring pipelines across modern online job boards.
+                  ResuMay! uses real-time ATS signaling to show you exactly how closely your resume matches each job before you apply.
+                  Tailor in seconds. Score your improvements. Export with confidence.
                 </p>
 
                 <div className="hero-actions">
@@ -1846,6 +1896,19 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                 <p>Review the live paper preview, export the improved PDF, and submit a resume that feels more role-ready.</p>
               </article>
             </div>
+
+            <div className="keyword-cloud">
+              <div className="cloud-header">
+                <span className="cloud-label">See it in action: Keywords turn green when matched</span>
+              </div>
+              <div className="keyword-chips-interactive">
+                <span className="keyword-chip-static">documentation</span>
+                <span className="keyword-chip-static">stakeholder management</span>
+                <span className="keyword-chip-static">process improvement</span>
+                <span className="keyword-chip-static">project coordination</span>
+                <span className="keyword-chip-missing">advanced analytics</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -1870,7 +1933,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
             {feedback && <div className="toast-banner">{feedback}</div>}
 
             <div className="studio-overview" aria-label="Studio summary">
-              <article className="overview-card">
+              <article className={`overview-card${hasPlayedCelebration && analysis.afterScore >= 80 ? ' celebration-active' : ''}`}>
                 <span className="panel-kicker">Projected match</span>
                 <strong>{analysis.afterScore}/100</strong>
                 <p>{scoreGuidance}</p>
