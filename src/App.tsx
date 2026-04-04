@@ -83,6 +83,10 @@ interface ReviewApiResponse {
   backendConfigured: boolean
 }
 
+interface ReviewAdminResponse {
+  pendingReviews: SubmittedReview[]
+}
+
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
 
 type ExperienceLevel = 'entry' | 'mid' | 'senior' | 'lead'
@@ -102,6 +106,7 @@ interface AnalysisResult {
 
 const STORAGE_KEY = 'resumeMayOptimizerData'
 const REVIEW_STORAGE_KEY = 'resumeMaySubmittedReviews'
+const REVIEW_ADMIN_SESSION_KEY = 'resumeMayReviewAdminToken'
 
 const defaultPersonalInfo: PersonalInfo = {
   name: '',
@@ -768,6 +773,13 @@ function App() {
   const [submittedReviews, setSubmittedReviews] = useState<SubmittedReview[]>([])
   const [remoteApprovedReviews, setRemoteApprovedReviews] = useState<CommunityReview[]>([])
   const [isReviewBackendConfigured, setIsReviewBackendConfigured] = useState(false)
+  const [showModeratorPanel, setShowModeratorPanel] = useState(false)
+  const [reviewAdminToken, setReviewAdminToken] = useState('')
+  const [moderationQueue, setModerationQueue] = useState<SubmittedReview[]>([])
+  const [isModeratorAuthenticated, setIsModeratorAuthenticated] = useState(false)
+  const [isModerationLoading, setIsModerationLoading] = useState(false)
+  const [moderationActionId, setModerationActionId] = useState('')
+  const [moderationNotice, setModerationNotice] = useState('')
 
   useEffect(() => {
     try {
@@ -899,6 +911,18 @@ function App() {
   }, [])
 
   useEffect(() => {
+    try {
+      const savedAdminToken = sessionStorage.getItem(REVIEW_ADMIN_SESSION_KEY)
+
+      if (savedAdminToken) {
+        setReviewAdminToken(savedAdminToken)
+      }
+    } catch {
+      setReviewAdminToken('')
+    }
+  }, [])
+
+  useEffect(() => {
     let isMounted = true
 
     const loadApprovedReviews = async () => {
@@ -1010,6 +1034,80 @@ function App() {
       setFeedback('')
       feedbackTimeoutRef.current = null
     }, 3000)
+  }
+
+  const persistSubmittedReviews = (nextReviews: SubmittedReview[]) => {
+    setSubmittedReviews(nextReviews)
+
+    try {
+      localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(nextReviews))
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const refreshApprovedReviews = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}api/reviews`, {
+        headers: {
+          Accept: 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        return false
+      }
+
+      const data = (await response.json()) as ReviewApiResponse
+      setRemoteApprovedReviews(Array.isArray(data.reviews) ? data.reviews : [])
+      setIsReviewBackendConfigured(Boolean(data.backendConfigured))
+      return true
+    } catch {
+      setIsReviewBackendConfigured(false)
+      return false
+    }
+  }
+
+  const loadModerationQueue = async (token = reviewAdminToken) => {
+    const trimmedToken = token.trim()
+
+    if (!trimmedToken || !isReviewBackendConfigured) {
+      setModerationQueue([])
+      setIsModeratorAuthenticated(false)
+      return false
+    }
+
+    setIsModerationLoading(true)
+
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}api/reviews/admin`, {
+        headers: {
+          Accept: 'application/json',
+          'x-resumay-admin-token': trimmedToken
+        }
+      })
+
+      if (!response.ok) {
+        setModerationQueue([])
+        setIsModeratorAuthenticated(false)
+        setModerationNotice(response.status === 401 ? 'Moderator token was rejected.' : 'Pending reviews could not be loaded.')
+        return false
+      }
+
+      const data = (await response.json()) as ReviewAdminResponse
+      setModerationQueue(Array.isArray(data.pendingReviews) ? data.pendingReviews : [])
+      setIsModeratorAuthenticated(true)
+      setModerationNotice('Moderator access active. Pending reviews are ready to review.')
+      return true
+    } catch {
+      setModerationQueue([])
+      setIsModeratorAuthenticated(false)
+      setModerationNotice('Pending reviews could not be loaded.')
+      return false
+    } finally {
+      setIsModerationLoading(false)
+    }
   }
 
   const scrollToStudio = () => {
@@ -1188,21 +1286,21 @@ function App() {
 
   const submitReview = () => {
     const submitReviewAsync = async () => {
-    if (!canSubmitReview) {
-      showToast(reviewSubmissionHint)
-      return
-    }
+      if (!canSubmitReview) {
+        showToast(reviewSubmissionHint)
+        return
+      }
 
-    const name = reviewDraft.name.trim() || personalInfo.name.trim()
-    const role = reviewDraft.role.trim() || targetRole.trim()
-    const board = reviewDraft.board.trim()
-    const outcome = reviewDraft.outcome.trim()
-    const quote = reviewDraft.quote.trim()
+      const name = reviewDraft.name.trim() || personalInfo.name.trim()
+      const role = reviewDraft.role.trim() || targetRole.trim()
+      const board = reviewDraft.board.trim()
+      const outcome = reviewDraft.outcome.trim()
+      const quote = reviewDraft.quote.trim()
 
-    if (!name || !role || !board || !outcome || !quote) {
-      showToast('Complete the review details before submitting.')
-      return
-    }
+      if (!name || !role || !board || !outcome || !quote) {
+        showToast('Complete the review details before submitting.')
+        return
+      }
 
       const pendingReview: SubmittedReview = {
         id: createEntryId('review'),
@@ -1255,28 +1353,129 @@ function App() {
 
       const nextReviews: SubmittedReview[] = [pendingReview, ...submittedReviews]
 
-    setSubmittedReviews(nextReviews)
-    setReviewDraft(
-      createReviewDraft({
-        name,
-        role,
-        board
-      })
-    )
+      const savedLocally = persistSubmittedReviews(nextReviews)
 
-    try {
-      localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(nextReviews))
-      showToast(
-        isReviewBackendConfigured
-          ? 'Your review was submitted to the moderation queue and saved on this device.'
-          : 'Your review was saved as pending on this device. Connect shared storage to publish it across users.'
+      setReviewDraft(
+        createReviewDraft({
+          name,
+          role,
+          board
+        })
       )
-    } catch {
-      showToast('Your review could not be saved on this device.')
-    }
+
+      if (savedLocally) {
+        showToast(
+          isReviewBackendConfigured
+            ? 'Your review was submitted to the moderation queue and saved on this device.'
+            : 'Your review was saved as pending on this device. Connect shared storage to publish it across users.'
+        )
+      } else {
+        showToast('Your review could not be saved on this device.')
+      }
     }
 
     void submitReviewAsync()
+  }
+
+  const unlockModeratorPanel = () => {
+    const unlockAsync = async () => {
+      const token = reviewAdminToken.trim()
+
+      if (!token) {
+        setModerationNotice('Enter the moderator token to unlock the queue.')
+        return
+      }
+
+      try {
+        sessionStorage.setItem(REVIEW_ADMIN_SESSION_KEY, token)
+      } catch {
+        // Ignore session persistence failures and continue with the in-memory token.
+      }
+
+      const loaded = await loadModerationQueue(token)
+
+      if (loaded) {
+        showToast('Moderator queue unlocked.')
+      }
+    }
+
+    void unlockAsync()
+  }
+
+  const clearModeratorAccess = () => {
+    setReviewAdminToken('')
+    setModerationQueue([])
+    setModerationNotice('')
+    setIsModeratorAuthenticated(false)
+
+    try {
+      sessionStorage.removeItem(REVIEW_ADMIN_SESSION_KEY)
+    } catch {
+      // Ignore session persistence failures.
+    }
+  }
+
+  const moderateReview = (reviewId: string, action: 'approve' | 'reject') => {
+    const moderateAsync = async () => {
+      const token = reviewAdminToken.trim()
+
+      if (!token) {
+        setModerationNotice('Enter the moderator token to continue.')
+        return
+      }
+
+      setModerationActionId(reviewId)
+
+      try {
+        const response = await fetch(`${import.meta.env.BASE_URL}api/reviews/admin`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'x-resumay-admin-token': token
+          },
+          body: JSON.stringify({
+            reviewId,
+            action
+          })
+        })
+
+        if (!response.ok) {
+          setModerationNotice(response.status === 401 ? 'Moderator token was rejected.' : 'Moderation update failed.')
+          if (response.status === 401) {
+            setIsModeratorAuthenticated(false)
+          }
+          return
+        }
+
+        setModerationQueue((current) => current.filter((review) => review.id !== reviewId))
+
+        if (action === 'approve') {
+          await refreshApprovedReviews()
+        }
+
+        const nextLocalReviews: SubmittedReview[] = submittedReviews.map((review) => {
+          if (review.id !== reviewId) {
+            return review
+          }
+
+          return {
+            ...review,
+            status: action === 'approve' ? ('approved' as const) : ('pending' as const)
+          }
+        })
+
+        persistSubmittedReviews(action === 'reject' ? nextLocalReviews.filter((review) => review.id !== reviewId) : nextLocalReviews)
+        setModerationNotice(action === 'approve' ? 'Review approved and published.' : 'Review rejected and removed from the pending queue.')
+        showToast(action === 'approve' ? 'Review approved.' : 'Review rejected.')
+      } catch {
+        setModerationNotice('Moderation update failed.')
+      } finally {
+        setModerationActionId('')
+      }
+    }
+
+    void moderateAsync()
   }
 
   const addArrayItem = <T,>(setter: Dispatch<SetStateAction<T[]>>, item: T) => {
@@ -1515,9 +1714,14 @@ function App() {
               <span className={`panel-badge ${isReviewBackendConfigured ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
                 {isReviewBackendConfigured ? 'Shared review backend live' : 'Local review fallback'}
               </span>
-              <button type="button" className="secondary-button" onClick={scrollToStudio}>
-                Build your own result
-              </button>
+              <div className="reviews-summary-actions">
+                <button type="button" className="secondary-button" onClick={scrollToStudio}>
+                  Build your own result
+                </button>
+                <button type="button" className="ghost-button" onClick={() => setShowModeratorPanel((current) => !current)}>
+                  {showModeratorPanel ? 'Hide moderator tools' : 'Moderator access'}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1702,6 +1906,101 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
               </div>
             </section>
           </div>
+
+          {showModeratorPanel && (
+            <div className="shell review-admin-shell">
+              <section className="panel review-admin-panel">
+                <div className="panel-heading">
+                  <div>
+                    <span className="panel-kicker">Moderator tools</span>
+                    <h3>Approve or reject pending reviews</h3>
+                  </div>
+                  <span className={`panel-badge ${isModeratorAuthenticated ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
+                    {isModeratorAuthenticated ? 'Authenticated' : 'Locked'}
+                  </span>
+                </div>
+
+                <p className="review-form-copy">
+                  Enter the moderation token locally in this browser. It is sent only to the protected admin API route and is not shipped with the public app.
+                </p>
+
+                <div className="review-admin-controls">
+                  <label className="field">
+                    <span>Moderator token</span>
+                    <input
+                      type="password"
+                      id="reviewAdminToken"
+                      name="reviewAdminToken"
+                      value={reviewAdminToken}
+                      onChange={(event) => setReviewAdminToken(event.target.value)}
+                      placeholder="Enter the admin token"
+                    />
+                  </label>
+
+                  <div className="review-admin-actions">
+                    <button type="button" className="secondary-button" onClick={unlockModeratorPanel} disabled={!isReviewBackendConfigured || isModerationLoading}>
+                      {isModerationLoading ? 'Loading queue...' : 'Unlock queue'}
+                    </button>
+                    <button type="button" className="ghost-button" onClick={clearModeratorAccess}>
+                      Clear token
+                    </button>
+                  </div>
+                </div>
+
+                {moderationNotice && <p className="review-admin-notice">{moderationNotice}</p>}
+
+                <div className="moderation-queue">
+                  {moderationQueue.length ? (
+                    moderationQueue.map((review) => (
+                      <article key={review.id} className="pending-review-card moderation-review-card">
+                        <div className="pending-review-top">
+                          <div>
+                            <strong>{review.name}</strong>
+                            <p>
+                              {review.role} via {review.board}
+                            </p>
+                          </div>
+                          <span className="status-pill review-status-pill">Pending moderation</span>
+                        </div>
+
+                        <p className="review-quote">"{review.quote}"</p>
+
+                        <div className="review-card-footer">
+                          <span className="review-outcome">{review.outcome}</span>
+                          <span className="review-board-pill">
+                            {review.scoreBefore}% to {review.scoreAfter}%
+                          </span>
+                        </div>
+
+                        <div className="moderation-actions">
+                          <button
+                            type="button"
+                            className="secondary-button compact-button"
+                            onClick={() => moderateReview(review.id, 'approve')}
+                            disabled={moderationActionId === review.id}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            className="ghost-button compact-button"
+                            onClick={() => moderateReview(review.id, 'reject')}
+                            disabled={moderationActionId === review.id}
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </article>
+                    ))
+                  ) : (
+                    <p className="empty-note">
+                      {isModeratorAuthenticated ? 'No pending reviews are waiting right now.' : 'Unlock moderator access to load the shared queue.'}
+                    </p>
+                  )}
+                </div>
+              </section>
+            </div>
+          )}
         </section>
 
         <section className="principles-section" aria-labelledby="principles-title">

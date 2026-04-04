@@ -828,6 +828,14 @@ main {
   align-content: start;
 }
 
+.reviews-summary-actions,
+.review-admin-actions,
+.moderation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .reviews-summary-card strong {
   color: var(--ink);
   font-family: var(--font-display);
@@ -844,6 +852,10 @@ main {
   display: grid;
   grid-template-columns: minmax(0, 1.04fr) minmax(280px, 0.96fr);
   gap: 1rem;
+  margin-top: 1rem;
+}
+
+.review-admin-shell {
   margin-top: 1rem;
 }
 
@@ -957,6 +969,7 @@ main {
 
 .review-form-panel,
 .review-pending-panel,
+.review-admin-panel,
 .pending-review-card {
   display: grid;
   gap: 1rem;
@@ -998,6 +1011,12 @@ main {
   gap: 0.9rem;
 }
 
+.review-admin-controls,
+.moderation-queue {
+  display: grid;
+  gap: 1rem;
+}
+
 .pending-review-card {
   padding: 1rem;
   border-radius: var(--radius-md);
@@ -1021,6 +1040,20 @@ main {
   background: rgba(27, 27, 27, 0.06);
   color: var(--ink);
   border: 1px solid rgba(27, 27, 27, 0.08);
+}
+
+.review-admin-notice {
+  margin: 0;
+  padding: 0.82rem 0.95rem;
+  border-radius: var(--radius-sm);
+  background: rgba(27, 27, 27, 0.05);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.moderation-review-card {
+  background: rgba(253, 252, 248, 0.92);
 }
 
 .review-outcome {
@@ -1809,6 +1842,9 @@ main {
   .review-card-top,
   .review-form-footer,
   .pending-review-top,
+  .reviews-summary-actions,
+  .review-admin-actions,
+  .moderation-actions,
   .review-score-band,
   .closing-card,
   .resume-panel-topbar,
