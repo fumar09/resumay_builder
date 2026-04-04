@@ -713,11 +713,14 @@ function App() {
   const studioRef = useRef<HTMLElement | null>(null)
   const resumePanelRef = useRef<HTMLElement | null>(null)
   const feedbackTimeoutRef = useRef<number | null>(null)
+  const scoreMotionTimeoutRef = useRef<number | null>(null)
   const scrollTimeoutRef = useRef<number | null>(null)
   const jobBoardSequenceRef = useRef<HTMLDivElement | null>(null)
   const pendingSkillInputRef = useRef<HTMLInputElement | null>(null)
   const experienceDescriptionRefs = useRef<Array<HTMLTextAreaElement | null>>([])
   const guidedFieldTimeoutRef = useRef<number | null>(null)
+  const previousAfterScoreRef = useRef<number | null>(null)
+  const highestScoreMilestoneRef = useRef(0)
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>(defaultPersonalInfo)
   const [targetRole, setTargetRole] = useState('')
@@ -733,6 +736,8 @@ function App() {
   const [pendingSkill, setPendingSkill] = useState('')
   const [applyOptimization, setApplyOptimization] = useState(true)
   const [feedback, setFeedback] = useState('')
+  const [scoreMotionState, setScoreMotionState] = useState<'idle' | 'pulse' | 'celebrate'>('idle')
+  const [recentScoreDelta, setRecentScoreDelta] = useState<number | null>(null)
   const [jobBoardLoopWidth, setJobBoardLoopWidth] = useState(0)
   const [hasExportedResume, setHasExportedResume] = useState(false)
   const [guidedFieldTarget, setGuidedFieldTarget] = useState<GuidedFieldTarget | null>(null)
@@ -795,6 +800,10 @@ function App() {
     return () => {
       if (feedbackTimeoutRef.current !== null) {
         window.clearTimeout(feedbackTimeoutRef.current)
+      }
+
+      if (scoreMotionTimeoutRef.current !== null) {
+        window.clearTimeout(scoreMotionTimeoutRef.current)
       }
 
       if (scrollTimeoutRef.current !== null) {
@@ -1060,6 +1069,72 @@ function App() {
       feedbackTimeoutRef.current = null
     }, 3000)
   }
+
+  const triggerScoreMotion = (state: 'pulse' | 'celebrate', delta: number) => {
+    setScoreMotionState(state)
+    setRecentScoreDelta(delta)
+
+    if (scoreMotionTimeoutRef.current !== null) {
+      window.clearTimeout(scoreMotionTimeoutRef.current)
+    }
+
+    scoreMotionTimeoutRef.current = window.setTimeout(() => {
+      setScoreMotionState('idle')
+      setRecentScoreDelta(null)
+      scoreMotionTimeoutRef.current = null
+    }, 1800)
+  }
+
+  useEffect(() => {
+    if (!isOptimizationUnlocked) {
+      previousAfterScoreRef.current = null
+      highestScoreMilestoneRef.current = 0
+      setScoreMotionState('idle')
+      setRecentScoreDelta(null)
+
+      if (scoreMotionTimeoutRef.current !== null) {
+        window.clearTimeout(scoreMotionTimeoutRef.current)
+        scoreMotionTimeoutRef.current = null
+      }
+
+      return
+    }
+
+    const previousScore = previousAfterScoreRef.current
+    previousAfterScoreRef.current = analysis.afterScore
+
+    if (previousScore === null || analysis.afterScore <= previousScore) {
+      return
+    }
+
+    const delta = analysis.afterScore - previousScore
+    const highestMilestone =
+      analysis.afterScore >= 80
+        ? 80
+        : analysis.afterScore >= 65
+          ? 65
+          : analysis.afterScore >= 50
+            ? 50
+            : 0
+
+    if (highestMilestone > highestScoreMilestoneRef.current) {
+      highestScoreMilestoneRef.current = highestMilestone
+
+      if (highestMilestone >= 80) {
+        showToast('Looking strong. Your ATS score just cleared 80.')
+        triggerScoreMotion('celebrate', delta)
+        return
+      }
+
+      if (highestMilestone >= 65) {
+        showToast('ATS score is climbing. Keep tightening the strongest signals.')
+      } else if (highestMilestone >= 50) {
+        showToast('The draft is moving in the right direction. Keep matching the job language.')
+      }
+    }
+
+    triggerScoreMotion('pulse', delta)
+  }, [analysis.afterScore, isOptimizationUnlocked])
 
   const persistSubmittedReviews = (nextReviews: SubmittedReview[]) => {
     setSubmittedReviews(nextReviews)
@@ -2044,7 +2119,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
             {feedback && <div className="toast-banner">{feedback}</div>}
 
             <div className="studio-overview" aria-label="Studio summary">
-              <article className="overview-card">
+              <article className={`overview-card overview-card-score${scoreMotionState !== 'idle' ? ` is-${scoreMotionState}` : ''}`}>
                 <span className="panel-kicker">Projected match</span>
                 <strong>{analysis.afterScore}/100</strong>
                 <p>{scoreGuidance}</p>
@@ -2709,7 +2784,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
 
               <aside className="studio-side-column">
                 <div className="sticky-stack">
-                  <section className="panel panel-contrast score-hud-card">
+                  <section className={`panel panel-contrast score-hud-card${scoreMotionState !== 'idle' ? ` is-${scoreMotionState}` : ''}`}>
                     <div className="score-hud-topbar">
                       <div>
                         <span className="panel-kicker">Live ATS score</span>
@@ -2733,6 +2808,17 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       <span>{matchedSignalLabel}</span>
                       <span>{scoreGuidance}</span>
                     </div>
+
+                    {recentScoreDelta !== null && scoreMotionState !== 'idle' && (
+                      <div className={`score-feedback-note score-feedback-note-${scoreMotionState}`} role="status" aria-live="polite">
+                        <i className={`bi ${scoreMotionState === 'celebrate' ? 'bi-stars' : 'bi-graph-up-arrow'}`} />
+                        <span>
+                          {scoreMotionState === 'celebrate'
+                            ? `Score moved +${recentScoreDelta}. This draft is looking export-ready.`
+                            : `Score moved +${recentScoreDelta}. Keep tightening the strongest signals.`}
+                        </span>
+                      </div>
+                    )}
                   </section>
 
                   <section className="panel resume-panel sticky-preview-panel" ref={resumePanelRef}>
