@@ -109,32 +109,6 @@ interface ResumeBulletPreview {
 type GuidedFieldTarget = { type: 'skill' } | { type: 'experience'; index: number }
 type CompletionTarget = 'jobDescription' | 'identity' | 'contact' | 'summary' | 'experience' | 'skills'
 
-// Intersection Observer hook for lazy loading sections
-const useIntersectionObserver = (ref: React.RefObject<HTMLElement>, options: IntersectionObserverInit = {}) => {
-  const [isVisible, setIsVisible] = useState(false)
-  
-  useEffect(() => {
-    if (!ref.current) return
-    
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setIsVisible(true)
-        observer.unobserve(entry.target)
-      }
-    }, {
-      threshold: 0.1,
-      rootMargin: '50px',
-      ...options
-    })
-    
-    observer.observe(ref.current)
-    
-    return () => observer.disconnect()
-  }, [ref, options])
-  
-  return isVisible
-}
-
 const STORAGE_KEY = 'resumeMayOptimizerData'
 const REVIEW_STORAGE_KEY = 'resumeMaySubmittedReviews'
 
@@ -2309,10 +2283,6 @@ function App() {
   )]
   const totalPages = allPages.length
   const displayedResults = allPages[currentReviewPage - 1] || featuredResults
-  const reviewResultsCtaLabel =
-    reviewCount >= 85
-      ? 'View all 85+ verified success stories (Updated this week)'
-      : `View all ${reviewCount} verified success ${reviewCount === 1 ? 'story' : 'stories'}`
   const averageReviewRating = reviewCount
     ? publishedReviews.reduce((total, review) => total + clampReviewRating(review.rating), 0) / reviewCount
     : 0
