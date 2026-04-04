@@ -1691,49 +1691,6 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                 </div>
               </fieldset>
             </section>
-
-            <section className="panel review-pending-panel">
-              <div className="panel-heading">
-                <div>
-                  <span className="panel-kicker">Your review history</span>
-                  <h3>Your published reviews</h3>
-                </div>
-                <span className="panel-badge panel-badge-success">{submittedReviews.length} shared</span>
-              </div>
-
-              <p className="review-form-copy">
-                Reviews you publish are saved on this device right away. When shared storage is connected, the same review also appears to other users.
-              </p>
-
-              <div className="pending-review-stack">
-                {submittedReviews.length ? (
-                  submittedReviews.map((review) => (
-                    <article key={review.id} className="pending-review-card">
-                      <div className="pending-review-top">
-                        <div>
-                          <strong>{review.name}</strong>
-                          <p>
-                            {review.role} via {review.board}
-                          </p>
-                        </div>
-                        <span className="status-pill review-status-pill">Published</span>
-                      </div>
-
-                      <p className="review-quote">"{review.quote}"</p>
-
-                      <div className="review-card-footer">
-                        <span className="review-outcome">{review.outcome}</span>
-                        <span className="review-board-pill">
-                          {review.scoreBefore}% to {review.scoreAfter}%
-                        </span>
-                      </div>
-                    </article>
-                  ))
-                ) : (
-                  <p className="empty-note">Export your resume, publish your first review, and it will appear here right away.</p>
-                )}
-              </div>
-            </section>
             </div>
           </div>
         </section>
