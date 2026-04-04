@@ -17,10 +17,8 @@ export default defineConfig({
         passes: 2
       },
       mangle: {
-        toplevel: true,
-        properties: {
-          regex: /^_/
-        }
+        toplevel: false,
+        safari10: true
       },
       output: {
         comments: false
