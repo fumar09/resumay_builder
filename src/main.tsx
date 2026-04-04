@@ -11,8 +11,13 @@ if (!rootElement) {
 
 console.log('Mounting React app to', rootElement)
 
-ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+try {
+  ReactDOM.createRoot(rootElement).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  )
+} catch (error) {
+  console.error('React render error:', error)
+  rootElement.innerHTML = '<div style="padding:20px;color:red;"><h1>Error rendering app</h1><p>' + String(error) + '</p></div>'
+}
