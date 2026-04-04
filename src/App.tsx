@@ -403,8 +403,6 @@ const supportedJobBoards: JobBoard[] = [
   }
 ]
 
-const roleCoverage = ['Virtual Assistant', 'Admin & Ops', 'Customer Support', 'Sales', 'Marketing', 'Design', 'Engineering']
-
 const landingTeaserBeforeSignals = ['Generic summary', 'Weak keyword spread', 'Missing ops signals', 'Low ATS fit']
 const landingTeaserAfterSignals = ['Documentation', 'Process Improvement', 'Stakeholder Management', 'Reporting']
 
@@ -1743,14 +1741,6 @@ function App() {
                     <span>03</span>
                     <strong>Export the one-page PDF</strong>
                   </div>
-                </div>
-
-                <div className="hero-chips" aria-label="Role coverage">
-                  {roleCoverage.map((role) => (
-                    <span key={role} className="chip">
-                      {role}
-                    </span>
-                  ))}
                 </div>
 
                 <div className="hero-stats">
