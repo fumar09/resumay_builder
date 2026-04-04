@@ -106,6 +106,15 @@ interface ResumeBulletPreview {
 }
 
 type GuidedFieldTarget = { type: 'skill' } | { type: 'experience'; index: number }
+type ReadinessSignalId = 'jobDescription' | 'identity' | 'contact' | 'summary' | 'experience' | 'skills'
+type ReadinessSignalLevel = 'ready' | 'warning' | 'blocker'
+
+interface ReadinessSignal {
+  id: ReadinessSignalId
+  label: string
+  level: ReadinessSignalLevel
+  message: string
+}
 
 const STORAGE_KEY = 'resumeMayOptimizerData'
 const REVIEW_STORAGE_KEY = 'resumeMaySubmittedReviews'
@@ -467,6 +476,10 @@ function buildResumeFileName(name: string) {
   return `${normalizedName || 'ResuMay'}_Resume.pdf`
 }
 
+function validateEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
 function keywordExists(text: string, keyword: string) {
   const normalizedText = ` ${normalizeText(text)} `
   const normalizedKeyword = normalizeText(keyword)
@@ -520,6 +533,21 @@ function truncateText(value: string, maxLength: number) {
   return `${safeCutoff}...`
 }
 
+function countWords(value: string) {
+  return value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length
+}
+
+function lowercaseFirstCharacter(value: string) {
+  if (!value) {
+    return value
+  }
+
+  return value.charAt(0).toLowerCase() + value.slice(1)
+}
+
 function condenseResumeSummary(value: string) {
   const normalized = value.replace(/\s+/g, ' ').trim()
 
@@ -535,7 +563,6 @@ function condenseResumeSummary(value: string) {
 
 function condenseResumeBullet(value: string) {
   const normalized = value
-    .replace(/,\s*(with explicit emphasis on|to reinforce|while signaling stronger|and made)\b.*$/i, '')
     .replace(/\s+/g, ' ')
     .replace(/\.+$/, '')
     .trim()
@@ -581,15 +608,17 @@ function createSummary(
   missingKeywords: string[]
 ) {
   const spotlightTerms = cleanTextArray([
-    ...skills.slice(0, 3),
     ...matchedKeywords.slice(0, 2).map(toDisplayKeyword),
-    ...missingKeywords.slice(0, 2).map(toDisplayKeyword)
+    ...skills.slice(0, 2),
+    ...missingKeywords.slice(0, 1).map(toDisplayKeyword)
   ]).slice(0, 4)
 
-  const spotlightText = spotlightTerms.length ? spotlightTerms.join(', ') : 'clear business impact'
-  const roleText = targetRole || 'target role'
+  const spotlightText = spotlightTerms.length ? spotlightTerms.join(', ') : 'execution, communication, and delivery'
+  const roleText = targetRole ? toDisplayKeyword(targetRole) : 'Candidate'
+  const experienceLabel = toDisplayKeyword(experienceLabels[experienceLevel])
+  const toneText = toneLabels[summaryTone]
 
-  return `${toDisplayKeyword(roleText)} candidate with ${experienceLabels[experienceLevel]} judgment and a ${toneLabels[summaryTone]} voice. Shapes resume content around ${spotlightText} so hiring teams quickly see aligned strengths, delivery range, and ATS-ready language.`
+  return `${experienceLabel} ${roleText} with strengths in ${spotlightText}. Brings a ${toneText} voice and positions experience around role-relevant execution so hiring teams can quickly map the draft to the job.`
 }
 
 function createOptimizedBullet(statement: string, keyword: string, index: number, targetRole: string) {
@@ -600,20 +629,25 @@ function createOptimizedBullet(statement: string, keyword: string, index: number
 
   const hasActionVerb = actionVerbs.some((verb) => cleaned.toLowerCase().startsWith(verb.toLowerCase()))
   const starter = actionVerbs[index % actionVerbs.length]
+  const keywordText = lowercaseFirstCharacter(toDisplayKeyword(keyword || targetRole || 'role priorities'))
   const body = cleaned
     ? hasActionVerb
       ? cleaned
-      : `${starter} ${cleaned.charAt(0).toLowerCase()}${cleaned.slice(1)}`
-    : `${starter} work aligned to ${targetRole || 'the target role'} priorities`
+      : `${starter} ${lowercaseFirstCharacter(cleaned)}`
+    : `${starter} work aligned to ${lowercaseFirstCharacter(toDisplayKeyword(targetRole || 'the target role'))}`
 
-  const suffixes = [
-    `with explicit emphasis on ${toDisplayKeyword(keyword)}.`,
-    `to reinforce ${toDisplayKeyword(keyword)} in ATS screening.`,
-    `while signaling stronger ${toDisplayKeyword(keyword)} coverage.`,
-    `and made ${toDisplayKeyword(keyword)} easier for recruiters to spot.`
+  if (keyword && keywordExists(body, keyword)) {
+    return `${body}.`
+  }
+
+  const bridges = [
+    `with stronger focus on ${keywordText}`,
+    `to support ${keywordText}`,
+    `across ${keywordText} workflows`,
+    `while improving ${keywordText}`
   ]
 
-  return `${body}, ${suffixes[index % suffixes.length]}`
+  return `${body} ${bridges[index % bridges.length]}.`
 }
 
 function collectResumeText(
@@ -994,6 +1028,77 @@ function App() {
   const hasResumeBasics = Boolean(personalInfo.name.trim() && (personalInfo.email.trim() || personalInfo.summary.trim()))
   const hasExperienceDetails = experience.some((item) => item.jobTitle.trim() || item.company.trim() || item.description.trim())
   const hasSkillSignals = skills.length > 0
+  const hasValidEmail = Boolean(personalInfo.email.trim() && validateEmail(personalInfo.email))
+  const hasContactMethod = Boolean(hasValidEmail || personalInfo.phone.trim())
+  const summaryWordCount = countWords(personalInfo.summary)
+  const populatedExperienceCount = experience.filter((item) => item.jobTitle.trim() || item.company.trim() || item.description.trim()).length
+  const strongExperienceCount = experience.filter((item) => countWords(item.description) >= 8).length
+  const readinessSignals: ReadinessSignal[] = [
+    {
+      id: 'jobDescription',
+      label: 'Target brief',
+      level: isOptimizationUnlocked ? 'ready' : 'blocker',
+      message: isOptimizationUnlocked ? 'Job description is loaded and ATS matching is active.' : 'Paste the job description to unlock real ATS matching.'
+    },
+    {
+      id: 'identity',
+      label: 'Candidate identity',
+      level: personalInfo.name.trim() ? 'ready' : 'blocker',
+      message: personalInfo.name.trim() ? 'Candidate name is ready for the export file and resume header.' : 'Add the candidate name before exporting.'
+    },
+    {
+      id: 'contact',
+      label: 'Contact details',
+      level: hasContactMethod ? 'ready' : personalInfo.email.trim() && !hasValidEmail ? 'warning' : 'blocker',
+      message: hasContactMethod
+        ? 'At least one recruiter contact method is visible.'
+        : personalInfo.email.trim() && !hasValidEmail
+          ? 'Fix the email format or add a phone number so recruiters can reach you.'
+          : 'Add a valid email or phone number for recruiter contact.'
+    },
+    {
+      id: 'summary',
+      label: 'Summary strength',
+      level: summaryWordCount >= 14 ? 'ready' : summaryWordCount >= 6 ? 'warning' : 'blocker',
+      message: summaryWordCount >= 14
+        ? 'Summary is long enough to frame the resume clearly.'
+        : summaryWordCount >= 6
+          ? 'The summary is thin. Add a little more role-specific context.'
+          : 'Add a short professional summary before exporting.'
+    },
+    {
+      id: 'experience',
+      label: 'Experience detail',
+      level: strongExperienceCount > 0 ? 'ready' : populatedExperienceCount > 0 ? 'warning' : 'blocker',
+      message: strongExperienceCount > 0
+        ? 'At least one experience entry has enough detail to optimize.'
+        : populatedExperienceCount > 0
+          ? 'Experience exists, but the descriptions need stronger detail.'
+          : 'Add at least one role with a clear description of what you did.'
+    },
+    {
+      id: 'skills',
+      label: 'Skills coverage',
+      level: skills.length >= 5 ? 'ready' : skills.length >= 2 ? 'warning' : 'blocker',
+      message: skills.length >= 5
+        ? 'Skill coverage is broad enough for a focused one-page export.'
+        : skills.length >= 2
+          ? 'Add a few more role-relevant skills or keywords.'
+          : 'Add skills so the ATS and recruiter can see your core signals.'
+    }
+  ]
+  const exportBlockers = readinessSignals.filter((signal) => signal.level === 'blocker')
+  const exportWarnings = readinessSignals.filter((signal) => signal.level === 'warning')
+  const readinessHeadline = exportBlockers.length
+    ? `${exportBlockers.length} blocker${exportBlockers.length === 1 ? '' : 's'} before export`
+    : exportWarnings.length
+      ? `${exportWarnings.length} area${exportWarnings.length === 1 ? '' : 's'} to tighten`
+      : 'Resume looks ready for export'
+  const readinessCopy = exportBlockers.length
+    ? 'Clear the blockers below so the PDF is strong enough to send.'
+    : exportWarnings.length
+      ? 'The resume can export now, but these refinements will make it stronger.'
+      : 'The draft has the core information, contact path, and content depth needed for a clean one-page application.'
   const canSubmitReview = Boolean(isOptimizationUnlocked && hasResumeCore && hasExportedResume)
   const reviewSubmissionHint = !isOptimizationUnlocked
     ? 'Paste a job description first to unlock review submission.'
@@ -1177,6 +1282,54 @@ function App() {
     resumePanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  const focusReadinessSignal = (signalId: ReadinessSignalId) => {
+    if (signalId === 'experience') {
+      const targetIndex = experience.findIndex((item) => !item.description.trim())
+      const fallbackIndex = targetIndex >= 0 ? targetIndex : 0
+      const targetField = experienceDescriptionRefs.current[fallbackIndex]
+
+      if (targetField) {
+        highlightGuidedField({ type: 'experience', index: fallbackIndex })
+        targetField.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+        window.setTimeout(() => {
+          targetField.focus()
+        }, 240)
+      }
+
+      return
+    }
+
+    if (signalId === 'skills') {
+      highlightGuidedField({ type: 'skill' })
+      pendingSkillInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+      window.setTimeout(() => {
+        pendingSkillInputRef.current?.focus()
+      }, 240)
+
+      return
+    }
+
+    const targetMap: Record<Exclude<ReadinessSignalId, 'experience' | 'skills'>, string> = {
+      jobDescription: 'jobDescription',
+      identity: 'personalName',
+      contact: personalInfo.email.trim() && !hasValidEmail ? 'personalEmail' : 'personalPhone',
+      summary: 'personalSummary'
+    }
+
+    const targetId = targetMap[signalId]
+    const target = document.getElementById(targetId)
+
+    if (target instanceof HTMLElement) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+      window.setTimeout(() => {
+        target.focus()
+      }, 240)
+    }
+  }
+
   const saveWorkspace = () => {
     const cleanedSkills = cleanTextArray(skills)
     const cleanedProjects = cleanObjectArray(projects, (item) => `${item.name}|${item.description}|${item.link}`)
@@ -1269,6 +1422,13 @@ function App() {
       return
     }
 
+    if (exportBlockers.length > 0) {
+      const firstBlocker = exportBlockers[0]
+      showToast(`Finish "${firstBlocker.label}" before exporting the PDF.`)
+      focusReadinessSignal(firstBlocker.id)
+      return
+    }
+
     try {
       input.classList.add('resume-sheet-export')
       await new Promise<void>((resolve) => {
@@ -1308,8 +1468,6 @@ function App() {
       input.classList.remove('resume-sheet-export')
     }
   }
-
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
   const addSkill = () => {
     const value = pendingSkill.trim()
@@ -2135,6 +2293,39 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                 <p>The live preview and exported PDF stay synchronized to the same clean layout.</p>
               </article>
             </div>
+
+            <section className="panel studio-readiness-panel" aria-labelledby="readiness-title">
+              <div className="panel-heading">
+                <div>
+                  <span className="panel-kicker">Resume readiness</span>
+                  <h3 id="readiness-title">{readinessHeadline}</h3>
+                </div>
+                <span className={`panel-badge ${exportBlockers.length ? 'panel-badge-warm' : exportWarnings.length ? 'panel-badge-neutral' : 'panel-badge-success'}`}>
+                  {exportBlockers.length ? 'Needs work' : exportWarnings.length ? 'Almost ready' : 'Ready'}
+                </span>
+              </div>
+
+              <p className="panel-intro">{readinessCopy}</p>
+
+              <div className="readiness-grid">
+                {readinessSignals.map((signal) => (
+                  <button
+                    key={signal.id}
+                    type="button"
+                    className={`readiness-item readiness-item-${signal.level}`}
+                    onClick={() => focusReadinessSignal(signal.id)}
+                  >
+                    <span className="readiness-item-topline">
+                      <strong>{signal.label}</strong>
+                      <span className="readiness-state">
+                        {signal.level === 'ready' ? 'Ready' : signal.level === 'warning' ? 'Tighten' : 'Required'}
+                      </span>
+                    </span>
+                    <span className="readiness-message">{signal.message}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
 
             <div className="studio-progress-strip" aria-label="Studio step progress">
               {studioStepCards.map((step) => (
