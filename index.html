@@ -24,6 +24,62 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Disable Developer Tools and Code Copying Protection
+      (function() {
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          return false;
+        }, true);
+
+        // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K
+        document.addEventListener('keydown', (e) => {
+          if (
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'K') ||
+            (e.ctrlKey && e.key === 's')
+          ) {
+            e.preventDefault();
+            return false;
+          }
+        }, true);
+
+        // Disable copy on certain elements
+        document.addEventListener('copy', (e) => {
+          if (e.target.closest('.code-protected')) {
+            e.preventDefault();
+            return false;
+          }
+        }, true);
+
+        // DevTools detection
+        const detectDevTools = () => {
+          const threshold = 160;
+          if (window.outerHeight - window.innerHeight > threshold) {
+            console.warn('Developer Tools detected. This action is not allowed.');
+          }
+        };
+        
+        window.addEventListener('resize', detectDevTools);
+        setInterval(detectDevTools, 500);
+
+        // Disable console access
+        Object.defineProperty(window, 'console', {
+          value: {
+            log: () => null,
+            warn: () => null,
+            error: () => null,
+            debug: () => null,
+            info: () => null
+          },
+          writable: false
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
