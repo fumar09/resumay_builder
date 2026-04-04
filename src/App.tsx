@@ -981,6 +981,10 @@ function App() {
   const resumeLanguages = languages.filter((item) => item.name.trim()).slice(0, 3)
   const showProjectsInResume = resumeProjects.length > 0 && resumeExperienceEntries.length <= 1
   const hasResumeCore = Boolean(personalInfo.name.trim() && (personalInfo.summary.trim() || experience.some((item) => item.jobTitle.trim())))
+  const hasTargetingInputs = Boolean(targetRole.trim() || jobDescription.trim())
+  const hasResumeBasics = Boolean(personalInfo.name.trim() && (personalInfo.email.trim() || personalInfo.summary.trim()))
+  const hasExperienceDetails = experience.some((item) => item.jobTitle.trim() || item.company.trim() || item.description.trim())
+  const hasSkillSignals = skills.length > 0
   const canSubmitReview = Boolean(isOptimizationUnlocked && hasResumeCore && hasExportedResume)
   const reviewSubmissionHint = !isOptimizationUnlocked
     ? 'Paste a job description first to unlock review submission.'
@@ -1011,6 +1015,32 @@ function App() {
   const heroMissingSignals = (analysis.missingKeywords.length ? analysis.missingKeywords : landingTeaserBeforeSignals)
     .slice(0, 4)
     .map(toDisplayKeyword)
+  const studioStepCards = [
+    {
+      label: 'Step 1',
+      title: 'Targeting brief',
+      hint: isOptimizationUnlocked ? 'Job brief loaded and matching is live.' : 'Paste the role and job description to start.',
+      state: isOptimizationUnlocked ? 'ready' : hasTargetingInputs ? 'active' : 'active'
+    },
+    {
+      label: 'Step 2',
+      title: 'Resume basics',
+      hint: !isOptimizationUnlocked ? 'Locked until the job description is pasted.' : hasResumeBasics ? 'Header and summary content are in place.' : 'Add your name, contact details, and opener.',
+      state: !isOptimizationUnlocked ? 'locked' : hasResumeBasics ? 'ready' : 'active'
+    },
+    {
+      label: 'Step 3',
+      title: 'Experience',
+      hint: !isOptimizationUnlocked ? 'Locked until the job description is pasted.' : hasExperienceDetails ? 'Experience content is ready to optimize.' : 'Add your strongest role and impact notes.',
+      state: !isOptimizationUnlocked ? 'locked' : hasExperienceDetails ? 'ready' : 'active'
+    },
+    {
+      label: 'Step 4',
+      title: 'Skills',
+      hint: !isOptimizationUnlocked ? 'Locked until the job description is pasted.' : hasSkillSignals ? `${skills.length} skills and signals added.` : 'Add the keywords you want the ATS to see.',
+      state: !isOptimizationUnlocked ? 'locked' : hasSkillSignals ? 'ready' : 'active'
+    }
+  ] as const
 
   const showToast = (message: string) => {
     setFeedback(message)
@@ -1674,7 +1704,7 @@ function App() {
                   </div>
                 )}
                 <strong>{hasPublishedReviews ? averageReviewRating.toFixed(1) : '0.0'}</strong>
-                <span className="reviews-scoreline-divider">·</span>
+                <span className="reviews-scoreline-divider">&middot;</span>
                 <span>{hasPublishedReviews ? `${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'}` : 'No reviews yet'}</span>
               </div>
             </div>
@@ -1969,6 +1999,16 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
               </article>
             </div>
 
+            <div className="studio-progress-strip" aria-label="Studio step progress">
+              {studioStepCards.map((step) => (
+                <article key={step.label} className={`studio-progress-card studio-progress-card-${step.state}`}>
+                  <span className="studio-progress-kicker">{step.label}</span>
+                  <strong>{step.title}</strong>
+                  <p>{step.hint}</p>
+                </article>
+              ))}
+            </div>
+
             <div className="studio-grid">
               <div className="studio-form-column">
                 <section className="panel">
@@ -1978,6 +2018,10 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       <h3>Targeting brief</h3>
                     </div>
                   </div>
+
+                  <p className="panel-intro">
+                    Define the role, tone, and hiring brief first. This is the signal source that unlocks the rest of the Studio.
+                  </p>
 
                   <div className="field-grid field-grid-2">
                     <label className="field">
@@ -2051,6 +2095,10 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       <h3>Resume basics</h3>
                     </div>
                   </div>
+
+                  <p className="panel-intro">
+                    These details become the resume header and opening summary in the live preview, so keep them direct and role-aligned.
+                  </p>
 
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
@@ -2159,6 +2207,10 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                     </div>
                   </div>
 
+                  <p className="panel-intro">
+                    Focus on real impact, ownership, and delivery. These bullets usually drive the biggest ATS score movement.
+                  </p>
+
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
                       <i className="bi bi-lock-fill" /> {stepUnlockMessage}
@@ -2254,6 +2306,10 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                     </div>
                   </div>
 
+                  <p className="panel-intro">
+                    Add the skills recruiters expect to see, then use the suggested keyword chips to close the remaining signal gaps.
+                  </p>
+
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
                       <i className="bi bi-lock-fill" /> {stepUnlockMessage}
@@ -2318,6 +2374,10 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       <h3>Education and projects</h3>
                     </div>
                   </div>
+
+                  <p className="panel-intro">
+                    Use supporting sections only when they make the one-page story stronger, sharper, or more credible.
+                  </p>
 
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
@@ -2454,6 +2514,10 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                     </div>
                   </div>
 
+                  <p className="panel-intro">
+                    Add optional proof only if it strengthens trust without crowding the page or distracting from the core story.
+                  </p>
+
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
                       <i className="bi bi-lock-fill" /> {stepUnlockMessage}
@@ -2464,7 +2528,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Certifications</strong>
-                      <button type="button" className="text-button" onClick={() => addArrayItem(setCertifications, createCertification())}>
+                      <button type="button" className="secondary-button compact-button add-button" onClick={() => addArrayItem(setCertifications, createCertification())}>
                         <i className="bi bi-plus-circle" /> Add
                       </button>
                     </div>
@@ -2529,7 +2593,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Languages</strong>
-                      <button type="button" className="text-button" onClick={() => addArrayItem(setLanguages, createLanguage())}>
+                      <button type="button" className="secondary-button compact-button add-button" onClick={() => addArrayItem(setLanguages, createLanguage())}>
                         <i className="bi bi-plus-circle" /> Add
                       </button>
                     </div>
