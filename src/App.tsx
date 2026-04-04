@@ -1382,7 +1382,6 @@ function App() {
                 <div className="hero-card hero-card-score">
                   <div className="hero-card-header">
                     <span>Target match snapshot</span>
-                    <span className="status-pill status-pill-live">Live</span>
                   </div>
                   <div className="score-pair">
                     <div>
@@ -1412,7 +1411,6 @@ function App() {
                         <h2>{personalInfo.name || 'Jordan Rivera'}</h2>
                         <p>{targetRole || 'Operations Coordinator'}</p>
                       </div>
-                      <span className="mini-badge mini-badge-success">ATS optimized</span>
                     </div>
 
                     <div className="resume-mini-section">
@@ -1828,7 +1826,6 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       <span className="step-badge">Step 1</span>
                       <h3>Targeting brief</h3>
                     </div>
-                    <span className="panel-badge panel-badge-neutral">ATS engine</span>
                   </div>
 
                   <div className="field-grid field-grid-2">
@@ -2571,7 +2568,6 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                         <h3>{analysis.afterScore}/100 projected match</h3>
                         <p className="score-guidance score-guidance-on-dark">{scoreGuidance}</p>
                       </div>
-                      <span className="panel-badge panel-badge-success">ATS optimized</span>
                     </div>
 
                     <p className="panel-description">{analysis.fitNote}</p>

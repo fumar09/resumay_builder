@@ -435,9 +435,7 @@ main {
 .tag-chip,
 .resume-tag,
 .mini-chip,
-.panel-badge,
-.status-pill,
-.mini-badge {
+.panel-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -556,9 +554,7 @@ main {
   text-transform: uppercase;
 }
 
-.panel-badge,
-.mini-badge,
-.status-pill {
+.panel-badge {
   padding: 0.45rem 0.75rem;
   border: 1px solid transparent;
 }
@@ -583,9 +579,7 @@ main {
   border-color: rgba(27, 27, 27, 0.08);
 }
 
-.panel-badge-success,
-.mini-badge-success,
-.status-pill-live {
+.panel-badge-success {
   background: var(--success-soft);
   color: var(--success);
   border-color: rgba(40, 82, 56, 0.16);
@@ -607,10 +601,6 @@ main {
 .hero-card-score .hero-card-header span:first-child,
 .hero-card-score .score-pair small {
   color: rgba(255, 255, 255, 0.72);
-}
-
-.hero-card-score .status-pill {
-  color: #fff;
 }
 
 .hero-card-sheet {
