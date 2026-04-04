@@ -1,10 +1,28 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "version": 3,
   "env": {
     "VITE_API_URL": "@vite-api-url"
   },
   "headers": [
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
