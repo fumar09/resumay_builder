@@ -983,6 +983,11 @@ main {
   padding-top: 1rem;
 }
 
+.proof-shell {
+  display: grid;
+  gap: 1.35rem;
+}
+
 .proof-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1001,14 +1006,70 @@ main {
   padding: 1.35rem;
 }
 
+.proof-heading {
+  max-width: 50rem;
+}
+
 .proof-card {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   gap: 1rem;
+  align-items: start;
+}
+
+.proof-card-icon {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 16px;
+  background: rgba(165, 28, 48, 0.08);
+  border: 1px solid rgba(165, 28, 48, 0.12);
 }
 
 .proof-card i {
   color: var(--primary);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
+}
+
+.proof-card-copy {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.proof-card-kicker {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.proof-inline-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.proof-inline-note span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.58rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(253, 252, 248, 0.82);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+}
+
+.proof-inline-note span::before {
+  content: '';
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--success);
 }
 
 .reviews-section {

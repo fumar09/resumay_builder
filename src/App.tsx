@@ -1594,27 +1594,55 @@ function App() {
         </section>
 
         <section className="proof-section">
-          <div className="shell proof-row">
-            <div className="proof-card">
-              <i className="bi bi-bullseye" />
-              <div>
-                <strong>More aligned applications</strong>
-                <p>See the role gaps before you apply so you can send a resume that feels sharper and more intentional.</p>
-              </div>
+          <div className="shell proof-shell">
+            <div className="section-heading proof-heading">
+              <span className="eyebrow">Why the workflow feels different</span>
+              <h2>ResuMay behaves more like live application intelligence than a basic resume editor.</h2>
+              <p>
+                The landing page now mirrors the Studio itself: visible score movement, clearer signal gaps, and a one-page
+                export path that stays tied to the role you are targeting.
+              </p>
             </div>
-            <div className="proof-card">
-              <i className="bi bi-stars" />
-              <div>
-                <strong>Higher conversion signals</strong>
-                <p>Use job-match scoring, keyword guidance, and stronger resume language in one focused workflow.</p>
-              </div>
+
+            <div className="proof-row">
+              <article className="proof-card">
+                <div className="proof-card-icon" aria-hidden="true">
+                  <i className="bi bi-bullseye" />
+                </div>
+                <div className="proof-card-copy">
+                  <span className="proof-card-kicker">Signal audit</span>
+                  <strong>See the gap before you apply</strong>
+                  <p>Find the missing role signals early so you can stop sending blind applications into the same hiring loop.</p>
+                </div>
+              </article>
+
+              <article className="proof-card">
+                <div className="proof-card-icon" aria-hidden="true">
+                  <i className="bi bi-activity" />
+                </div>
+                <div className="proof-card-copy">
+                  <span className="proof-card-kicker">Score movement</span>
+                  <strong>Watch the application get stronger</strong>
+                  <p>Use the ATS lift as live proof that your edits are improving relevance, not just making the wording longer.</p>
+                </div>
+              </article>
+
+              <article className="proof-card">
+                <div className="proof-card-icon" aria-hidden="true">
+                  <i className="bi bi-file-earmark-check" />
+                </div>
+                <div className="proof-card-copy">
+                  <span className="proof-card-kicker">One-page output</span>
+                  <strong>Export the version recruiters should see</strong>
+                  <p>Finish with a clean PDF built for job boards, recruiter review, and ATS parsing instead of a generic draft.</p>
+                </div>
+              </article>
             </div>
-            <div className="proof-card">
-              <i className="bi bi-briefcase" />
-              <div>
-                <strong>Open to many job types</strong>
-                <p>Useful for virtual assistants, admin, support, sales, marketing, operations, creative, and technical roles.</p>
-              </div>
+
+            <div className="proof-inline-note" role="note" aria-label="ResuMay workflow summary">
+              <span>No template switching</span>
+              <span>Visible ATS movement</span>
+              <span>One role-focused workflow</span>
             </div>
           </div>
         </section>
@@ -1692,10 +1720,10 @@ function App() {
         <section className="review-share-section" aria-labelledby="review-share-title">
           <div className="shell">
             <div className="section-heading review-share-heading">
-              <span className="eyebrow">Share your result</span>
-              <h2 id="review-share-title">Let other job seekers see how ResuMay! helped you.</h2>
+              <span className="eyebrow">Publish your result</span>
+              <h2 id="review-share-title">Show other job seekers what changed after you used ResuMay!.</h2>
               <p>
-                Publish a short review after export so other users can see what changed, what improved, and how your ATS score moved.
+                Publish a short review after export so other users can see the role, the outcome, and how your ATS score moved.
               </p>
             </div>
 
@@ -1703,8 +1731,8 @@ function App() {
             <section className="panel review-form-panel">
               <div className="panel-heading">
                 <div>
-                  <span className="panel-kicker">Share your result</span>
-                  <h3>Submit a ResuMay review</h3>
+                  <span className="panel-kicker">Publish your result</span>
+                  <h3>Submit your ResuMay review</h3>
                 </div>
                 <span className={`panel-badge ${canSubmitReview ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
                   {canSubmitReview ? 'Unlocked' : 'Locked'}
@@ -1803,7 +1831,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                   </div>
 
                   <button type="button" className="primary-button" onClick={submitReview} disabled={!canSubmitReview}>
-                    Publish review
+                    Publish my result
                   </button>
                 </div>
               </fieldset>
