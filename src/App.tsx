@@ -951,15 +951,14 @@ function App() {
       ? 'Create and export your resume first, then you can share your result.'
       : isReviewBackendConfigured
         ? 'Your review will publish to the shared review wall as soon as you submit it.'
-        : 'Shared review storage is not configured yet, so your review will only appear on this device.'
-  const publicReviews = [
-    ...remoteApprovedReviews,
-    ...submittedReviews.filter((review) => review.status === 'approved')
-  ].filter((review, index, collection) => collection.findIndex((item) => item.id === review.id) === index)
-  const reviewCount = publicReviews.length
-  const featuredResults = publicReviews.slice(0, 4)
+        : 'Shared review publishing is not configured yet on this build.'
+  const publishedReviews = remoteApprovedReviews.filter(
+    (review, index, collection) => collection.findIndex((item) => item.id === review.id) === index
+  )
+  const reviewCount = publishedReviews.length
+  const featuredResults = publishedReviews.slice(0, 4)
   const averageReviewLift = reviewCount
-    ? Math.round(publicReviews.reduce((total, review) => total + Math.max(review.scoreAfter - review.scoreBefore, 0), 0) / reviewCount)
+    ? Math.round(publishedReviews.reduce((total, review) => total + Math.max(review.scoreAfter - review.scoreBefore, 0), 0) / reviewCount)
     : 0
   const hasPublishedReviews = reviewCount > 0
 
