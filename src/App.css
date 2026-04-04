@@ -873,6 +873,12 @@ main {
   font-weight: 800;
 }
 
+.reviews-scoreline-label {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
 .reviews-scoreline-divider {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0;
@@ -933,6 +939,40 @@ main {
   background: rgba(253, 252, 248, 0.07);
   border: 1px solid rgba(253, 252, 248, 0.12);
   box-shadow: none;
+}
+
+.review-empty-card {
+  justify-items: center;
+  min-height: 16.5rem;
+  padding: 2rem;
+  text-align: center;
+  background: rgba(253, 252, 248, 0.05);
+  border: 1px dashed rgba(253, 252, 248, 0.18);
+  box-shadow: none;
+}
+
+.reviews-empty-kicker {
+  color: var(--success);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.review-empty-card h3 {
+  margin: 0;
+  max-width: 18ch;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  line-height: 1.1;
+}
+
+.review-empty-card p {
+  margin: 0;
+  max-width: 34rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.78;
 }
 
 .review-identity {

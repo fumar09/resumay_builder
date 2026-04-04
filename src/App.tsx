@@ -363,53 +363,6 @@ const supportedJobBoards: JobBoard[] = [
 
 const roleCoverage = ['Virtual Assistant', 'Admin & Ops', 'Customer Support', 'Sales', 'Marketing', 'Design', 'Engineering']
 
-const communityReviews: CommunityReview[] = [
-  {
-    id: 'review-ana',
-    name: 'Ana Gonzales',
-    role: 'Frontend Developer',
-    board: 'LinkedIn',
-    scoreBefore: 46,
-    scoreAfter: 84,
-    outcome: 'Hired as Frontend Developer',
-    quote:
-      'I submitted the same resume 10 times with no callbacks. After tailoring with ResuMay!, I got 3 interviews in a week.'
-  },
-  {
-    id: 'review-mark',
-    name: 'Mark Villanueva',
-    role: 'Software Engineer',
-    board: 'LinkedIn',
-    scoreBefore: 41,
-    scoreAfter: 81,
-    outcome: 'Software Engineer at a top BPO',
-    quote:
-      'The job match score showed me exactly which keywords I was missing. I added them and got callbacks.'
-  },
-  {
-    id: 'review-trisha',
-    name: 'Trisha Lim',
-    role: 'Admin Officer',
-    board: 'Indeed',
-    scoreBefore: 38,
-    scoreAfter: 79,
-    outcome: 'Fresh Graduate, now Admin Officer',
-    quote:
-      'As an entry-level applicant I was worried my resume was too thin. ResuMay! reformatted it and highlighted my projects properly.'
-  },
-  {
-    id: 'review-james',
-    name: 'James Bautista',
-    role: 'Senior Analyst',
-    board: 'OnlineJobs.ph',
-    scoreBefore: 52,
-    scoreAfter: 88,
-    outcome: 'Promoted to Senior Analyst',
-    quote:
-      'I paste the job description, get a clean PDF and a match score. No guesswork. I know how aligned my resume is before I hit submit.'
-  }
-]
-
 const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
   name: '',
   role: '',
@@ -995,18 +948,20 @@ function App() {
   const reviewSubmissionHint = !isOptimizationUnlocked
     ? 'Paste a job description first to unlock review submission.'
     : !hasExportedResume
-      ? 'Export your resume once, then you can share your result.'
+      ? 'Create and export your resume first, then you can share your result.'
       : isReviewBackendConfigured
         ? 'Your review will publish to the shared review wall as soon as you submit it.'
         : 'Shared review storage is not configured yet, so your review will only appear on this device.'
   const publicReviews = [
     ...remoteApprovedReviews,
-    ...submittedReviews.filter((review) => review.status === 'approved'),
-    ...communityReviews
+    ...submittedReviews.filter((review) => review.status === 'approved')
   ].filter((review, index, collection) => collection.findIndex((item) => item.id === review.id) === index)
+  const reviewCount = publicReviews.length
   const featuredResults = publicReviews.slice(0, 4)
-  const displayedReviewCount = 486 + publicReviews.length
-  const displayedReviewRating = 4.7
+  const averageReviewLift = reviewCount
+    ? Math.round(publicReviews.reduce((total, review) => total + Math.max(review.scoreAfter - review.scoreBefore, 0), 0) / reviewCount)
+    : 0
+  const hasPublishedReviews = reviewCount > 0
 
   const showToast = (message: string) => {
     setFeedback(message)
@@ -1544,48 +1499,70 @@ function App() {
           <div className="shell reviews-results-shell">
             <div className="reviews-results-header">
               <span className="reviews-results-kicker">Results</span>
-              <h2 id="reviews-title">From quiet applications to interview offers</h2>
+              <h2 id="reviews-title">{hasPublishedReviews ? 'From quiet applications to interview offers' : 'ResuMay review results will appear here'}</h2>
               <p>
-                Job seekers who tailored their resume with keywords and got a clear job match score.
+                {hasPublishedReviews
+                  ? 'Job seekers who tailored their resume with keywords and got a clear job match score.'
+                  : 'ResuMay! is new, so this section will stay empty until real users export a resume and publish their review.'}
               </p>
 
-              <div className="reviews-scoreline" aria-label={`Average rating ${displayedReviewRating} from ${displayedReviewCount} reviews`}>
-                <div className="review-rating review-rating-summary" aria-hidden="true">
-                  {[0, 1, 2, 3, 4].map((index) => (
-                    <i key={`summary-star-${index}`} className="bi bi-star-fill" />
-                  ))}
-                </div>
-                <strong>{displayedReviewRating}</strong>
+              <div
+                className="reviews-scoreline"
+                aria-label={
+                  hasPublishedReviews
+                    ? `Average ATS lift ${averageReviewLift} percent across ${reviewCount} reviews`
+                    : 'No published user reviews yet'
+                }
+              >
+                {hasPublishedReviews && (
+                  <div className="review-rating review-rating-summary" aria-hidden="true">
+                    {[0, 1, 2, 3, 4].map((index) => (
+                      <i key={`summary-star-${index}`} className="bi bi-star-fill" />
+                    ))}
+                  </div>
+                )}
+                <strong>{hasPublishedReviews ? `+${averageReviewLift}%` : '0'}</strong>
+                <span className="reviews-scoreline-label">{hasPublishedReviews ? 'avg ATS lift' : 'reviews'}</span>
                 <span className="reviews-scoreline-divider">·</span>
-                <span>{displayedReviewCount} reviews</span>
+                <span>{hasPublishedReviews ? `${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'}` : 'No reviews yet'}</span>
               </div>
             </div>
           </div>
 
           <div className="shell reviews-wall">
-            {featuredResults.map((review) => (
-              <article key={review.id} className="review-card review-result-card">
-                <div className="review-rating" aria-label="5 star review">
-                  {[0, 1, 2, 3, 4].map((index) => (
-                    <i key={`${review.id}-star-${index}`} className="bi bi-star-fill" />
-                  ))}
-                </div>
+            {featuredResults.length ? (
+              featuredResults.map((review) => (
+                <article key={review.id} className="review-card review-result-card">
+                  <div className="review-rating" aria-label="5 star review">
+                    {[0, 1, 2, 3, 4].map((index) => (
+                      <i key={`${review.id}-star-${index}`} className="bi bi-star-fill" />
+                    ))}
+                  </div>
 
-                <p className="review-quote">"{review.quote}"</p>
+                  <p className="review-quote">"{review.quote}"</p>
 
-                <div className="review-result-card-footer">
-                  <div className="review-identity">
-                    <span className="review-avatar" aria-hidden="true">
-                      {review.name.charAt(0)}
-                    </span>
-                    <div>
-                      <strong>{review.name}</strong>
-                      <p>{review.outcome}</p>
+                  <div className="review-result-card-footer">
+                    <div className="review-identity">
+                      <span className="review-avatar" aria-hidden="true">
+                        {review.name.charAt(0)}
+                      </span>
+                      <div>
+                        <strong>{review.name}</strong>
+                        <p>{review.outcome}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </article>
+              ))
+            ) : (
+              <article className="review-card review-empty-card">
+                <span className="reviews-empty-kicker">No published reviews yet</span>
+                <h3>Be the first ResuMay success story on this wall.</h3>
+                <p>
+                  Once a user finishes and exports a resume, they can submit a review and it will appear here immediately.
+                </p>
               </article>
-            ))}
+            )}
           </div>
         </section>
 
