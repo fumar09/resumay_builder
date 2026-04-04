@@ -65,6 +65,19 @@ interface CommunityReview {
   quote: string
 }
 
+interface SubmittedReview extends CommunityReview {
+  status: 'pending' | 'approved'
+  submittedAt: string
+}
+
+interface ReviewDraft {
+  name: string
+  role: string
+  board: string
+  outcome: string
+  quote: string
+}
+
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
 
 type ExperienceLevel = 'entry' | 'mid' | 'senior' | 'lead'
@@ -83,6 +96,7 @@ interface AnalysisResult {
 }
 
 const STORAGE_KEY = 'resumeMayOptimizerData'
+const REVIEW_STORAGE_KEY = 'resumeMaySubmittedReviews'
 
 const defaultPersonalInfo: PersonalInfo = {
   name: '',
@@ -390,6 +404,15 @@ const communityReviews: CommunityReview[] = [
       'The preview showed exactly what the exported PDF would look like, and the review cards here feel accurate to my experience. It made ATS-friendly editing less confusing.'
   }
 ]
+
+const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
+  name: '',
+  role: '',
+  board: supportedJobBoards.find((board) => board.id === 'linkedin')?.name ?? supportedJobBoards[0]?.name ?? '',
+  outcome: '',
+  quote: '',
+  ...draft
+})
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
@@ -735,6 +758,9 @@ function App() {
   const [applyOptimization, setApplyOptimization] = useState(true)
   const [feedback, setFeedback] = useState('')
   const [jobBoardLoopWidth, setJobBoardLoopWidth] = useState(0)
+  const [hasExportedResume, setHasExportedResume] = useState(false)
+  const [reviewDraft, setReviewDraft] = useState<ReviewDraft>(createReviewDraft())
+  const [submittedReviews, setSubmittedReviews] = useState<SubmittedReview[]>([])
 
   useEffect(() => {
     try {
@@ -829,6 +855,42 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    try {
+      const savedReviews = localStorage.getItem(REVIEW_STORAGE_KEY)
+
+      if (!savedReviews) {
+        return
+      }
+
+      const parsedReviews = JSON.parse(savedReviews)
+
+      if (!Array.isArray(parsedReviews)) {
+        return
+      }
+
+      setSubmittedReviews(
+        parsedReviews.filter((review): review is SubmittedReview => {
+          return (
+            review &&
+            typeof review.id === 'string' &&
+            typeof review.name === 'string' &&
+            typeof review.role === 'string' &&
+            typeof review.board === 'string' &&
+            typeof review.outcome === 'string' &&
+            typeof review.quote === 'string' &&
+            typeof review.scoreBefore === 'number' &&
+            typeof review.scoreAfter === 'number' &&
+            (review.status === 'pending' || review.status === 'approved') &&
+            typeof review.submittedAt === 'string'
+          )
+        })
+      )
+    } catch {
+      setSubmittedReviews([])
+    }
+  }, [])
+
   const analysis = buildAnalysis(
     personalInfo,
     targetRole,
@@ -880,6 +942,14 @@ function App() {
   const resumeLanguages = languages.filter((item) => item.name.trim()).slice(0, 3)
   const showProjectsInResume = resumeProjects.length > 0 && resumeExperienceEntries.length <= 1
   const hasResumeCore = Boolean(personalInfo.name.trim() && (personalInfo.summary.trim() || experience.some((item) => item.jobTitle.trim())))
+  const canSubmitReview = Boolean(isOptimizationUnlocked && hasResumeCore && hasExportedResume)
+  const reviewSubmissionHint = !isOptimizationUnlocked
+    ? 'Paste a job description first to unlock review submission.'
+    : !hasExportedResume
+      ? 'Export your resume once, then you can submit a review for moderation.'
+      : 'Your review will stay pending until moderation support is connected.'
+  const publicReviews = [...communityReviews, ...submittedReviews.filter((review) => review.status === 'approved')]
+  const pendingSubmittedReviews = submittedReviews.filter((review) => review.status === 'pending')
 
   const showToast = (message: string) => {
     setFeedback(message)
@@ -936,6 +1006,7 @@ function App() {
   }
 
   const loadSample = () => {
+    setHasExportedResume(false)
     setTargetRole(sampleData.targetRole)
     setJobDescription(sampleData.jobDescription)
     setExperienceLevel(sampleData.experienceLevel)
@@ -962,6 +1033,7 @@ function App() {
   }
 
   const resetWorkspace = () => {
+    setHasExportedResume(false)
     setPersonalInfo(defaultPersonalInfo)
     setTargetRole('')
     setJobDescription('')
@@ -1023,6 +1095,7 @@ function App() {
       pdf.addImage(imgData, 'PNG', horizontalOffset, margin, renderedWidth, renderedHeight)
 
       pdf.save(exportFileName)
+      setHasExportedResume(true)
       showToast('ATS resume exported as a single-page PDF.')
     } catch {
       showToast('PDF export failed. Please try again.')
@@ -1059,6 +1132,60 @@ function App() {
 
   const updateArrayItem = <T, K extends keyof T>(setter: Dispatch<SetStateAction<T[]>>, index: number, field: K, value: T[K]) => {
     setter((current) => current.map((item, itemIndex) => (itemIndex === index ? { ...item, [field]: value } : item)))
+  }
+
+  const updateReviewDraft = <K extends keyof ReviewDraft>(field: K, value: ReviewDraft[K]) => {
+    setReviewDraft((current) => ({ ...current, [field]: value }))
+  }
+
+  const submitReview = () => {
+    if (!canSubmitReview) {
+      showToast(reviewSubmissionHint)
+      return
+    }
+
+    const name = reviewDraft.name.trim() || personalInfo.name.trim()
+    const role = reviewDraft.role.trim() || targetRole.trim()
+    const board = reviewDraft.board.trim()
+    const outcome = reviewDraft.outcome.trim()
+    const quote = reviewDraft.quote.trim()
+
+    if (!name || !role || !board || !outcome || !quote) {
+      showToast('Complete the review details before submitting.')
+      return
+    }
+
+    const nextReviews: SubmittedReview[] = [
+      {
+        id: createEntryId('review'),
+        name,
+        role,
+        board,
+        scoreBefore: analysis.beforeScore,
+        scoreAfter: analysis.afterScore,
+        outcome,
+        quote,
+        status: 'pending',
+        submittedAt: new Date().toISOString()
+      },
+      ...submittedReviews
+    ]
+
+    setSubmittedReviews(nextReviews)
+    setReviewDraft(
+      createReviewDraft({
+        name,
+        role,
+        board
+      })
+    )
+
+    try {
+      localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(nextReviews))
+      showToast('Your review was saved as pending moderation on this device.')
+    } catch {
+      showToast('Your review could not be saved on this device.')
+    }
   }
 
   const addArrayItem = <T,>(setter: Dispatch<SetStateAction<T[]>>, item: T) => {
@@ -1292,8 +1419,8 @@ function App() {
 
             <div className="reviews-summary-card">
               <span className="panel-kicker">Review wall direction</span>
-              <strong>Featured now, ready for moderated live reviews next.</strong>
-              <p>Best next step: collect reviews after export, hold them for moderation, then publish the approved ones here.</p>
+              <strong>Featured now, with submission and pending moderation ready.</strong>
+              <p>Users can now submit a review after export. Approved reviews can be surfaced here once moderation is connected.</p>
               <button type="button" className="secondary-button" onClick={scrollToStudio}>
                 Build your own result
               </button>
@@ -1301,7 +1428,7 @@ function App() {
           </div>
 
           <div className="shell reviews-wall">
-            {communityReviews.map((review) => (
+            {publicReviews.map((review) => (
               <article key={review.id} className="review-card">
                 <div className="review-card-top">
                   <div className="review-identity">
@@ -1343,6 +1470,143 @@ function App() {
                 </div>
               </article>
             ))}
+          </div>
+
+          <div className="shell review-submission-grid">
+            <section className="panel review-form-panel">
+              <div className="panel-heading">
+                <div>
+                  <span className="panel-kicker">Share your result</span>
+                  <h3>Submit a ResuMay review</h3>
+                </div>
+                <span className={`panel-badge ${canSubmitReview ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
+                  {canSubmitReview ? 'Unlocked' : 'Locked'}
+                </span>
+              </div>
+
+              <p className="review-form-copy">{reviewSubmissionHint}</p>
+
+              <fieldset className="panel-fieldset" disabled={!canSubmitReview}>
+                <div className="field-grid field-grid-2">
+                  <label className="field">
+                    <span>Name</span>
+                    <input
+                      type="text"
+                      id="reviewName"
+                      name="reviewName"
+                      value={reviewDraft.name}
+                      onChange={(event) => updateReviewDraft('name', event.target.value)}
+                      placeholder={personalInfo.name || 'Your name'}
+                    />
+                  </label>
+
+                  <label className="field">
+                    <span>Target role</span>
+                    <input
+                      type="text"
+                      id="reviewRole"
+                      name="reviewRole"
+                      value={reviewDraft.role}
+                      onChange={(event) => updateReviewDraft('role', event.target.value)}
+                      placeholder={targetRole || 'Operations Coordinator'}
+                    />
+                  </label>
+                </div>
+
+                <div className="field-grid field-grid-2">
+                  <label className="field">
+                    <span>Job board</span>
+                    <select id="reviewBoard" name="reviewBoard" value={reviewDraft.board} onChange={(event) => updateReviewDraft('board', event.target.value)}>
+                      {supportedJobBoards.map((board) => (
+                        <option key={board.id} value={board.name}>
+                          {board.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="field">
+                    <span>Outcome</span>
+                    <input
+                      type="text"
+                      id="reviewOutcome"
+                      name="reviewOutcome"
+                      value={reviewDraft.outcome}
+                      onChange={(event) => updateReviewDraft('outcome', event.target.value)}
+                      placeholder="e.g. 2 callbacks in one week"
+                    />
+                  </label>
+                </div>
+
+                <label className="field">
+                  <span>Your review</span>
+                  <textarea
+                    className="guided-textarea"
+                    id="reviewQuote"
+                    name="reviewQuote"
+                    rows={5}
+                    value={reviewDraft.quote}
+                    onChange={(event) => updateReviewDraft('quote', event.target.value)}
+                    placeholder="Example:
+ResuMay made it easier to see which keywords were missing, so I tightened my summary, cleaned up my bullets, and my resume started feeling more ATS-ready."
+                  />
+                </label>
+
+                <div className="review-form-footer">
+                  <div className="review-submission-note">
+                    <strong>{analysis.beforeScore}% to {analysis.afterScore}%</strong>
+                    <span>Your current ATS score delta will be attached to this review.</span>
+                  </div>
+
+                  <button type="button" className="primary-button" onClick={submitReview} disabled={!canSubmitReview}>
+                    Submit for moderation
+                  </button>
+                </div>
+              </fieldset>
+            </section>
+
+            <section className="panel review-pending-panel">
+              <div className="panel-heading">
+                <div>
+                  <span className="panel-kicker">Pending queue</span>
+                  <h3>Your submitted reviews</h3>
+                </div>
+                <span className="panel-badge panel-badge-neutral">{pendingSubmittedReviews.length} pending</span>
+              </div>
+
+              <p className="review-form-copy">
+                Pending reviews are stored on this device and marked moderation-ready. A shared backend is still needed before other users can see them.
+              </p>
+
+              <div className="pending-review-stack">
+                {pendingSubmittedReviews.length ? (
+                  pendingSubmittedReviews.map((review) => (
+                    <article key={review.id} className="pending-review-card">
+                      <div className="pending-review-top">
+                        <div>
+                          <strong>{review.name}</strong>
+                          <p>
+                            {review.role} via {review.board}
+                          </p>
+                        </div>
+                        <span className="status-pill review-status-pill">Pending moderation</span>
+                      </div>
+
+                      <p className="review-quote">"{review.quote}"</p>
+
+                      <div className="review-card-footer">
+                        <span className="review-outcome">{review.outcome}</span>
+                        <span className="review-board-pill">
+                          {review.scoreBefore}% to {review.scoreAfter}%
+                        </span>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <p className="empty-note">Submit your first review after exporting a resume and it will appear here as pending.</p>
+                )}
+              </div>
+            </section>
           </div>
         </section>
 

@@ -840,6 +840,13 @@ main {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.review-submission-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(280px, 0.96fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .review-card {
   display: grid;
   gap: 1rem;
@@ -946,6 +953,74 @@ main {
 
 .review-card-footer {
   flex-wrap: wrap;
+}
+
+.review-form-panel,
+.review-pending-panel,
+.pending-review-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.review-form-copy {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.review-form-footer,
+.pending-review-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.review-submission-note {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.review-submission-note strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+}
+
+.review-submission-note span,
+.pending-review-top p {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.pending-review-stack {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.pending-review-card {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(247, 243, 236, 0.72);
+  border: 1px solid rgba(27, 27, 27, 0.08);
+}
+
+.pending-review-top {
+  align-items: flex-start;
+}
+
+.pending-review-top strong {
+  color: var(--ink);
+}
+
+.pending-review-top p {
+  margin: 0.15rem 0 0;
+}
+
+.review-status-pill {
+  background: rgba(27, 27, 27, 0.06);
+  color: var(--ink);
+  border: 1px solid rgba(27, 27, 27, 0.08);
 }
 
 .review-outcome {
@@ -1708,6 +1783,7 @@ main {
   .hero-grid,
   .studio-grid,
   .reviews-grid-shell,
+  .review-submission-grid,
   .reviews-wall,
   .proof-row,
   .story-cards,
@@ -1731,6 +1807,8 @@ main {
 @media (max-width: 820px) {
   .proof-card,
   .review-card-top,
+  .review-form-footer,
+  .pending-review-top,
   .review-score-band,
   .closing-card,
   .resume-panel-topbar,
