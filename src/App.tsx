@@ -1952,7 +1952,7 @@ function App() {
   const [submittedReviews, setSubmittedReviews] = useState<SubmittedReview[]>([])
   const [remoteApprovedReviews, setRemoteApprovedReviews] = useState<CommunityReview[]>([])
   const [isReviewBackendConfigured, setIsReviewBackendConfigured] = useState(false)
-  const [showAllReviewStories, setShowAllReviewStories] = useState(false)
+  const [currentReviewPage, setCurrentReviewPage] = useState(1)
 
   useEffect(() => {
     try {
@@ -2277,7 +2277,12 @@ function App() {
   const additionalResults = publishedReviews.filter(
     (review) => !featuredResults.some((featuredReview) => featuredReview.id === review.id)
   )
-  const displayedResults = showAllReviewStories ? [...featuredResults, ...additionalResults] : featuredResults
+  const REVIEWS_PER_PAGE = 8
+  const allPages = [featuredResults, ...Array.from({ length: Math.ceil(additionalResults.length / REVIEWS_PER_PAGE) }, (_, i) => 
+    additionalResults.slice(i * REVIEWS_PER_PAGE, (i + 1) * REVIEWS_PER_PAGE)
+  )]
+  const totalPages = allPages.length
+  const displayedResults = allPages[currentReviewPage - 1] || featuredResults
   const reviewResultsCtaLabel =
     reviewCount >= 85
       ? 'View all 85+ verified success stories (Updated this week)'
@@ -4138,14 +4143,24 @@ function App() {
               )}
             </div>
 
-          {hasPublishedReviews && additionalResults.length > 0 && (
+          {hasPublishedReviews && totalPages > 1 && (
             <div className="shell reviews-wall-actions">
               <button
                 type="button"
                 className="review-results-anchor"
-                onClick={() => setShowAllReviewStories((current) => !current)}
+                onClick={() => setCurrentReviewPage((current) => Math.max(1, current - 1))}
+                disabled={currentReviewPage === 1}
               >
-                {showAllReviewStories ? 'Show the Golden 8 again' : reviewResultsCtaLabel}
+                ← Previous
+              </button>
+              <span className="review-pagination-info">Page {currentReviewPage} of {totalPages}</span>
+              <button
+                type="button"
+                className="review-results-anchor"
+                onClick={() => setCurrentReviewPage((current) => Math.min(totalPages, current + 1))}
+                disabled={currentReviewPage === totalPages}
+              >
+                Next →
               </button>
             </div>
           )}

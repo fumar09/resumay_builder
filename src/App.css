@@ -1163,7 +1163,22 @@ main {
 .reviews-wall-actions {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 1rem;
   margin-top: 1.35rem;
+}
+
+.review-pagination-info {
+  font-size: 0.875rem;
+  color: rgba(253, 252, 248, 0.6);
+  font-weight: 500;
+  min-width: 120px;
+  text-align: center;
+}
+
+.review-results-anchor:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .review-share-heading {
