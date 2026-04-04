@@ -46,11 +46,6 @@ body {
   color: var(--ink);
   font-family: var(--font-ui);
   line-height: 1.5;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-touch-callout: none;
 }
 
 a {
@@ -68,25 +63,6 @@ select {
 input::placeholder,
 textarea::placeholder {
   color: var(--muted);
-}
-
-/* Allow text selection only for form inputs */
-input,
-textarea,
-select {
-  user-select: text;
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-}
-
-/* Prevent dragging of elements */
-img,
-a,
-button {
-  -webkit-user-drag: none;
-  user-drag: none;
-  -webkit-user-select: none;
 }
 
 button:disabled {
