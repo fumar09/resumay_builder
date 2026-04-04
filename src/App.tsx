@@ -993,6 +993,12 @@ function App() {
       : isReviewBackendConfigured
         ? 'Your review will publish to the shared review wall as soon as you submit it.'
         : 'Shared review publishing is not configured yet on this build.'
+  const reviewPreviewName = reviewDraft.name.trim() || personalInfo.name.trim() || 'Your name'
+  const reviewPreviewRole = reviewDraft.role.trim() || targetRole.trim() || 'Target role'
+  const reviewPreviewBoard = reviewDraft.board.trim() || 'Job board'
+  const reviewPreviewOutcome = reviewDraft.outcome.trim() || 'Outcome will appear here'
+  const reviewPreviewQuote = reviewDraft.quote.trim() || 'Write a short result-focused review so other job seekers can quickly see what changed.'
+  const reviewPreviewRating = clampReviewRating(reviewDraft.rating)
   const publishedReviews = remoteApprovedReviews.filter(
     (review, index, collection) => collection.findIndex((item) => item.id === review.id) === index
   )
@@ -1758,114 +1764,170 @@ function App() {
             </div>
 
             <div className="review-submission-grid">
-            <section className="panel review-form-panel">
-              <div className="panel-heading">
-                <div>
-                  <span className="panel-kicker">Publish your result</span>
-                  <h3>Submit your ResuMay review</h3>
-                </div>
-                <span className={`panel-badge ${canSubmitReview ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
-                  {canSubmitReview ? 'Unlocked' : 'Locked'}
-                </span>
-              </div>
-
-              <p className="review-form-copy">{reviewSubmissionHint}</p>
-
-              <fieldset className="panel-fieldset" disabled={!canSubmitReview}>
-                <div className="field-grid field-grid-2">
-                  <label className="field">
-                    <span>Name</span>
-                    <input
-                      type="text"
-                      id="reviewName"
-                      name="reviewName"
-                      value={reviewDraft.name}
-                      onChange={(event) => updateReviewDraft('name', event.target.value)}
-                      placeholder={personalInfo.name || 'Your name'}
-                    />
-                  </label>
-
-                  <label className="field">
-                    <span>Target role</span>
-                    <input
-                      type="text"
-                      id="reviewRole"
-                      name="reviewRole"
-                      value={reviewDraft.role}
-                      onChange={(event) => updateReviewDraft('role', event.target.value)}
-                      placeholder={targetRole || 'Operations Coordinator'}
-                    />
-                  </label>
+              <section className="panel review-form-panel">
+                <div className="panel-heading">
+                  <div>
+                    <span className="panel-kicker">Publish your result</span>
+                    <h3>Submit your ResuMay review</h3>
+                  </div>
+                  <span className={`panel-badge ${canSubmitReview ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
+                    {canSubmitReview ? 'Unlocked' : 'Locked'}
+                  </span>
                 </div>
 
-                <div className="field-grid field-grid-3">
-                  <label className="field">
-                    <span>Job board</span>
-                    <input
-                      type="text"
-                      id="reviewBoard"
-                      name="reviewBoard"
-                      value={reviewDraft.board}
-                      onChange={(event) => updateReviewDraft('board', event.target.value)}
-                      placeholder="LinkedIn, OnlineJobs.ph, JobStreet by SEEK"
-                    />
-                  </label>
+                <p className="review-form-copy">{reviewSubmissionHint}</p>
 
-                  <label className="field">
-                    <span>Rating</span>
-                    <select
-                      id="reviewRating"
-                      name="reviewRating"
-                      value={reviewDraft.rating}
-                      onChange={(event) => updateReviewDraft('rating', Number(event.target.value))}
-                    >
-                      <option value={5}>5 stars</option>
-                      <option value={4}>4 stars</option>
-                      <option value={3}>3 stars</option>
-                      <option value={2}>2 stars</option>
-                      <option value={1}>1 star</option>
-                    </select>
-                  </label>
+                <fieldset className="panel-fieldset" disabled={!canSubmitReview}>
+                  <div className="field-grid field-grid-2">
+                    <label className="field">
+                      <span>Name</span>
+                      <input
+                        type="text"
+                        id="reviewName"
+                        name="reviewName"
+                        value={reviewDraft.name}
+                        onChange={(event) => updateReviewDraft('name', event.target.value)}
+                        placeholder={personalInfo.name || 'Your name'}
+                      />
+                    </label>
 
-                  <label className="field">
-                    <span>Outcome</span>
-                    <input
-                      type="text"
-                      id="reviewOutcome"
-                      name="reviewOutcome"
-                      value={reviewDraft.outcome}
-                      onChange={(event) => updateReviewDraft('outcome', event.target.value)}
-                      placeholder="e.g. 2 callbacks in one week"
-                    />
-                  </label>
-                </div>
-
-                <label className="field">
-                  <span>Your review</span>
-                  <textarea
-                    className="guided-textarea"
-                    id="reviewQuote"
-                    name="reviewQuote"
-                    rows={5}
-                    value={reviewDraft.quote}
-                    onChange={(event) => updateReviewDraft('quote', event.target.value)}
-                    placeholder="Example:
-ResuMay made it easier to see which keywords were missing, so I tightened my summary, cleaned up my bullets, and my resume started feeling more ATS-ready."
-                  />
-                </label>
-
-                <div className="review-form-footer">
-                  <div className="review-submission-note">
-                    <strong>{analysis.beforeScore}% to {analysis.afterScore}%</strong>
-                    <span>Your current ATS score delta will be attached to this review.</span>
+                    <label className="field">
+                      <span>Target role</span>
+                      <input
+                        type="text"
+                        id="reviewRole"
+                        name="reviewRole"
+                        value={reviewDraft.role}
+                        onChange={(event) => updateReviewDraft('role', event.target.value)}
+                        placeholder={targetRole || 'Operations Coordinator'}
+                      />
+                    </label>
                   </div>
 
-                  <button type="button" className="primary-button" onClick={submitReview} disabled={!canSubmitReview}>
-                    Publish my result
-                  </button>
+                  <div className="field-grid field-grid-3">
+                    <label className="field">
+                      <span>Job board</span>
+                      <input
+                        type="text"
+                        id="reviewBoard"
+                        name="reviewBoard"
+                        value={reviewDraft.board}
+                        onChange={(event) => updateReviewDraft('board', event.target.value)}
+                        placeholder="LinkedIn, OnlineJobs.ph, JobStreet by SEEK"
+                      />
+                    </label>
+
+                    <label className="field">
+                      <span>Rating</span>
+                      <select
+                        id="reviewRating"
+                        name="reviewRating"
+                        value={reviewDraft.rating}
+                        onChange={(event) => updateReviewDraft('rating', Number(event.target.value))}
+                      >
+                        <option value={5}>5 stars</option>
+                        <option value={4}>4 stars</option>
+                        <option value={3}>3 stars</option>
+                        <option value={2}>2 stars</option>
+                        <option value={1}>1 star</option>
+                      </select>
+                    </label>
+
+                    <label className="field">
+                      <span>Outcome</span>
+                      <input
+                        type="text"
+                        id="reviewOutcome"
+                        name="reviewOutcome"
+                        value={reviewDraft.outcome}
+                        onChange={(event) => updateReviewDraft('outcome', event.target.value)}
+                        placeholder="e.g. 2 callbacks in one week"
+                      />
+                    </label>
+                  </div>
+
+                  <label className="field">
+                    <span>Your review</span>
+                    <textarea
+                      className="guided-textarea"
+                      id="reviewQuote"
+                      name="reviewQuote"
+                      rows={5}
+                      value={reviewDraft.quote}
+                      onChange={(event) => updateReviewDraft('quote', event.target.value)}
+                      placeholder="Example:
+ResuMay made it easier to see which keywords were missing, so I tightened my summary, cleaned up my bullets, and my resume started feeling more ATS-ready."
+                    />
+                  </label>
+
+                  <div className="review-form-footer">
+                    <div className="review-submission-note">
+                      <strong>{analysis.beforeScore}% to {analysis.afterScore}%</strong>
+                      <span>Your current ATS score delta will be attached to this review.</span>
+                    </div>
+
+                    <button type="button" className="primary-button" onClick={submitReview} disabled={!canSubmitReview}>
+                      Publish my result
+                    </button>
+                  </div>
+                </fieldset>
+              </section>
+
+              <aside className="panel review-preview-panel" aria-label="Published review preview">
+                <div className="panel-heading">
+                  <div>
+                    <span className="panel-kicker">Live publish preview</span>
+                    <h3>What the review wall will show</h3>
+                  </div>
+                  <span className="panel-badge panel-badge-success">Public view</span>
                 </div>
-              </fieldset>
-            </section>
+
+                <p className="review-form-copy">
+                  This preview updates while you type, so you can shape the public result before you publish it.
+                </p>
+
+                <article className="review-preview-card">
+                  <div className="review-rating" aria-label={`${reviewPreviewRating} star preview`}>
+                    {[0, 1, 2, 3, 4].map((index) => (
+                      <i key={`review-preview-star-${index}`} className={`bi ${getStarIcon(reviewPreviewRating, index)}`} />
+                    ))}
+                  </div>
+
+                  <p className="review-quote">"{reviewPreviewQuote}"</p>
+
+                  <div className="review-preview-inline">
+                    <span>{analysis.beforeScore}% to {analysis.afterScore}%</span>
+                    <span>{reviewPreviewBoard}</span>
+                  </div>
+
+                  <div className="review-result-card-footer">
+                    <div className="review-identity">
+                      <span className="review-avatar" aria-hidden="true">
+                        {reviewPreviewName.charAt(0).toUpperCase()}
+                      </span>
+                      <div>
+                        <strong>{reviewPreviewName}</strong>
+                        <p>{reviewPreviewOutcome}</p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <div className="review-preview-points">
+                  <div>
+                    <strong>Role shown</strong>
+                    <span>{reviewPreviewRole}</span>
+                  </div>
+                  <div>
+                    <strong>Appears when</strong>
+                    <span>{canSubmitReview ? 'Immediately after publish' : 'After export unlocks reviews'}</span>
+                  </div>
+                  <div>
+                    <strong>Best result</strong>
+                    <span>Keep the quote short, specific, and outcome-focused.</span>
+                  </div>
+                </div>
+              </aside>
             </div>
           </div>
         </section>
