@@ -657,6 +657,7 @@ function buildAnalysis(
 
 function App() {
   const studioRef = useRef<HTMLElement | null>(null)
+  const resumePanelRef = useRef<HTMLElement | null>(null)
   const feedbackTimeoutRef = useRef<number | null>(null)
   const scrollTimeoutRef = useRef<number | null>(null)
   const jobBoardSequenceRef = useRef<HTMLDivElement | null>(null)
@@ -788,6 +789,15 @@ function App() {
   const previewExperience = experience.map((item, index) =>
     applyOptimization ? analysis.optimizedExperience[index] ?? [] : splitIntoStatements(item.description).slice(0, 3)
   )
+  const isOptimizationUnlocked = Boolean(jobDescription.trim())
+  const stepUnlockMessage = 'Paste a job description first to unlock optimization.'
+  const scoreGuidance = !isOptimizationUnlocked
+    ? 'Paste a job description to start matching.'
+    : analysis.afterScore < 50
+      ? 'Keep adding keywords from the job description.'
+      : analysis.afterScore > 80
+        ? 'Looking strong! Ready to export.'
+        : 'You are close. Tighten the wording and keyword coverage.'
   const resumeHeadlineParts = cleanTextArray([targetRole, ...skills.slice(0, 3)]).slice(0, 4)
   const resumeContactItems = [personalInfo.address, personalInfo.email, personalInfo.phone, personalInfo.linkedin, personalInfo.website]
     .map((value) => value.trim())
@@ -828,6 +838,10 @@ function App() {
 
   const scrollToStudio = () => {
     studioRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const scrollToPreview = () => {
+    resumePanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const saveWorkspace = () => {
@@ -1300,7 +1314,7 @@ function App() {
               <article className="overview-card">
                 <span className="panel-kicker">Projected match</span>
                 <strong>{analysis.afterScore}/100</strong>
-                <p>Keep the score, keywords, and preview aligned while you write.</p>
+                <p>{scoreGuidance}</p>
               </article>
               <article className="overview-card">
                 <span className="panel-kicker">Download name</span>
@@ -1319,7 +1333,7 @@ function App() {
                 <section className="panel">
                   <div className="panel-heading">
                     <div>
-                      <span className="panel-kicker">Step 1</span>
+                      <span className="step-badge">Step 1</span>
                       <h3>Targeting brief</h3>
                     </div>
                     <span className="panel-badge panel-badge-neutral">ATS engine</span>
@@ -1379,24 +1393,32 @@ function App() {
                   <label className="field">
                     <span>Job description</span>
                     <textarea
+                      className="guided-textarea"
                       id="jobDescription"
                       name="jobDescription"
                       rows={7}
                       value={jobDescription}
                       onChange={(event) => setJobDescription(event.target.value)}
-                      placeholder="Paste the full job description to unlock keyword matching, fit scoring, and ATS suggestions."
+                      placeholder={`Example:\nWe are hiring an Operations Coordinator to support scheduling, reporting, documentation, stakeholder communication, and process improvement across daily client delivery.`}
                     />
                   </label>
                 </section>
 
-                <section className="panel">
+                <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
                   <div className="panel-heading">
                     <div>
-                      <span className="panel-kicker">Step 2</span>
+                      <span className="step-badge">Step 2</span>
                       <h3>Resume basics</h3>
                     </div>
                   </div>
 
+                  {!isOptimizationUnlocked && (
+                    <p className="panel-lock-copy" role="note">
+                      <i className="bi bi-lock-fill" /> {stepUnlockMessage}
+                    </p>
+                  )}
+
+                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   <div className="field-grid field-grid-2">
                     <label className="field">
                       <span>Full name</span>
@@ -1477,27 +1499,41 @@ function App() {
                   <label className="field">
                     <span>Current summary</span>
                     <textarea
+                      className="guided-textarea"
                       id="personalSummary"
                       name="personalSummary"
                       rows={5}
                       value={personalInfo.summary}
                       onChange={(event) => setPersonalInfo({ ...personalInfo, summary: event.target.value })}
-                      placeholder="Write the version you would normally use. ResuMay! will suggest a tighter ATS-ready version."
+                      placeholder={`Example:\nResults-driven operations coordinator with experience in scheduling, documentation, reporting, and stakeholder communication across fast-moving teams.`}
                     />
                   </label>
+                  </fieldset>
                 </section>
 
-                <section className="panel">
+                <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
                   <div className="panel-heading">
                     <div>
-                      <span className="panel-kicker">Step 3</span>
+                      <span className="step-badge">Step 3</span>
                       <h3>Experience</h3>
                     </div>
-                    <button type="button" className="text-button" onClick={() => addArrayItem(setExperience, createExperience())}>
+                    <button
+                      type="button"
+                      className="secondary-button compact-button add-button"
+                      onClick={() => addArrayItem(setExperience, createExperience())}
+                      disabled={!isOptimizationUnlocked}
+                    >
                       <i className="bi bi-plus-circle" /> Add role
                     </button>
                   </div>
 
+                  {!isOptimizationUnlocked && (
+                    <p className="panel-lock-copy" role="note">
+                      <i className="bi bi-lock-fill" /> {stepUnlockMessage}
+                    </p>
+                  )}
+
+                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   {experience.map((item, index) => (
                     <div key={item.id} className="repeat-card">
                       <div className="repeat-card-header">
@@ -1560,16 +1596,24 @@ function App() {
                       </label>
                     </div>
                   ))}
+                  </fieldset>
                 </section>
 
-                <section className="panel">
+                <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
                   <div className="panel-heading">
                     <div>
-                      <span className="panel-kicker">Step 4</span>
+                      <span className="step-badge">Step 4</span>
                       <h3>Skills and keyword coverage</h3>
                     </div>
                   </div>
 
+                  {!isOptimizationUnlocked && (
+                    <p className="panel-lock-copy" role="note">
+                      <i className="bi bi-lock-fill" /> {stepUnlockMessage}
+                    </p>
+                  )}
+
+                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   <div className="skill-entry">
                     <input
                       type="text"
@@ -1615,9 +1659,10 @@ function App() {
                       </div>
                     </div>
                   )}
+                  </fieldset>
                 </section>
 
-                <section className="panel">
+                <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
                   <div className="panel-heading">
                     <div>
                       <span className="panel-kicker">Supporting sections</span>
@@ -1625,10 +1670,17 @@ function App() {
                     </div>
                   </div>
 
+                  {!isOptimizationUnlocked && (
+                    <p className="panel-lock-copy" role="note">
+                      <i className="bi bi-lock-fill" /> {stepUnlockMessage}
+                    </p>
+                  )}
+
+                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Education</strong>
-                      <button type="button" className="text-button" onClick={() => addArrayItem(setEducation, createEducation())}>
+                      <button type="button" className="secondary-button compact-button add-button" onClick={() => addArrayItem(setEducation, createEducation())}>
                         <i className="bi bi-plus-circle" /> Add
                       </button>
                     </div>
@@ -1688,7 +1740,7 @@ function App() {
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Projects</strong>
-                      <button type="button" className="text-button" onClick={() => addArrayItem(setProjects, createProject())}>
+                      <button type="button" className="secondary-button compact-button add-button" onClick={() => addArrayItem(setProjects, createProject())}>
                         <i className="bi bi-plus-circle" /> Add
                       </button>
                     </div>
@@ -1742,9 +1794,10 @@ function App() {
                       </div>
                     ))}
                   </div>
+                  </fieldset>
                 </section>
 
-                <section className="panel">
+                <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
                   <div className="panel-heading">
                     <div>
                       <span className="panel-kicker">Optional credibility boosts</span>
@@ -1752,6 +1805,13 @@ function App() {
                     </div>
                   </div>
 
+                  {!isOptimizationUnlocked && (
+                    <p className="panel-lock-copy" role="note">
+                      <i className="bi bi-lock-fill" /> {stepUnlockMessage}
+                    </p>
+                  )}
+
+                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Certifications</strong>
@@ -1868,12 +1928,14 @@ function App() {
                       </div>
                     ))}
                   </div>
+                  </fieldset>
                 </section>
               </div>
 
               <aside className="studio-side-column">
                 <div className="sticky-stack">
-                  <section className="panel resume-panel">
+                  <div className="sticky-dashboard">
+                  <section className="panel resume-panel" ref={resumePanelRef}>
                     <div className="resume-panel-topbar">
                       <div>
                         <span className="panel-kicker">Output preview</span>
@@ -1888,7 +1950,7 @@ function App() {
                         <button type="button" className="ghost-button compact-button" onClick={saveWorkspace}>
                           Save locally
                         </button>
-                        <button type="button" className="primary-button compact-button" onClick={generatePDF} disabled={!hasResumeCore}>
+                        <button type="button" className="primary-button compact-button export-button" onClick={generatePDF} disabled={!hasResumeCore}>
                           Export PDF
                         </button>
                       </div>
@@ -2015,6 +2077,7 @@ function App() {
                       <div>
                         <span className="panel-kicker">Live ATS score</span>
                         <h3>{analysis.afterScore}/100 projected match</h3>
+                        <p className="score-guidance score-guidance-on-dark">{scoreGuidance}</p>
                       </div>
                       <span className="panel-badge panel-badge-success">ATS optimized</span>
                     </div>
@@ -2052,6 +2115,7 @@ function App() {
                       ))}
                     </div>
                   </section>
+                  </div>
 
                   <section className="panel">
                     <div className="panel-heading">
@@ -2067,7 +2131,8 @@ function App() {
                         <div className="keyword-cluster">
                           {analysis.matchedKeywords.length ? (
                             analysis.matchedKeywords.map((keyword) => (
-                              <span key={keyword} className="tag-chip tag-chip-solid">
+                              <span key={keyword} className="tag-chip tag-chip-solid matched-keyword-pill">
+                                <i className="bi bi-check-circle-fill" />
                                 {toDisplayKeyword(keyword)}
                               </span>
                             ))
@@ -2189,6 +2254,12 @@ function App() {
             <p>Developed by FUMARDev - ResuMay! 2024</p>
           </div>
         </footer>
+
+        <button type="button" className="mobile-score-dock" onClick={scrollToPreview} aria-label={`ATS score ${analysis.afterScore} percent. View output preview.`}>
+          <span className="mobile-score-dock-label">ATS score</span>
+          <strong>{analysis.afterScore}%</strong>
+          <span className="mobile-score-dock-action">View preview</span>
+        </button>
       </main>
     </div>
   )
