@@ -2008,8 +2008,8 @@ main {
 }
 
 .sticky-preview-panel {
-  position: sticky;
-  top: calc(var(--header-height) + 7.6rem);
+  position: static;
+  top: auto;
   z-index: 2;
 }
 
@@ -2055,16 +2055,16 @@ main {
 
 .resume-workspace {
   position: relative;
-  overflow: auto;
+  overflow: visible;
   margin-top: 1rem;
-  max-height: calc(100vh - var(--header-height) - 9.8rem);
+  max-height: none;
   padding: clamp(0.95rem, 1.8vw, 1.4rem);
   border-radius: calc(var(--radius-lg) - 4px);
   background: var(--workspace);
   border: 1px solid rgba(27, 27, 27, 0.06);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
+  overscroll-behavior: auto;
+  scrollbar-gutter: auto;
 }
 
 .resume-workspace::before {
@@ -2341,17 +2341,12 @@ main {
     font-size: 0.76rem;
   }
 
-  .sticky-preview-panel {
-    top: calc(var(--header-height) + 6.6rem);
-  }
-
   .resume-panel-meta {
     margin-top: 0.32rem;
     font-size: 0.78rem;
   }
 
   .resume-workspace {
-    max-height: calc(100vh - var(--header-height) - 8.45rem);
     padding: 0.85rem;
   }
 
@@ -2365,13 +2360,6 @@ main {
     font-size: 1.54rem;
   }
 
-  .sticky-preview-panel {
-    top: calc(var(--header-height) + 6.15rem);
-  }
-
-  .resume-workspace {
-    max-height: calc(100vh - var(--header-height) - 7.75rem);
-  }
 }
 
 .hero-copy,
