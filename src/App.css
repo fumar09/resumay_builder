@@ -2173,6 +2173,16 @@ main {
   line-height: 1.48;
 }
 
+.resume-placeholder {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.resume-header h2.resume-placeholder,
+.resume-role .resume-placeholder {
+  font-style: normal;
+}
+
 .is-optimized {
   background: rgba(40, 82, 56, 0.09);
   border-radius: 0.28rem;

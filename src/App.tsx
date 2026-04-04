@@ -406,6 +406,54 @@ const supportedJobBoards: JobBoard[] = [
 const landingTeaserBeforeSignals = ['Generic summary', 'Weak keyword spread', 'Missing ops signals', 'Low ATS fit']
 const landingTeaserAfterSignals = ['Documentation', 'Process Improvement', 'Stakeholder Management', 'Reporting']
 
+const previewResumeScaffold = {
+  name: 'Lorem Ipsum',
+  headlineParts: ['Target Role', 'Core Skills', 'ATS Signal'],
+  contactItems: ['City, Country', 'name@example.com', '+00 000 000 0000', 'linkedin.com/in/username'],
+  summary:
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  experienceEntries: [
+    {
+      id: 'preview-exp-1',
+      jobTitle: 'Sample Position',
+      company: 'Sample Company',
+      duration: '2022 - Present',
+      bullets: [
+        { text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', isOptimized: false },
+        { text: 'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', isOptimized: false }
+      ]
+    },
+    {
+      id: 'preview-exp-2',
+      jobTitle: 'Previous Position',
+      company: 'Another Company',
+      duration: '2020 - 2022',
+      bullets: [
+        { text: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.', isOptimized: false },
+        { text: 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.', isOptimized: false }
+      ]
+    }
+  ],
+  educationEntries: [
+    {
+      id: 'preview-edu-1',
+      degree: 'Bachelor of Science in Lorem Ipsum',
+      school: 'Placeholder University',
+      year: '2022'
+    }
+  ],
+  skillGroups: [['Lorem Ipsum', 'Dolor Sit', 'Amet Consectetur', 'Adipiscing Elit', 'Sed Eiusmod']],
+  certifications: [
+    {
+      id: 'preview-cert-1',
+      name: 'Placeholder Certification',
+      issuer: 'Sample Issuer',
+      year: '2024'
+    }
+  ],
+  languages: ['English (Fluent)', 'Tagalog (Native)']
+} as const
+
 const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
   name: '',
   role: '',
@@ -1136,6 +1184,44 @@ function App() {
     populatedExperienceCount === 0 ? { id: 'experience', message: 'Add at least one role with a clear description of what you did.' } : null,
     skills.length === 0 ? { id: 'skills', message: 'Add skills so the ATS and recruiter can see your core signals.' } : null
   ].filter((item): item is { id: CompletionTarget; message: string } => item !== null)
+  const shouldShowPreviewScaffold = exportBlockers.length > 0
+  const previewName = personalInfo.name.trim() || (shouldShowPreviewScaffold ? previewResumeScaffold.name : 'Your Name')
+  const previewHeadlineParts = resumeHeadlineParts.length
+    ? resumeHeadlineParts
+    : shouldShowPreviewScaffold
+      ? previewResumeScaffold.headlineParts
+      : [targetRole || 'Target Role']
+  const previewContactItems = resumeContactItems.length > 0
+    ? resumeContactItems
+    : shouldShowPreviewScaffold
+      ? previewResumeScaffold.contactItems
+      : []
+  const previewSummary = resumeSummary || (shouldShowPreviewScaffold ? previewResumeScaffold.summary : '')
+  const previewExperienceEntries = resumeExperienceEntries.length > 0
+    ? resumeExperienceEntries
+    : shouldShowPreviewScaffold
+      ? previewResumeScaffold.experienceEntries
+      : []
+  const previewEducationEntries = resumeEducationEntries.length > 0
+    ? resumeEducationEntries
+    : shouldShowPreviewScaffold
+      ? previewResumeScaffold.educationEntries
+      : []
+  const previewSkillGroups = resumeSkillGroups.length > 0
+    ? resumeSkillGroups
+    : shouldShowPreviewScaffold
+      ? previewResumeScaffold.skillGroups
+      : []
+  const previewLanguages = resumeLanguages.length > 0
+    ? resumeLanguages.map((item) => (item.proficiency ? `${item.name} (${item.proficiency})` : item.name))
+    : shouldShowPreviewScaffold
+      ? previewResumeScaffold.languages
+      : []
+  const previewCertifications = resumeCertifications.length > 0
+    ? resumeCertifications
+    : shouldShowPreviewScaffold
+      ? previewResumeScaffold.certifications
+      : []
   const canSubmitReview = Boolean(isOptimizationUnlocked && hasResumeCore && hasExportedResume)
   const reviewSubmissionHint = !isOptimizationUnlocked
     ? 'Paste a job description first to unlock review submission.'
@@ -2792,48 +2878,58 @@ function App() {
                     <div className="resume-workspace">
                       <div id="resume-preview" className="resume-sheet">
                         <header className="resume-header">
-                          <h2>{personalInfo.name || 'Your Name'}</h2>
+                          <h2 className={!personalInfo.name.trim() && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>{previewName}</h2>
                           <p className="resume-role">
-                            {(resumeHeadlineParts.length ? resumeHeadlineParts : [targetRole || 'Target Role']).map((part, index) => (
-                              <span key={`${part}-${index}`}>{part}</span>
+                            {previewHeadlineParts.map((part, index) => (
+                              <span key={`${part}-${index}`} className={!resumeHeadlineParts.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>
+                                {part}
+                              </span>
                             ))}
                           </p>
-                          {resumeContactItems.length > 0 && (
+                          {previewContactItems.length > 0 && (
                             <div className="resume-contact-line">
-                              {resumeContactItems.map((item, index) => (
-                                <span key={`${item}-${index}`}>{item}</span>
+                              {previewContactItems.map((item, index) => (
+                                <span key={`${item}-${index}`} className={!resumeContactItems.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>
+                                  {item}
+                                </span>
                               ))}
                             </div>
                           )}
                         </header>
 
-                        {resumeSummary && (
+                        {previewSummary && (
                           <section className="resume-section">
                             <h3>Professional Summary</h3>
                             <p className="resume-section-copy">
-                              {isResumeSummaryOptimized ? <span className="is-optimized">{resumeSummary}</span> : resumeSummary}
+                              {resumeSummary
+                                ? isResumeSummaryOptimized
+                                  ? <span className="is-optimized">{resumeSummary}</span>
+                                  : resumeSummary
+                                : <span className="resume-placeholder">{previewSummary}</span>}
                             </p>
                           </section>
                         )}
 
-                        {resumeExperienceEntries.length > 0 && (
+                        {previewExperienceEntries.length > 0 && (
                           <section className="resume-section">
                             <h3>Work Experience</h3>
-                            {resumeExperienceEntries.map((item) => (
+                            {previewExperienceEntries.map((item) => (
                               <article key={item.id} className="resume-role-block">
                                 <div className="resume-role-row">
                                   <div>
-                                    <strong>{item.jobTitle}</strong>
-                                    <span>{item.company}</span>
+                                    <strong className={!resumeExperienceEntries.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>{item.jobTitle}</strong>
+                                    <span className={!resumeExperienceEntries.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>{item.company}</span>
                                   </div>
-                                  {item.duration && <em>{item.duration}</em>}
+                                  {item.duration && <em className={!resumeExperienceEntries.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>{item.duration}</em>}
                                 </div>
 
                                 {item.bullets.length > 0 && (
                                   <ul className="resume-bullets">
                                     {item.bullets.map((bullet, bulletIndex) => (
                                       <li key={`${item.id}-bullet-${bulletIndex}`}>
-                                        {bullet.isOptimized ? <span className="is-optimized">{bullet.text}</span> : bullet.text}
+                                        {bullet.isOptimized
+                                          ? <span className="is-optimized">{bullet.text}</span>
+                                          : <span className={!resumeExperienceEntries.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>{bullet.text}</span>}
                                       </li>
                                     ))}
                                   </ul>
@@ -2843,13 +2939,13 @@ function App() {
                           </section>
                         )}
 
-                        {resumeEducationEntries.length > 0 && (
+                        {previewEducationEntries.length > 0 && (
                           <section className="resume-section">
                             <h3>Education</h3>
-                            {resumeEducationEntries.map((item) => (
+                            {previewEducationEntries.map((item) => (
                               <article key={item.id} className="resume-inline-block">
-                                <strong>{item.degree}</strong>
-                                <p>
+                                <strong className={!resumeEducationEntries.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>{item.degree}</strong>
+                                <p className={!resumeEducationEntries.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>
                                   {item.school}
                                   {item.year ? ` | ${item.year}` : ''}
                                 </p>
@@ -2858,32 +2954,34 @@ function App() {
                           </section>
                         )}
 
-                        {resumeSkillGroups.length > 0 && (
+                        {previewSkillGroups.length > 0 && (
                           <section className="resume-section">
                             <h3>Skills</h3>
                             <ul className="resume-bullets resume-bullets-compact">
-                              {resumeSkillGroups.map((group, index) => (
-                                <li key={index}>{group.join(', ')}</li>
+                              {previewSkillGroups.map((group, index) => (
+                                <li key={index} className={!resumeSkillGroups.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>{group.join(', ')}</li>
                               ))}
                             </ul>
-                            {resumeLanguages.length > 0 && (
+                            {previewLanguages.length > 0 && (
                               <p className="resume-section-note">
                                 <strong>Languages:</strong>{' '}
-                                {resumeLanguages
-                                  .map((item) => (item.proficiency ? `${item.name} (${item.proficiency})` : item.name))
-                                  .join(', ')}
+                                <span className={!resumeLanguages.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>
+                                  {previewLanguages.join(', ')}
+                                </span>
                               </p>
                             )}
                           </section>
                         )}
 
-                        {resumeCertifications.length > 0 && (
+                        {previewCertifications.length > 0 && (
                           <section className="resume-section">
                             <h3>Certifications</h3>
                             <ul className="resume-bullets resume-bullets-compact">
-                              {resumeCertifications.map((item) => (
+                              {previewCertifications.map((item) => (
                                 <li key={item.id}>
-                                  {item.name}
+                                  <span className={!resumeCertifications.length && shouldShowPreviewScaffold ? 'resume-placeholder' : undefined}>
+                                    {item.name}
+                                  </span>
                                   {[item.issuer, item.year].filter(Boolean).length
                                     ? ` | ${[item.issuer, item.year].filter(Boolean).join(' | ')}`
                                     : ''}
