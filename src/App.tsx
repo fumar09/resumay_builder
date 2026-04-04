@@ -3126,7 +3126,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
               <h2>Give every application a resume that feels targeted, credible, and easier to shortlist.</h2>
               <p>Paste the role, refine the content, and export the version you want recruiters to see.</p>
             </div>
-            <button type="button" className="primary-button" onClick={scrollToStudio}>
+            <button type="button" className="primary-button closing-cta-button" onClick={scrollToStudio}>
               Start in the studio
             </button>
           </div>
