@@ -932,50 +932,55 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const analysis = buildAnalysis(
-      personalInfo,
-      targetRole,
-      jobDescription,
-      experienceLevel,
-      summaryTone,
-      experience,
-      education,
-      skills,
-      projects,
-      certifications,
-      languages
-    )
+    try {
+      const analysis = buildAnalysis(
+        personalInfo,
+        targetRole,
+        jobDescription,
+        experienceLevel,
+        summaryTone,
+        experience,
+        education,
+        skills,
+        projects,
+        certifications,
+        languages
+      )
 
-    // Trigger celebration on first time crossing 80 threshold
-    if (analysis.afterScore >= 80 && !hasPlayedCelebration && !celebrationThresholdReached) {
-      setCelebrationThresholdReached(true)
-      setHasPlayedCelebration(true)
-      
-      // Play subtle celebration sound (low-shelf neutral "ding")
-      try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-        const now = audioContext.currentTime
-        const osc = audioContext.createOscillator()
-        const gain = audioContext.createGain()
+      // Trigger celebration on first time crossing 80 threshold
+      if (analysis.afterScore >= 80 && !hasPlayedCelebration && !celebrationThresholdReached) {
+        setCelebrationThresholdReached(true)
+        setHasPlayedCelebration(true)
         
-        osc.connect(gain)
-        gain.connect(audioContext.destination)
+        // Play subtle celebration sound (low-shelf neutral "ding")
+        try {
+          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+          const now = audioContext.currentTime
+          const osc = audioContext.createOscillator()
+          const gain = audioContext.createGain()
+          
+          osc.connect(gain)
+          gain.connect(audioContext.destination)
+          
+          osc.frequency.value = 528 // Soothing neutral frequency
+          osc.type = 'sine'
+          
+          gain.gain.setValueAtTime(0.15, now)
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
+          
+          osc.start(now)
+          osc.stop(now + 0.4)
+        } catch {
+          // Audio context not available, silently continue
+        }
         
-        osc.frequency.value = 528 // Soothing neutral frequency
-        osc.type = 'sine'
-        
-        gain.gain.setValueAtTime(0.15, now)
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4)
-        
-        osc.start(now)
-        osc.stop(now + 0.4)
-      } catch {
-        // Audio context not available, silently continue
+        showToast('🏆 Excellent match! Your resume is ATS-optimized and ready to export.')
+      } else if (analysis.afterScore < 80) {
+        setCelebrationThresholdReached(false)
       }
-      
-      showToast('🏆 Excellent match! Your resume is ATS-optimized and ready to export.')
-    } else if (analysis.afterScore < 80) {
-      setCelebrationThresholdReached(false)
+    } catch (error) {
+      // Celebration effect error - continue rendering anyway
+      console.error('Celebration effect error:', error)
     }
   }, [analysis.afterScore, hasPlayedCelebration, celebrationThresholdReached])
 
