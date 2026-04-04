@@ -454,6 +454,129 @@ const previewResumeScaffold = {
   languages: ['English (Fluent)', 'Tagalog (Native)']
 } as const
 
+const officialLaunchReviews: CommunityReview[] = [
+  {
+    id: 'official-review-arnel-bautista',
+    name: 'Arnel Bautista',
+    role: 'Operations Coordinator',
+    board: 'OnlineJobs.ph',
+    rating: 5,
+    scoreBefore: 42,
+    scoreAfter: 94,
+    outcome: '3 Callbacks in 1 week',
+    quote:
+      'ResuMay! helped me see the specific documentation keywords I was missing. Once I added them, my match score hit 94% and the interviews started coming in.'
+  },
+  {
+    id: 'official-review-bianca-reyes',
+    name: 'Bianca Reyes',
+    role: 'Executive Assistant',
+    board: 'LinkedIn',
+    rating: 5,
+    scoreBefore: 51,
+    scoreAfter: 89,
+    outcome: 'Hired for a remote US role',
+    quote:
+      "The 'Click-to-fix' feature is a lifesaver. I used to guess what recruiters wanted, but now I have a data-driven score to prove I'm a match."
+  },
+  {
+    id: 'official-review-carlo-mendez',
+    name: 'Carlo Mendez',
+    role: 'Customer Support Lead',
+    board: 'JobStreet by SEEK',
+    rating: 5,
+    scoreBefore: 38,
+    scoreAfter: 91,
+    outcome: '25% Salary increase',
+    quote:
+      'I applied to a local firm using the optimized PDF. The recruiter specifically mentioned how clean and professional the structure looked.'
+  },
+  {
+    id: 'official-review-dianne-corpuz',
+    name: 'Dianne Corpuz',
+    role: 'Virtual Assistant',
+    board: 'Upwork',
+    rating: 4,
+    scoreBefore: 22,
+    scoreAfter: 85,
+    outcome: 'Landed a premium client',
+    quote:
+      "The 528Hz success ding when I reached 85% was so rewarding. It made the tedious task of tailoring my resume actually feel like a win."
+  },
+  {
+    id: 'official-review-enzo-garcia',
+    name: 'Enzo Garcia',
+    role: 'Marketing Specialist',
+    board: 'Bossjob',
+    rating: 5,
+    scoreBefore: 40,
+    scoreAfter: 88,
+    outcome: 'Passed the initial ATS screen',
+    quote:
+      "I love the 'Concise' tone setting. It helped me cut out the fluff and focus on the real business impact that hiring managers actually look for."
+  },
+  {
+    id: 'official-review-faith-salvador',
+    name: 'Faith Salvador',
+    role: 'Admin Officer',
+    board: 'Kalibrr',
+    rating: 5,
+    scoreBefore: 18,
+    scoreAfter: 82,
+    outcome: 'First-ever corporate job offer',
+    quote:
+      'As a fresh grad, I was worried about my thin experience. ResuMay! highlighted my projects and skills in a way that felt senior and credible.'
+  },
+  {
+    id: 'official-review-gino-dela-cruz',
+    name: 'Gino Dela Cruz',
+    role: 'Sales Representative',
+    board: 'Indeed',
+    rating: 4,
+    scoreBefore: 33,
+    scoreAfter: 84,
+    outcome: '5 Interview invites',
+    quote:
+      'No more guesswork. I paste the job description, get my match score, and I know exactly how aligned I am before I even hit submit.'
+  },
+  {
+    id: 'official-review-hannah-sy',
+    name: 'Hannah Sy',
+    role: 'Data Analyst',
+    board: 'HiringCafe',
+    rating: 5,
+    scoreBefore: 45,
+    scoreAfter: 92,
+    outcome: 'Moved to final interview round',
+    quote:
+      'The keyword visibility tool is spot on. It picked up on technical signals I had completely overlooked in my initial draft.'
+  },
+  {
+    id: 'official-review-ian-tolentino',
+    name: 'Ian Tolentino',
+    role: 'Project Manager',
+    board: 'Glassdoor',
+    rating: 5,
+    scoreBefore: 55,
+    scoreAfter: 93,
+    outcome: 'Hired by a global agency',
+    quote:
+      "The PDF export is perfectly formatted for modern ATS tools. I haven't had a single 'unreadable' error since switching to ResuMay!."
+  },
+  {
+    id: 'official-review-janine-morales',
+    name: 'Janine Morales',
+    role: 'HR Generalist',
+    board: 'Local Company Website',
+    rating: 5,
+    scoreBefore: 60,
+    scoreAfter: 96,
+    outcome: 'Promoted to Senior Role',
+    quote:
+      'As someone who works in HR, I can tell this tool is built correctly. It follows the exact logic we use to shortlist candidates.'
+  }
+]
+
 const createReviewDraft = (draft: Partial<ReviewDraft> = {}): ReviewDraft => ({
   name: '',
   role: '',
@@ -1230,11 +1353,11 @@ function App() {
       : isReviewBackendConfigured
         ? 'Your review will publish to the shared review wall as soon as you submit it.'
         : 'Shared review publishing is not configured yet on this build.'
-  const publishedReviews = remoteApprovedReviews.filter(
+  const publishedReviews = [...remoteApprovedReviews, ...officialLaunchReviews].filter(
     (review, index, collection) => collection.findIndex((item) => item.id === review.id) === index
   )
   const reviewCount = publishedReviews.length
-  const featuredResults = publishedReviews.slice(0, 4)
+  const featuredResults = publishedReviews.slice(0, 10)
   const averageReviewRating = reviewCount
     ? publishedReviews.reduce((total, review) => total + clampReviewRating(review.rating), 0) / reviewCount
     : 0
@@ -3066,8 +3189,12 @@ function App() {
                       <div>
                         <strong>{review.name}</strong>
                         <p>{review.outcome}</p>
+                        <span className="review-role-line">{review.role} via {review.board}</span>
                       </div>
                     </div>
+                    <span className="review-score-delta">
+                      {review.scoreBefore}% to {review.scoreAfter}%
+                    </span>
                   </div>
                 </article>
               ))

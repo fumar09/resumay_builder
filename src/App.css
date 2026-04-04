@@ -1274,6 +1274,14 @@ main {
   color: rgba(255, 255, 255, 0.66);
 }
 
+.review-role-line {
+  display: block;
+  margin-top: 0.18rem;
+  color: rgba(255, 255, 255, 0.54);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 .review-rating {
   gap: 0.18rem;
   color: var(--review-star);
@@ -1310,10 +1318,25 @@ main {
 .review-result-card-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 1rem;
   padding-top: 0.15rem;
   margin-top: auto;
+}
+
+.review-score-delta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(40, 82, 56, 0.18);
+  border: 1px solid rgba(80, 158, 104, 0.24);
+  color: #ebf7ef;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .review-form-panel {
@@ -2516,6 +2539,7 @@ main {
 
 @media (max-width: 820px) {
   .proof-card,
+  .review-result-card-footer,
   .review-form-footer,
   .closing-card,
   .resume-panel-topbar,
@@ -2550,6 +2574,10 @@ main {
 
   .resume-actions > * {
     flex: 1 1 12rem;
+  }
+
+  .review-score-delta {
+    align-self: flex-start;
   }
 
   .mobile-score-dock {
