@@ -102,6 +102,13 @@ interface AnalysisResult {
   checklist: { label: string; passed: boolean }[]
 }
 
+interface ResumeBulletPreview {
+  text: string
+  isOptimized: boolean
+}
+
+type GuidedFieldTarget = { type: 'skill' } | { type: 'experience'; index: number }
+
 const STORAGE_KEY = 'resumeMayOptimizerData'
 const REVIEW_STORAGE_KEY = 'resumeMaySubmittedReviews'
 
@@ -719,6 +726,9 @@ function App() {
   const feedbackTimeoutRef = useRef<number | null>(null)
   const scrollTimeoutRef = useRef<number | null>(null)
   const jobBoardSequenceRef = useRef<HTMLDivElement | null>(null)
+  const pendingSkillInputRef = useRef<HTMLInputElement | null>(null)
+  const experienceDescriptionRefs = useRef<Array<HTMLTextAreaElement | null>>([])
+  const guidedFieldTimeoutRef = useRef<number | null>(null)
 
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>(defaultPersonalInfo)
   const [targetRole, setTargetRole] = useState('')
@@ -736,6 +746,7 @@ function App() {
   const [feedback, setFeedback] = useState('')
   const [jobBoardLoopWidth, setJobBoardLoopWidth] = useState(0)
   const [hasExportedResume, setHasExportedResume] = useState(false)
+  const [guidedFieldTarget, setGuidedFieldTarget] = useState<GuidedFieldTarget | null>(null)
   const [reviewDraft, setReviewDraft] = useState<ReviewDraft>(createReviewDraft())
   const [submittedReviews, setSubmittedReviews] = useState<SubmittedReview[]>([])
   const [remoteApprovedReviews, setRemoteApprovedReviews] = useState<CommunityReview[]>([])
@@ -799,6 +810,10 @@ function App() {
 
       if (scrollTimeoutRef.current !== null) {
         window.clearTimeout(scrollTimeoutRef.current)
+      }
+
+      if (guidedFieldTimeoutRef.current !== null) {
+        window.clearTimeout(guidedFieldTimeoutRef.current)
       }
     }
   }, [])
@@ -928,10 +943,6 @@ function App() {
     languages
   )
 
-  const previewSummary = applyOptimization && analysis.optimizedSummary ? analysis.optimizedSummary : personalInfo.summary
-  const previewExperience = experience.map((item, index) =>
-    applyOptimization ? analysis.optimizedExperience[index] ?? [] : splitIntoStatements(item.description).slice(0, 3)
-  )
   const isOptimizationUnlocked = Boolean(jobDescription.trim())
   const stepUnlockMessage = 'Paste a job description first to unlock optimization.'
   const scoreGuidance = !isOptimizationUnlocked
@@ -945,17 +956,33 @@ function App() {
   const resumeContactItems = [personalInfo.address, personalInfo.email, personalInfo.phone, personalInfo.linkedin, personalInfo.website]
     .map((value) => value.trim())
     .filter(Boolean)
-  const resumeSummary = condenseResumeSummary(personalInfo.summary.trim() || previewSummary)
+  const rawResumeSummary = condenseResumeSummary(personalInfo.summary.trim())
+  const optimizedResumeSummary = analysis.optimizedSummary ? condenseResumeSummary(analysis.optimizedSummary) : ''
+  const resumeSummary = applyOptimization && optimizedResumeSummary ? optimizedResumeSummary : rawResumeSummary
+  const isResumeSummaryOptimized = Boolean(
+    applyOptimization && optimizedResumeSummary && optimizedResumeSummary !== rawResumeSummary
+  )
   const resumeSkills = cleanTextArray(skills).slice(0, 10)
   const exportFileName = buildResumeFileName(personalInfo.name)
   const resumeExperienceEntries = experience
-    .map((item, index) => ({
-      ...item,
-      bullets: (previewExperience[index]?.length ? previewExperience[index] : splitIntoStatements(item.description))
+    .map((item, index) => {
+      const rawBullets = splitIntoStatements(item.description)
         .map(condenseResumeBullet)
         .filter(Boolean)
         .slice(0, 3)
-    }))
+      const optimizedBullets = (analysis.optimizedExperience[index] ?? []).map(condenseResumeBullet).filter(Boolean).slice(0, 3)
+      const useOptimizedBullets = applyOptimization && optimizedBullets.length > 0
+      const optimizedBulletsChanged = useOptimizedBullets && optimizedBullets.join('|') !== rawBullets.join('|')
+      const bullets: ResumeBulletPreview[] = (useOptimizedBullets ? optimizedBullets : rawBullets).map((text) => ({
+        text,
+        isOptimized: optimizedBulletsChanged
+      }))
+
+      return {
+        ...item,
+        bullets
+      }
+    })
     .filter((item) => item.jobTitle.trim() || item.company.trim())
     .slice(0, 3)
   const resumeEducationEntries = education.filter((item) => item.degree.trim() || item.school.trim()).slice(0, 2)
@@ -982,6 +1009,10 @@ function App() {
     ? publishedReviews.reduce((total, review) => total + clampReviewRating(review.rating), 0) / reviewCount
     : 0
   const hasPublishedReviews = reviewCount > 0
+  const scoreDelta = Math.max(analysis.afterScore - analysis.beforeScore, 0)
+  const matchedSignalLabel = analysis.trackedKeywords.length
+    ? `${analysis.matchedKeywords.length} of ${analysis.trackedKeywords.length} signals matched`
+    : 'Paste a job description to start matching.'
 
   const showToast = (message: string) => {
     setFeedback(message)
@@ -1187,12 +1218,50 @@ function App() {
     setPendingSkill('')
   }
 
-  const promoteKeywordToSkills = (keyword: string) => {
-    if (skills.some((item) => item.toLowerCase() === keyword.toLowerCase())) {
-      return
+  const highlightGuidedField = (target: GuidedFieldTarget) => {
+    setGuidedFieldTarget(target)
+
+    if (guidedFieldTimeoutRef.current !== null) {
+      window.clearTimeout(guidedFieldTimeoutRef.current)
     }
 
-    setSkills((current) => [...current, toDisplayKeyword(keyword)])
+    guidedFieldTimeoutRef.current = window.setTimeout(() => {
+      setGuidedFieldTarget(null)
+      guidedFieldTimeoutRef.current = null
+    }, 2200)
+  }
+
+  const guideKeywordToFix = (keyword: string) => {
+    const displayKeyword = toDisplayKeyword(keyword)
+    const firstFilledExperienceIndex = experience.findIndex((item) => item.description.trim())
+    const targetExperienceIndex = firstFilledExperienceIndex >= 0 ? firstFilledExperienceIndex : -1
+
+    if (targetExperienceIndex >= 0) {
+      const targetField = experienceDescriptionRefs.current[targetExperienceIndex]
+
+      if (targetField) {
+        highlightGuidedField({ type: 'experience', index: targetExperienceIndex })
+        targetField.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+        window.setTimeout(() => {
+          targetField.focus()
+        }, 260)
+
+        showToast(`Work "${displayKeyword}" into Role ${targetExperienceIndex + 1}, or add it as a skill below.`)
+        return
+      }
+    }
+
+    setPendingSkill(displayKeyword)
+    highlightGuidedField({ type: 'skill' })
+    pendingSkillInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+    window.setTimeout(() => {
+      pendingSkillInputRef.current?.focus()
+      pendingSkillInputRef.current?.select()
+    }, 260)
+
+    showToast(`Add "${displayKeyword}" to your skills, then weave it into your experience bullets if it fits.`)
   }
 
   const updateArrayItem = <T, K extends keyof T>(setter: Dispatch<SetStateAction<T[]>>, index: number, field: K, value: T[K]) => {
@@ -2006,14 +2075,6 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       <span className="step-badge">Step 3</span>
                       <h3>Experience</h3>
                     </div>
-                    <button
-                      type="button"
-                      className="secondary-button compact-button add-button"
-                      onClick={() => addArrayItem(setExperience, createExperience())}
-                      disabled={!isOptimizationUnlocked}
-                    >
-                      <i className="bi bi-plus-circle" /> Add role
-                    </button>
                   </div>
 
                   {!isOptimizationUnlocked && (
@@ -2078,6 +2139,10 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                           id={`experience_description_${index}`}
                           name={`experience_description_${index}`}
                           rows={4}
+                          ref={(node) => {
+                            experienceDescriptionRefs.current[index] = node
+                          }}
+                          className={guidedFieldTarget?.type === 'experience' && guidedFieldTarget.index === index ? 'field-target' : ''}
                           value={item.description}
                           onChange={(event) => updateArrayItem(setExperience, index, 'description', event.target.value)}
                           placeholder="Add 2-4 sentences or bullet-style notes. ResuMay! will tighten them for ATS readability."
@@ -2085,6 +2150,17 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       </label>
                     </div>
                   ))}
+
+                  <div className="repeat-add-row">
+                    <button
+                      type="button"
+                      className="ghost-button compact-button add-button add-button-bottom"
+                      onClick={() => addArrayItem(setExperience, createExperience())}
+                      disabled={!isOptimizationUnlocked}
+                    >
+                      <i className="bi bi-plus-circle" /> Add role
+                    </button>
+                  </div>
                   </fieldset>
                 </section>
 
@@ -2108,6 +2184,8 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       type="text"
                       id="pendingSkill"
                       name="pendingSkill"
+                      ref={pendingSkillInputRef}
+                      className={guidedFieldTarget?.type === 'skill' ? 'field-target' : ''}
                       value={pendingSkill}
                       onChange={(event) => setPendingSkill(event.target.value)}
                       onKeyDown={(event) => {
@@ -2141,7 +2219,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       <strong>Suggested keywords from the target job</strong>
                       <div className="keyword-cluster">
                         {analysis.missingKeywords.slice(0, 8).map((keyword) => (
-                          <button key={keyword} type="button" className="tag-chip suggestion-chip" onClick={() => promoteKeywordToSkills(keyword)}>
+                          <button key={keyword} type="button" className="tag-chip suggestion-chip" onClick={() => guideKeywordToFix(keyword)}>
                             + {toDisplayKeyword(keyword)}
                           </button>
                         ))}
@@ -2423,8 +2501,33 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
 
               <aside className="studio-side-column">
                 <div className="sticky-stack">
-                  <div className="sticky-dashboard">
-                  <section className="panel resume-panel" ref={resumePanelRef}>
+                  <section className="panel panel-contrast score-hud-card">
+                    <div className="score-hud-topbar">
+                      <div>
+                        <span className="panel-kicker">Live ATS score</span>
+                        <div className="score-hud-inline">
+                          <strong>{analysis.afterScore}%</strong>
+                          <span>{analysis.beforeScore}% draft</span>
+                          {scoreDelta > 0 && <span className="score-hud-delta">+{scoreDelta}</span>}
+                        </div>
+                      </div>
+                      <button type="button" className="ghost-button compact-button score-hud-button" onClick={scrollToPreview}>
+                        View preview
+                      </button>
+                    </div>
+
+                    <div className="score-hud-bar" aria-hidden="true">
+                      <span className="score-hud-bar-before" style={{ width: `${analysis.beforeScore}%` }} />
+                      <span className="score-hud-bar-after" style={{ width: `${analysis.afterScore}%` }} />
+                    </div>
+
+                    <div className="score-hud-meta">
+                      <span>{matchedSignalLabel}</span>
+                      <span>{scoreGuidance}</span>
+                    </div>
+                  </section>
+
+                  <section className="panel resume-panel sticky-preview-panel" ref={resumePanelRef}>
                     <div className="resume-panel-topbar">
                       <div>
                         <span className="panel-kicker">Output preview</span>
@@ -2466,7 +2569,9 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                         {resumeSummary && (
                           <section className="resume-section">
                             <h3>Professional Summary</h3>
-                            <p className="resume-section-copy">{resumeSummary}</p>
+                            <p className="resume-section-copy">
+                              {isResumeSummaryOptimized ? <span className="is-optimized">{resumeSummary}</span> : resumeSummary}
+                            </p>
                           </section>
                         )}
 
@@ -2486,7 +2591,9 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                                 {item.bullets.length > 0 && (
                                   <ul className="resume-bullets">
                                     {item.bullets.map((bullet, bulletIndex) => (
-                                      <li key={`${item.id}-bullet-${bulletIndex}`}>{bullet}</li>
+                                      <li key={`${item.id}-bullet-${bulletIndex}`}>
+                                        {bullet.isOptimized ? <span className="is-optimized">{bullet.text}</span> : bullet.text}
+                                      </li>
                                     ))}
                                   </ul>
                                 )}
@@ -2560,50 +2667,6 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
                       </div>
                     </div>
                   </section>
-
-                  <section className="panel panel-contrast">
-                    <div className="panel-heading">
-                      <div>
-                        <span className="panel-kicker">Live ATS score</span>
-                        <h3>{analysis.afterScore}/100 projected match</h3>
-                        <p className="score-guidance score-guidance-on-dark">{scoreGuidance}</p>
-                      </div>
-                    </div>
-
-                    <p className="panel-description">{analysis.fitNote}</p>
-
-                    <div className="score-meter-group">
-                      <div className="meter-row">
-                        <div className="meter-copy">
-                          <span>Current draft</span>
-                          <strong>{analysis.beforeScore}</strong>
-                        </div>
-                        <div className="meter">
-                          <span className="meter-fill meter-fill-before" style={{ width: `${analysis.beforeScore}%` }} />
-                        </div>
-                      </div>
-
-                      <div className="meter-row">
-                        <div className="meter-copy">
-                          <span>Optimized draft</span>
-                          <strong>{analysis.afterScore}</strong>
-                        </div>
-                        <div className="meter">
-                          <span className="meter-fill meter-fill-after" style={{ width: `${analysis.afterScore}%` }} />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="checklist">
-                      {analysis.checklist.map((item) => (
-                        <div key={item.label} className={`check-item ${item.passed ? 'check-item-pass' : ''}`}>
-                          <i className={`bi ${item.passed ? 'bi-check-circle-fill' : 'bi-circle'}`} />
-                          <span>{item.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                  </div>
                 </div>
               </aside>
             </div>
