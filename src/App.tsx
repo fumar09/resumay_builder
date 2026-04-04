@@ -2032,7 +2032,9 @@ function App() {
     }
 
     const measure = () => {
-      setJobBoardLoopWidth(sequence.getBoundingClientRect().width)
+      requestAnimationFrame(() => {
+        setJobBoardLoopWidth(sequence.getBoundingClientRect().width)
+      })
     }
 
     measure()
