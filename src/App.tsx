@@ -78,6 +78,11 @@ interface ReviewDraft {
   quote: string
 }
 
+interface ReviewApiResponse {
+  reviews: CommunityReview[]
+  backendConfigured: boolean
+}
+
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
 
 type ExperienceLevel = 'entry' | 'mid' | 'senior' | 'lead'
@@ -761,6 +766,8 @@ function App() {
   const [hasExportedResume, setHasExportedResume] = useState(false)
   const [reviewDraft, setReviewDraft] = useState<ReviewDraft>(createReviewDraft())
   const [submittedReviews, setSubmittedReviews] = useState<SubmittedReview[]>([])
+  const [remoteApprovedReviews, setRemoteApprovedReviews] = useState<CommunityReview[]>([])
+  const [isReviewBackendConfigured, setIsReviewBackendConfigured] = useState(false)
 
   useEffect(() => {
     try {
@@ -891,6 +898,43 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    let isMounted = true
+
+    const loadApprovedReviews = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.BASE_URL}api/reviews`, {
+          headers: {
+            Accept: 'application/json'
+          }
+        })
+
+        if (!response.ok) {
+          return
+        }
+
+        const data = (await response.json()) as ReviewApiResponse
+
+        if (!isMounted) {
+          return
+        }
+
+        setRemoteApprovedReviews(Array.isArray(data.reviews) ? data.reviews : [])
+        setIsReviewBackendConfigured(Boolean(data.backendConfigured))
+      } catch {
+        if (isMounted) {
+          setIsReviewBackendConfigured(false)
+        }
+      }
+    }
+
+    void loadApprovedReviews()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const analysis = buildAnalysis(
     personalInfo,
     targetRole,
@@ -947,8 +991,12 @@ function App() {
     ? 'Paste a job description first to unlock review submission.'
     : !hasExportedResume
       ? 'Export your resume once, then you can submit a review for moderation.'
-      : 'Your review will stay pending until moderation support is connected.'
-  const publicReviews = [...communityReviews, ...submittedReviews.filter((review) => review.status === 'approved')]
+      : isReviewBackendConfigured
+        ? 'Your review will be sent to the shared moderation queue after submission.'
+        : 'Shared moderation is not configured yet, so your review will stay pending on this device.'
+  const publicReviews = [...communityReviews, ...remoteApprovedReviews, ...submittedReviews.filter((review) => review.status === 'approved')].filter(
+    (review, index, collection) => collection.findIndex((item) => item.id === review.id) === index
+  )
   const pendingSubmittedReviews = submittedReviews.filter((review) => review.status === 'pending')
 
   const showToast = (message: string) => {
@@ -1139,6 +1187,7 @@ function App() {
   }
 
   const submitReview = () => {
+    const submitReviewAsync = async () => {
     if (!canSubmitReview) {
       showToast(reviewSubmissionHint)
       return
@@ -1155,8 +1204,7 @@ function App() {
       return
     }
 
-    const nextReviews: SubmittedReview[] = [
-      {
+      const pendingReview: SubmittedReview = {
         id: createEntryId('review'),
         name,
         role,
@@ -1167,9 +1215,45 @@ function App() {
         quote,
         status: 'pending',
         submittedAt: new Date().toISOString()
-      },
-      ...submittedReviews
-    ]
+      }
+
+      if (isReviewBackendConfigured) {
+        try {
+          const response = await fetch(`${import.meta.env.BASE_URL}api/reviews`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            },
+            body: JSON.stringify({
+              name: pendingReview.name,
+              role: pendingReview.role,
+              board: pendingReview.board,
+              scoreBefore: pendingReview.scoreBefore,
+              scoreAfter: pendingReview.scoreAfter,
+              outcome: pendingReview.outcome,
+              quote: pendingReview.quote
+            })
+          })
+
+          if (response.ok) {
+            const data = (await response.json()) as { review?: SubmittedReview }
+
+            if (data.review?.id) {
+              pendingReview.id = data.review.id
+            }
+            if (data.review?.submittedAt) {
+              pendingReview.submittedAt = data.review.submittedAt
+            }
+          } else {
+            setIsReviewBackendConfigured(false)
+          }
+        } catch {
+          setIsReviewBackendConfigured(false)
+        }
+      }
+
+      const nextReviews: SubmittedReview[] = [pendingReview, ...submittedReviews]
 
     setSubmittedReviews(nextReviews)
     setReviewDraft(
@@ -1182,10 +1266,17 @@ function App() {
 
     try {
       localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(nextReviews))
-      showToast('Your review was saved as pending moderation on this device.')
+      showToast(
+        isReviewBackendConfigured
+          ? 'Your review was submitted to the moderation queue and saved on this device.'
+          : 'Your review was saved as pending on this device. Connect shared storage to publish it across users.'
+      )
     } catch {
       showToast('Your review could not be saved on this device.')
     }
+    }
+
+    void submitReviewAsync()
   }
 
   const addArrayItem = <T,>(setter: Dispatch<SetStateAction<T[]>>, item: T) => {
@@ -1421,6 +1512,9 @@ function App() {
               <span className="panel-kicker">Review wall direction</span>
               <strong>Featured now, with submission and pending moderation ready.</strong>
               <p>Users can now submit a review after export. Approved reviews can be surfaced here once moderation is connected.</p>
+              <span className={`panel-badge ${isReviewBackendConfigured ? 'panel-badge-success' : 'panel-badge-neutral'}`}>
+                {isReviewBackendConfigured ? 'Shared review backend live' : 'Local review fallback'}
+              </span>
               <button type="button" className="secondary-button" onClick={scrollToStudio}>
                 Build your own result
               </button>

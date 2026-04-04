@@ -30,6 +30,7 @@ It keeps the app:
 - Conversion-focused
 - Local-first
 - Built for modern online job boards
+- Ready for moderated review submissions
 
 ## Getting Started
 
@@ -55,4 +56,59 @@ It keeps the app:
 
 ## Deployment
 
-This is still a static frontend app and can be deployed to services like Vercel, Netlify, or GitHub Pages.
+ResuMay! now supports two review modes:
+
+- Static mode: the app still works as a frontend-only deploy, and review submissions stay local to the user's device
+- Shared moderation mode: when deployed on Vercel with Blob storage configured, approved reviews are loaded from a shared backend and new submissions are sent to a moderation queue
+
+### Shared Review Backend
+
+ResuMay! includes Vercel Functions under `api/` for moderated reviews:
+
+- `GET /api/reviews`
+  Returns approved public reviews
+- `POST /api/reviews`
+  Accepts a new review and stores it in the pending moderation queue
+- `GET /api/reviews/admin`
+  Returns pending reviews when an admin token is provided
+- `POST /api/reviews/admin`
+  Approves or rejects a pending review when an admin token is provided
+
+### Environment Variables
+
+Copy [.env.example](/c:/Resume_Builder/.env.example) to a local `.env.local` or configure the same values in Vercel:
+
+- `BLOB_READ_WRITE_TOKEN`
+  Required to enable the shared review backend
+- `RESUMAY_REVIEW_ADMIN_TOKEN`
+  Required to access the moderation endpoint
+
+### Moderation Example
+
+List pending reviews:
+
+```bash
+curl -H "x-resumay-admin-token: YOUR_TOKEN" https://your-domain/api/reviews/admin
+```
+
+Approve a review:
+
+```bash
+curl -X POST https://your-domain/api/reviews/admin \
+  -H "Content-Type: application/json" \
+  -H "x-resumay-admin-token: YOUR_TOKEN" \
+  -d "{\"reviewId\":\"review-123\",\"action\":\"approve\"}"
+```
+
+Reject a review:
+
+```bash
+curl -X POST https://your-domain/api/reviews/admin \
+  -H "Content-Type: application/json" \
+  -H "x-resumay-admin-token: YOUR_TOKEN" \
+  -d "{\"reviewId\":\"review-123\",\"action\":\"reject\"}"
+```
+
+### Local Development Note
+
+`npm run dev` serves the Vite frontend only. For shared review APIs, run the project through Vercel's local runtime. If the API is unavailable, the app falls back to local pending review storage so the submission UX still works.
