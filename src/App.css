@@ -1639,6 +1639,11 @@ main {
   border: 1px solid rgba(27, 27, 27, 0.08);
 }
 
+.switch-card-disabled {
+  background: rgba(241, 243, 245, 0.84);
+  border-style: dashed;
+}
+
 .switch-card p {
   margin: 0.18rem 0 0;
   color: var(--muted);
@@ -1649,6 +1654,11 @@ main {
   width: 1.2rem;
   height: 1.2rem;
   accent-color: var(--primary);
+}
+
+.switch-card input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .text-button,

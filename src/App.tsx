@@ -859,7 +859,7 @@ function App() {
   const [certifications, setCertifications] = useState<Certification[]>([createCertification()])
   const [languages, setLanguages] = useState<Language[]>([createLanguage()])
   const [pendingSkill, setPendingSkill] = useState('')
-  const [applyOptimization, setApplyOptimization] = useState(true)
+  const [applyOptimization, setApplyOptimization] = useState(false)
   const [feedback, setFeedback] = useState('')
   const [scoreMotionState, setScoreMotionState] = useState<'idle' | 'pulse' | 'celebrate'>('idle')
   const [recentScoreDelta, setRecentScoreDelta] = useState<number | null>(null)
@@ -909,7 +909,7 @@ function App() {
             ? data.languages.map((item: Language) => createLanguage(item))
             : [createLanguage()]
         )
-        setApplyOptimization(data.applyOptimization ?? true)
+        setApplyOptimization(data.applyOptimization ?? false)
       }
     } catch {
       setFeedback('Saved data could not be restored. Starting with a fresh workspace.')
@@ -1123,6 +1123,7 @@ function App() {
   const hasContactMethod = Boolean(hasValidEmail || personalInfo.phone.trim())
   const summaryWordCount = countWords(personalInfo.summary)
   const populatedExperienceCount = experience.filter((item) => item.jobTitle.trim() || item.company.trim() || item.description.trim()).length
+  const hasOptimizationPreviewContent = Boolean(personalInfo.summary.trim() || populatedExperienceCount > 0)
   const exportBlockers: Array<{ id: CompletionTarget; message: string }> = [
     !isOptimizationUnlocked ? { id: 'jobDescription', message: 'Paste the job description to unlock ATS matching before export.' } : null,
     !personalInfo.name.trim() ? { id: 'identity', message: 'Add the candidate name before exporting.' } : null,
@@ -1191,6 +1192,12 @@ function App() {
       state: !isOptimizationUnlocked ? 'locked' : hasSkillSignals ? 'ready' : 'active'
     }
   ] as const
+
+  useEffect(() => {
+    if (!hasOptimizationPreviewContent && applyOptimization) {
+      setApplyOptimization(false)
+    }
+  }, [applyOptimization, hasOptimizationPreviewContent])
 
   const showToast = (message: string) => {
     setFeedback(message)
@@ -1434,7 +1441,7 @@ function App() {
     setCertifications([createCertification()])
     setLanguages([createLanguage()])
     setPendingSkill('')
-    setApplyOptimization(true)
+    setApplyOptimization(false)
 
     try {
       localStorage.removeItem(STORAGE_KEY)
@@ -2106,10 +2113,17 @@ function App() {
                       </select>
                     </label>
 
-                    <label className="switch-card">
+                    <label
+                      className={`switch-card${hasOptimizationPreviewContent ? '' : ' switch-card-disabled'}`}
+                      title={!hasOptimizationPreviewContent ? 'Add experience details first to see AI optimizations.' : undefined}
+                    >
                       <div>
                         <strong>Apply optimized content</strong>
-                        <p>Preview the ATS-refined summary and bullets instead of the raw draft.</p>
+                        <p id="applyOptimizationHint">
+                          {hasOptimizationPreviewContent
+                            ? 'Preview the ATS-refined summary and bullets instead of the raw draft.'
+                            : 'Add experience details first to see AI optimizations.'}
+                        </p>
                       </div>
                       <input
                         type="checkbox"
@@ -2117,7 +2131,9 @@ function App() {
                         name="applyOptimization"
                         checked={applyOptimization}
                         onChange={(event) => setApplyOptimization(event.target.checked)}
+                        disabled={!hasOptimizationPreviewContent}
                         aria-label="Apply optimized content"
+                        aria-describedby="applyOptimizationHint"
                       />
                     </label>
                   </div>
