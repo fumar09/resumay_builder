@@ -2,6 +2,7 @@ import { BlobPreconditionFailedError, get, put } from '@vercel/blob'
 
 const REVIEW_BLOB_PATH = 'resumay/reviews-state.json'
 const MAX_WRITE_ATTEMPTS = 3
+const REVIEW_WALL_RESET_AT = '2026-04-04T06:33:52.668Z'
 
 const defaultReviewState = () => ({
   version: 1,
@@ -55,14 +56,38 @@ function sanitizeReviewState(value) {
   }
 }
 
+function keepFreshReviews(reviews) {
+  const resetTime = Date.parse(REVIEW_WALL_RESET_AT)
+
+  return reviews.filter((review) => {
+    const submittedAt = Date.parse(review.submittedAt)
+
+    if (!Number.isFinite(resetTime) || !Number.isFinite(submittedAt)) {
+      return false
+    }
+
+    return submittedAt >= resetTime
+  })
+}
+
+function pruneReviewState(state) {
+  return {
+    version: 1,
+    approved: keepFreshReviews(state.approved),
+    pending: keepFreshReviews(state.pending),
+  }
+}
+
 function upgradeReviewState(state) {
-  if (!state.pending.length) {
-    return state
+  const prunedState = pruneReviewState(state)
+
+  if (!prunedState.pending.length) {
+    return prunedState
   }
 
-  const approvedById = new Map(state.approved.map((review) => [review.id, review]))
+  const approvedById = new Map(prunedState.approved.map((review) => [review.id, review]))
 
-  for (const pendingReview of state.pending) {
+  for (const pendingReview of prunedState.pending) {
     if (!approvedById.has(pendingReview.id)) {
       approvedById.set(pendingReview.id, { ...pendingReview, status: 'approved' })
     }
@@ -80,6 +105,7 @@ async function readReviewState() {
     return {
       state: defaultReviewState(),
       etag: null,
+      needsSync: false,
     }
   }
 
@@ -92,20 +118,26 @@ async function readReviewState() {
     return {
       state: defaultReviewState(),
       etag: null,
+      needsSync: false,
     }
   }
 
   const text = await new Response(blobResult.stream).text()
 
   try {
+    const sanitizedState = sanitizeReviewState(JSON.parse(text))
+    const normalizedState = upgradeReviewState(sanitizedState)
+
     return {
-      state: sanitizeReviewState(JSON.parse(text)),
+      state: normalizedState,
       etag: blobResult.blob.etag,
+      needsSync: JSON.stringify(sanitizedState) !== JSON.stringify(normalizedState),
     }
   } catch {
     return {
       state: defaultReviewState(),
       etag: blobResult.blob.etag,
+      needsSync: true,
     }
   }
 }
@@ -124,8 +156,17 @@ async function writeReviewState(state, etag) {
 }
 
 export async function getApprovedReviews() {
-  const { state } = await readReviewState()
-  return upgradeReviewState(state).approved
+  const { state, etag, needsSync } = await readReviewState()
+
+  if (needsSync && isReviewStoreConfigured()) {
+    try {
+      await writeReviewState(state, etag)
+    } catch {
+      // Ignore cleanup failures and still return the filtered review list.
+    }
+  }
+
+  return state.approved
 }
 
 export async function submitReview(reviewInput) {
