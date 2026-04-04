@@ -1,23 +1,23 @@
 :root {
-  --primary: #a51c30;
-  --primary-hover: #821626;
-  --review-star: #f4c84a;
+  --primary: #ffffff;
+  --primary-hover: #f5f5f5;
+  --review-star: #ffffff;
   --ink: #1b1b1b;
-  --surface: #fdfcf8;
-  --surface-soft: #f7f3ec;
-  --surface-strong: #efe8dd;
-  --workspace: #f1f3f5;
-  --success: #285238;
-  --success-soft: rgba(40, 82, 56, 0.1);
-  --muted: #8e9196;
-  --line: rgba(27, 27, 27, 0.1);
-  --line-strong: rgba(27, 27, 27, 0.18);
-  --brand-soft: rgba(165, 28, 48, 0.08);
-  --brand-soft-strong: rgba(165, 28, 48, 0.14);
-  --shadow-xl: 0 28px 60px rgba(27, 27, 27, 0.14);
-  --shadow-lg: 0 18px 40px rgba(27, 27, 27, 0.1);
-  --shadow-md: 0 12px 28px rgba(27, 27, 27, 0.08);
-  --shadow-sm: 0 8px 18px rgba(27, 27, 27, 0.06);
+  --surface: #ffffff;
+  --surface-soft: #fefefe;
+  --surface-strong: #fcfcfc;
+  --workspace: #ffffff;
+  --success: #ffffff;
+  --success-soft: rgba(255, 255, 255, 0.1);
+  --muted: #cccccc;
+  --line: rgba(27, 27, 27, 0.05);
+  --line-strong: rgba(27, 27, 27, 0.1);
+  --brand-soft: rgba(255, 255, 255, 0.08);
+  --brand-soft-strong: rgba(255, 255, 255, 0.14);
+  --shadow-xl: 0 28px 60px rgba(27, 27, 27, 0.06);
+  --shadow-lg: 0 18px 40px rgba(27, 27, 27, 0.04);
+  --shadow-md: 0 12px 28px rgba(27, 27, 27, 0.03);
+  --shadow-sm: 0 8px 18px rgba(27, 27, 27, 0.02);
   --header-height: 4.6rem;
   --radius-xl: 28px;
   --radius-lg: 22px;
@@ -42,7 +42,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: #f4f2ee;
+  background: #ffffff;
   color: var(--ink);
   font-family: var(--font-ui);
   line-height: 1.5;
@@ -592,9 +592,9 @@ main {
 }
 
 .hero-card-score {
-  background: linear-gradient(135deg, #1b1b1b 0%, #1a1a1a 100%);
-  color: #fff;
-  border-color: rgba(165, 28, 48, 0.18);
+  background: #ffffff;
+  color: #1b1b1b;
+  border-color: rgba(27, 27, 27, 0.1);
   box-shadow: 0 24px 50px rgba(27, 27, 27, 0.22);
   padding: 2rem;
   display: grid;
@@ -603,7 +603,7 @@ main {
 
 .hero-card-score .hero-card-header span:first-child,
 .hero-card-score .score-pair small {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(27, 27, 27, 0.7);
 }
 
 .hero-card-sheet {
@@ -693,7 +693,7 @@ main {
 
 .score-bar-before,
 .meter-fill-before {
-  background: #8e9196;
+  background: #e0e0e0;
 }
 
 .score-bar-after,
@@ -702,7 +702,7 @@ main {
 }
 
 .hero-card-score .score-bar-before {
-  background: rgba(255, 255, 255, 0.56);
+  background: rgba(27, 27, 27, 0.15);
 }
 
 .hero-card-score .score-bar-after {
@@ -840,7 +840,7 @@ main {
 
 .reviews-section {
   padding: 4.5rem 0;
-  background: var(--ink);
+  background: #ffffff;
 }
 
 .review-share-section {
@@ -873,7 +873,7 @@ main {
 .reviews-results-header h2 {
   margin: 0;
   max-width: 13ch;
-  color: #fff;
+  color: #1b1b1b;
   font-family: var(--font-display);
   font-size: clamp(2.3rem, 4.4vw, 3.35rem);
   line-height: 1.08;
@@ -882,7 +882,7 @@ main {
 .reviews-results-header p {
   margin: 0;
   max-width: 42rem;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(27, 27, 27, 0.7);
   font-size: 1.02rem;
   line-height: 1.75;
 }
@@ -1230,9 +1230,9 @@ main {
 }
 
 .keyword-chip-static {
-  background: #e8e8e8;
-  border-color: #d0d0d0;
-  color: #333;
+  background: #f5f5f5;
+  border-color: #e0e0e0;
+  color: #1b1b1b;
 }
 
 .keyword-chip-static:last-of-type {
@@ -1241,8 +1241,8 @@ main {
 
 .keyword-chip-missing {
   background: transparent;
-  border-color: #d0d0d0;
-  color: var(--muted);
+  border-color: #e0e0e0;
+  color: #999999;
 }
 
 .keyword-cloud:hover .keyword-chip-static {
@@ -1301,10 +1301,10 @@ main {
 .panel-contrast {
   position: relative;
   overflow: hidden;
-  background: #1b1b1b;
-  color: #fff;
-  border-color: rgba(165, 28, 48, 0.18);
-  box-shadow: 0 24px 48px rgba(27, 27, 27, 0.22);
+  background: #ffffff;
+  color: #1b1b1b;
+  border-color: rgba(27, 27, 27, 0.1);
+  box-shadow: 0 24px 48px rgba(27, 27, 27, 0.08);
 }
 
 .panel-contrast::after {
@@ -1630,7 +1630,7 @@ main {
 }
 
 .score-hud-bar-after {
-  background: linear-gradient(90deg, #2f5f3f 0%, #3f7a52 100%);
+  background: linear-gradient(90deg, #f0f0f0 0%, #e8e8e8 100%);
 }
 
 .score-hud-meta {
