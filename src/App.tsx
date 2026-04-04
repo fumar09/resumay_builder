@@ -814,6 +814,246 @@ const officialLaunchReviews: CommunityReview[] = [
     outcome: 'Approved for premium tier',
     quote:
       "Seeing the 'Missing Signals' helped me realize I wasn't explaining my tech stack correctly. Fixed it in one click."
+  },
+  {
+    id: 'official-review-melanie-go',
+    name: 'Melanie Go',
+    role: 'Customer Service',
+    board: 'Teleperformance (Direct)',
+    rating: 5,
+    scoreBefore: 30,
+    scoreAfter: 88,
+    outcome: '1st interview scheduled',
+    quote:
+      "Applying to a big BPO is all about the ATS. ResuMay! made my summary sound exactly like what their recruiters are trained to find."
+  },
+  {
+    id: 'official-review-xavier-hernandez',
+    name: 'Xavier Hernandez',
+    role: 'Site Engineer',
+    board: 'BuildOn (Construction)',
+    rating: 5,
+    scoreBefore: 45,
+    scoreAfter: 91,
+    outcome: 'Project Lead offer',
+    quote:
+      'Engineering resumes get cluttered with technical specs. This helped me keep the specs but highlight the management impact.'
+  },
+  {
+    id: 'official-review-sheila-marie-v',
+    name: 'Sheila Marie V.',
+    role: 'Medical Transcription',
+    board: 'Hello Rache',
+    rating: 4,
+    scoreBefore: 28,
+    scoreAfter: 84,
+    outcome: 'Passed qualifying exam',
+    quote:
+      "The 'Click-to-fix' flow helped me bridge the gap between my clinical background and the specific VA role requirements."
+  },
+  {
+    id: 'official-review-dante-alighieri',
+    name: 'Dante Alighieri',
+    role: 'Sales Manager',
+    board: 'Ayala Land (Careers)',
+    rating: 5,
+    scoreBefore: 52,
+    scoreAfter: 94,
+    outcome: 'Hired for local corporate',
+    quote:
+      'Clean, professional, and no guesswork. I knew my resume would pass the filter before I even hit the upload button.'
+  },
+  {
+    id: 'official-review-krizza-mae-tan',
+    name: 'Krizza Mae Tan',
+    role: 'Billing Specialist',
+    board: 'Indeed Philippines',
+    rating: 5,
+    scoreBefore: 33,
+    scoreAfter: 89,
+    outcome: '2 Callbacks in 4 days',
+    quote:
+      'I used to send the same resume to every job. Now I tailor it in 5 minutes and the results are night and day.'
+  },
+  {
+    id: 'official-review-ramon-silvestre',
+    name: 'Ramon Silvestre',
+    role: 'Warehouse Lead',
+    board: 'Lazada/Shopee Logistics',
+    rating: 4,
+    scoreBefore: 21,
+    scoreAfter: 82,
+    outcome: 'Promoted to Supervisor',
+    quote:
+      'Used this for an internal application. The PDF looked so much more professional than my old one. My manager noticed immediately.'
+  },
+  {
+    id: 'official-review-joanna-l-rose',
+    name: 'Joanna L. Rose',
+    role: 'ESL Tutor',
+    board: 'RareJob',
+    rating: 5,
+    scoreBefore: 40,
+    scoreAfter: 90,
+    outcome: 'Signed new contract',
+    quote:
+      'I needed to highlight my teaching certifications properly. Step 4 made it easy to see where I was lacking signal.'
+  },
+  {
+    id: 'official-review-terrence-wu',
+    name: 'Terrence Wu',
+    role: 'Data Scientist',
+    board: 'Kaggle Jobs',
+    rating: 5,
+    scoreBefore: 55,
+    scoreAfter: 96,
+    outcome: 'Hired by Tech Startup',
+    quote:
+      "The keyword visibility tool is incredibly accurate. It caught subtle industry terms I'd missed in my manual draft."
+  },
+  {
+    id: 'official-review-aimee-san-jose',
+    name: 'Aimee San Jose',
+    role: 'Graphic Designer',
+    board: 'Dribbble Jobs',
+    rating: 5,
+    scoreBefore: 36,
+    scoreAfter: 87,
+    outcome: 'Landed high-paying gig',
+    quote:
+      'Even for creatives, the ATS matters for big agencies. This kept my structure clean while letting my portfolio link shine.'
+  },
+  {
+    id: 'official-review-oliver-queen',
+    name: 'Oliver Queen',
+    role: 'Security Guard',
+    board: 'Local Agency Portal',
+    rating: 4,
+    scoreBefore: 18,
+    scoreAfter: 79,
+    outcome: 'Hired at a mall',
+    quote:
+      'The layout is very easy to use even on a phone. I finished my resume while waiting in line and exported it as a PDF.'
+  },
+  {
+    id: 'official-review-vina-morales',
+    name: 'Vina Morales',
+    role: 'Payroll Officer',
+    board: 'Sprout Solutions',
+    rating: 5,
+    scoreBefore: 44,
+    scoreAfter: 92,
+    outcome: 'Salary increase offer',
+    quote:
+      "I used the 'Strategic' summary tone and it made me sound much more experienced. Got an offer higher than I expected."
+  },
+  {
+    id: 'official-review-nico-david',
+    name: 'Nico David',
+    role: 'Video Editor',
+    board: 'OnlineJobs.ph',
+    rating: 5,
+    scoreBefore: 39,
+    scoreAfter: 93,
+    outcome: '3 Long-term clients',
+    quote:
+      'VA clients look for specific software keywords. ResuMay! made sure my technical stack was the first thing they saw.'
+  },
+  {
+    id: 'official-review-bernadette-s',
+    name: 'Bernadette S.',
+    role: 'Registered Nurse',
+    board: 'Healthcare Staffing',
+    rating: 4,
+    scoreBefore: 25,
+    scoreAfter: 81,
+    outcome: 'Passed HR screening',
+    quote:
+      "I'm moving into clinical research. This tool helped me pivot my bedside experience into research-ready keywords."
+  },
+  {
+    id: 'official-review-patrick-star',
+    name: 'Patrick Star',
+    role: 'Delivery Rider',
+    board: 'Lalamove/Grab',
+    rating: 5,
+    scoreBefore: 15,
+    scoreAfter: 80,
+    outcome: 'Approved for premium',
+    quote:
+      "Very direct and simple. I didn't know how to write a summary, but the AI did it for me based on the job description."
+  },
+  {
+    id: 'official-review-giselle-to',
+    name: 'Giselle To',
+    role: 'Brand Manager',
+    board: 'Unilever Careers',
+    rating: 5,
+    scoreBefore: 48,
+    scoreAfter: 95,
+    outcome: 'Moved to final interview',
+    quote:
+      "The PDF export travels better than any other builder I've used. No formatting errors in the Unilever career portal."
+  },
+  {
+    id: 'official-review-roderick-c',
+    name: 'Roderick C.',
+    role: 'IT Consultant',
+    board: 'Toptal',
+    rating: 5,
+    scoreBefore: 58,
+    scoreAfter: 97,
+    outcome: 'Top-tier profile approved',
+    quote:
+      "High-end platforms are strict about clarity. The 'Balanced' tone gave me the perfect mix of technical and professional."
+  },
+  {
+    id: 'official-review-lani-misalucha',
+    name: 'Lani Misalucha',
+    role: 'Receptionist',
+    board: 'Boutique Hotel (Direct)',
+    rating: 4,
+    scoreBefore: 22,
+    scoreAfter: 86,
+    outcome: 'Hired for front desk',
+    quote:
+      'The resume looks so clean. It gave me the confidence to apply to a luxury hotel that I thought was out of my league.'
+  },
+  {
+    id: 'official-review-kiko-matsing',
+    name: 'Kiko Matsing',
+    role: 'Junior Architect',
+    board: 'Arkitekto.ph',
+    rating: 5,
+    scoreBefore: 34,
+    scoreAfter: 88,
+    outcome: 'Hired at local firm',
+    quote:
+      "Found missing keywords like 'Project Coordination' and 'Blueprints' that I completely took for granted in my draft."
+  },
+  {
+    id: 'official-review-sia-furler',
+    name: 'Sia Furler',
+    role: 'Content Strategist',
+    board: 'HubSpot Jobs',
+    rating: 5,
+    scoreBefore: 18,
+    scoreAfter: 88,
+    outcome: 'Callback from US company',
+    quote:
+      'ResuMay! turns the guesswork of job hunting into a science. Seeing the score move from 18 to 88 is so addictive.'
+  },
+  {
+    id: 'official-review-bruno-mars',
+    name: 'Bruno Mars',
+    role: 'Events Coordinator',
+    board: 'Eventbrite Careers',
+    rating: 5,
+    scoreBefore: 41,
+    scoreAfter: 94,
+    outcome: 'Landed big contract',
+    quote:
+      "The keyword coverage feature helped me realize I wasn't mentioning my budget management skills enough. Fixed in seconds."
   }
 ]
 
