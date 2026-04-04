@@ -1517,6 +1517,10 @@ main {
   gap: 0.9rem;
 }
 
+.studio-form-column {
+  position: relative;
+}
+
 .panel {
   border-radius: var(--radius-lg);
   padding: 1.25rem;
@@ -1612,8 +1616,53 @@ main {
   border: 0;
 }
 
-.gated-panel.is-locked .panel-fieldset {
-  opacity: 0.52;
+.step-panel {
+  position: relative;
+  z-index: 1;
+}
+
+.step-panel-connected::after {
+  content: '';
+  position: absolute;
+  left: 1.72rem;
+  bottom: -0.98rem;
+  width: 1px;
+  height: 1rem;
+  background: linear-gradient(180deg, rgba(27, 27, 27, 0.18), rgba(27, 27, 27, 0.05));
+  pointer-events: none;
+}
+
+.gated-panel {
+  transition:
+    padding 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.gated-panel-content {
+  display: grid;
+  grid-template-rows: 1fr;
+  margin-top: 0.9rem;
+  transition:
+    grid-template-rows 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease;
+}
+
+.gated-panel-content-inner {
+  overflow: hidden;
+}
+
+.gated-panel.is-locked {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.gated-panel.is-locked .gated-panel-content {
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .panel-lock-copy {
@@ -1628,6 +1677,10 @@ main {
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 700;
+}
+
+.gated-panel:not(.is-locked) .panel-lock-copy {
+  display: none;
 }
 
 .switch-card {
@@ -2517,6 +2570,10 @@ main {
   .score-hud-meta span:last-child,
   .hero-score-copy span:last-child {
     text-align: left;
+  }
+
+  .step-panel-connected::after {
+    display: none;
   }
 
   .resume-header h2 {

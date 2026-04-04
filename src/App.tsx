@@ -2066,7 +2066,7 @@ function App() {
 
             <div className="studio-grid">
               <div className="studio-form-column">
-                <section className="panel">
+                <section className="panel step-panel step-panel-connected">
                   <div className="panel-heading">
                     <div>
                       <span className="step-badge">Step 1</span>
@@ -2152,7 +2152,7 @@ function App() {
                   </label>
                 </section>
 
-                <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
+                <section className={`panel gated-panel step-panel step-panel-connected${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
                   <div className="panel-heading">
                     <div>
                       <span className="step-badge">Step 2</span>
@@ -2160,17 +2160,19 @@ function App() {
                     </div>
                   </div>
 
-                  <p className="panel-intro">
-                    These details become the resume header and opening summary in the live preview, so keep them direct and role-aligned.
-                  </p>
-
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
                       <i className="bi bi-lock-fill" /> {stepUnlockMessage}
                     </p>
                   )}
 
-                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
+                  <div className="gated-panel-content" aria-hidden={!isOptimizationUnlocked}>
+                    <div className="gated-panel-content-inner">
+                      <p className="panel-intro">
+                        These details become the resume header and opening summary in the live preview, so keep them direct and role-aligned.
+                      </p>
+
+                      <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   <div className="field-grid field-grid-2">
                     <label className="field">
                       <span>Full name</span>
@@ -2260,10 +2262,12 @@ function App() {
                       placeholder={`Example:\nResults-driven operations coordinator with experience in scheduling, documentation, reporting, and stakeholder communication across fast-moving teams.`}
                     />
                   </label>
-                  </fieldset>
+                      </fieldset>
+                    </div>
+                  </div>
                 </section>
 
-                <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
+                <section className={`panel gated-panel step-panel step-panel-connected${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
                   <div className="panel-heading">
                     <div>
                       <span className="step-badge">Step 3</span>
@@ -2271,17 +2275,19 @@ function App() {
                     </div>
                   </div>
 
-                  <p className="panel-intro">
-                    Focus on real impact, ownership, and delivery. These bullets usually drive the biggest ATS score movement.
-                  </p>
-
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
                       <i className="bi bi-lock-fill" /> {stepUnlockMessage}
                     </p>
                   )}
 
-                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
+                  <div className="gated-panel-content" aria-hidden={!isOptimizationUnlocked}>
+                    <div className="gated-panel-content-inner">
+                      <p className="panel-intro">
+                        Focus on real impact, ownership, and delivery. These bullets usually drive the biggest ATS score movement.
+                      </p>
+
+                      <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   {experience.map((item, index) => (
                     <div key={item.id} className="repeat-card">
                       <div className="repeat-card-header">
@@ -2359,10 +2365,12 @@ function App() {
                       <i className="bi bi-plus-circle" /> Add role
                     </button>
                   </div>
-                  </fieldset>
+                      </fieldset>
+                    </div>
+                  </div>
                 </section>
 
-                <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
+                <section className={`panel gated-panel step-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
                   <div className="panel-heading">
                     <div>
                       <span className="step-badge">Step 4</span>
@@ -2370,17 +2378,19 @@ function App() {
                     </div>
                   </div>
 
-                  <p className="panel-intro">
-                    Add the skills recruiters expect to see, then use the suggested keyword chips to close the remaining signal gaps.
-                  </p>
-
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
                       <i className="bi bi-lock-fill" /> {stepUnlockMessage}
                     </p>
                   )}
 
-                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
+                  <div className="gated-panel-content" aria-hidden={!isOptimizationUnlocked}>
+                    <div className="gated-panel-content-inner">
+                      <p className="panel-intro">
+                        Add the skills recruiters expect to see, then use the suggested keyword chips to close the remaining signal gaps.
+                      </p>
+
+                      <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   <div className="skill-entry">
                     <input
                       type="text"
@@ -2428,7 +2438,9 @@ function App() {
                       </div>
                     </div>
                   )}
-                  </fieldset>
+                      </fieldset>
+                    </div>
+                  </div>
                 </section>
 
                 <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
@@ -2439,17 +2451,19 @@ function App() {
                     </div>
                   </div>
 
-                  <p className="panel-intro">
-                    Use supporting sections only when they make the one-page story stronger, sharper, or more credible.
-                  </p>
-
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
                       <i className="bi bi-lock-fill" /> {stepUnlockMessage}
                     </p>
                   )}
 
-                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
+                  <div className="gated-panel-content" aria-hidden={!isOptimizationUnlocked}>
+                    <div className="gated-panel-content-inner">
+                      <p className="panel-intro">
+                        Use supporting sections only when they make the one-page story stronger, sharper, or more credible.
+                      </p>
+
+                      <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Education</strong>
@@ -2567,7 +2581,9 @@ function App() {
                       </div>
                     ))}
                   </div>
-                  </fieldset>
+                      </fieldset>
+                    </div>
+                  </div>
                 </section>
 
                 <section className={`panel gated-panel${isOptimizationUnlocked ? '' : ' is-locked'}`} aria-disabled={!isOptimizationUnlocked}>
@@ -2578,17 +2594,19 @@ function App() {
                     </div>
                   </div>
 
-                  <p className="panel-intro">
-                    Add optional proof only if it strengthens trust without crowding the page or distracting from the core story.
-                  </p>
-
                   {!isOptimizationUnlocked && (
                     <p className="panel-lock-copy" role="note">
                       <i className="bi bi-lock-fill" /> {stepUnlockMessage}
                     </p>
                   )}
 
-                  <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
+                  <div className="gated-panel-content" aria-hidden={!isOptimizationUnlocked}>
+                    <div className="gated-panel-content-inner">
+                      <p className="panel-intro">
+                        Add optional proof only if it strengthens trust without crowding the page or distracting from the core story.
+                      </p>
+
+                      <fieldset className="panel-fieldset" disabled={!isOptimizationUnlocked}>
                   <div className="subpanel">
                     <div className="subpanel-heading">
                       <strong>Certifications</strong>
@@ -2705,7 +2723,9 @@ function App() {
                       </div>
                     ))}
                   </div>
-                  </fieldset>
+                      </fieldset>
+                    </div>
+                  </div>
                 </section>
               </div>
 
