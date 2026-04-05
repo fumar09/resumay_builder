@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type Dispatch, type SetStateAction } from 'react'
 import './App.css'
+import { Analytics } from '@vercel/analytics/react'
 
 interface PersonalInfo {
   name: string
@@ -4344,6 +4345,7 @@ ResuMay made it easier to see which keywords were missing, so I tightened my sum
           <span className="mobile-score-dock-action">View preview</span>
         </button>
       </main>
+      <Analytics />
     </div>
   )
 }
