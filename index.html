@@ -89,12 +89,35 @@
         // Don't override console - just detect
       })();
 
-      // Prevent uncaught promise rejections from audio/video
-      window.addEventListener('unhandledrejection', (event) => {
-        if (event.reason?.name === 'AbortError' || event.reason?.name === 'NotAllowedError') {
-          event.preventDefault();
+      // Swallow benign media-playback promise rejections caused by browsers or extensions.
+      // ResuMay does not rely on autoplay, so AbortError / NotAllowedError should not surface as console noise.
+      (() => {
+        const mediaPlay = window.HTMLMediaElement?.prototype?.play;
+
+        if (typeof mediaPlay === 'function') {
+          window.HTMLMediaElement.prototype.play = function (...args) {
+            const playPromise = mediaPlay.apply(this, args);
+
+            if (playPromise && typeof playPromise.catch === 'function') {
+              return playPromise.catch((error) => {
+                if (error?.name === 'AbortError' || error?.name === 'NotAllowedError') {
+                  return undefined;
+                }
+
+                throw error;
+              });
+            }
+
+            return playPromise;
+          };
         }
-      });
+
+        window.addEventListener('unhandledrejection', (event) => {
+          if (event.reason?.name === 'AbortError' || event.reason?.name === 'NotAllowedError') {
+            event.preventDefault();
+          }
+        });
+      })();
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
